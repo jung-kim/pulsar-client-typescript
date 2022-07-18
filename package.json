@@ -1,0 +1,24 @@
+{
+  "name": "pulsar-client-typescript",
+  "version": "0.0.1",
+  "description": "Typescript client for pulsar client",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --project tsconfig.json",
+    "clean": "tsc --build --clean"
+  },
+  "author": "jkim@Streamnative.io",
+  "license": "MIT",
+  "dependencies": {
+    "@types/lodash": "^4.14.182",
+    "@types/oauth": "^0.9.1",
+    "lodash": "^4.17.21",
+    "oauth": "^0.9.15",
+    "protobufjs": "^7.0.0",
+    "yargs": "^17.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/yargs": "^17.0.10"
+  }
+}
