@@ -13,16 +13,31 @@ export const defaultMaxBatchSize = 128 * 1024
 export const defaultMaxMessagesPerBatch = 1000
 
 // defaultPartitionsAutoDiscoveryInterval init default time interval for partitions auto discovery
-export const defaultPartitionsAutoDiscoveryInterval = 1 * 60 * 1000 // 1 min
+export const defaultPartitionsAutoDiscoveryIntervalMs = 1 * 60 * 1000 // 1 min
 
 
 export interface ProducerOption {
   topic: string
+  name: string
+  properties?: Record<string, string>
   sendTimeoutMs?: number
+  disableBlockIfQueueFull?: boolean
+  maxPendingMessages?: number
+  // HashingScheme
+  // CompressionType
+  // CompressionLevel
+  // MessageRouter
+  disableBatching?: boolean
   batchingMaxPublishDelayMs?: number
-  maxBatchSize?: number
-  maxMessagesPerBatch?: number // BatchingMaxMessages
-  partitionsAutoDiscoveryInterval?: number
+  batchingMaxMessages?: number
+  batchingMaxSize?: number
+  // Interceptors
+  // Schema
+  maxReconnectToBroker?: number
+  // BatcherBuilderType
+  partitionsAutoDiscoveryIntervalMs?: number
+  disableMultiSchema?: number
+  // Encryption
 }
 
 export const _initializeOption = (option: ProducerOption): ProducerOption => {
@@ -34,20 +49,24 @@ export const _initializeOption = (option: ProducerOption): ProducerOption => {
     option.sendTimeoutMs = defaultSendTimeoutMs
   }
 
-  if (option.maxMessagesPerBatch || 0 <= 0) {
-    option.maxMessagesPerBatch = defaultMaxMessagesPerBatch
+  if (option.batchingMaxMessages || 0 <= 0) {
+    option.batchingMaxMessages = defaultMaxMessagesPerBatch
   }
 
-  if (option.maxBatchSize || 0 <= 0) {
-    option.maxBatchSize = defaultMaxBatchSize
+  if (option.batchingMaxSize || 0 <= 0) {
+    option.batchingMaxSize = defaultMaxBatchSize
   }
 
   if (option.batchingMaxPublishDelayMs || 0 <= 0) {
     option.batchingMaxPublishDelayMs = defaultBatchingMaxPublishDelayMs
   }
 
-  if (option.partitionsAutoDiscoveryInterval || 0 <= 0) {
-    option.partitionsAutoDiscoveryInterval = defaultPartitionsAutoDiscoveryInterval
+  if (option.partitionsAutoDiscoveryIntervalMs || 0 <= 0) {
+    option.partitionsAutoDiscoveryIntervalMs = defaultPartitionsAutoDiscoveryIntervalMs
+  }
+
+  if (option.maxPendingMessages || 0 <= 0) {
+    option.maxPendingMessages = 1000
   }
 
   return option

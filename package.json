@@ -11,10 +11,14 @@
   "license": "MIT",
   "dependencies": {
     "@types/lodash": "^4.14.182",
+    "@types/long": "^4.0.2",
     "@types/oauth": "^0.9.1",
     "lodash": "^4.17.21",
+    "long": "^5.2.0",
     "oauth": "^0.9.15",
+    "p-queue": "^7.2.0",
     "protobufjs": "^7.0.0",
+    "ts-proto": "^1.120.0",
     "yargs": "^17.5.1"
   },
   "devDependencies": {
