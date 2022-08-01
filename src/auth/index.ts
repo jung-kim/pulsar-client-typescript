@@ -4,5 +4,8 @@ export abstract class Auth {
 
   constructor() {}
 
-  abstract init(): void
+  /**
+   * exract token from cache or get new token.
+   */
+  abstract getToken(): Promise<string>
 }

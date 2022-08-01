@@ -51,7 +51,6 @@ export const _initializeOption = (clientOptions: ClientOption): ClientOption => 
   if (!clientOptions.authentication) {
     clientOptions.authentication = new NoAuth()
   }
-  clientOptions.authentication.init()
 
   if (clientOptions.connectionTimeoutMs || 0 <= 0) {
     clientOptions.connectionTimeoutMs = defaultConnectionTimeoutMs
