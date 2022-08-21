@@ -9805,9 +9805,9 @@ export const BaseCommand = {
     message: BaseCommand,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.type !== 2) {
+    // if (message.type !== 2) {
       writer.uint32(8).int32(message.type);
-    }
+    // }
     if (message.connect !== undefined) {
       CommandConnect.encode(message.connect, writer.uint32(18).fork()).ldelim();
     }

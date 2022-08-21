@@ -89,6 +89,7 @@ export class Connection {
     })
 
     this.socket.once('ready', () => {
+      resolve(true)
       console.log('ready')
     })
   }
@@ -117,10 +118,10 @@ export class Connection {
 
     this.socket.once('data', (data: Buffer) => {
       console.log(388482, data)
+      const test = BaseCommand.decode(data)
+      console.log(838842, test)
     })
     
-    this.socket.write(payload, () => {
-      console.log(1881818, arguments)
-    })
+    this.socket.write(payload)
   }
 }
