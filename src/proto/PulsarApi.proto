@@ -267,9 +267,9 @@
  message CommandConnect {
      required string client_version = 1;
      optional AuthMethod auth_method = 2; // Deprecated. Use "auth_method_name" instead.
-     optional string auth_method_name = 5;
      optional bytes auth_data = 3;
      optional int32 protocol_version = 4 [default = 0];
+     optional string auth_method_name = 5;
  
      // Client can ask to be proxyied to a specific broker
      // This is only honored by a Pulsar proxy
@@ -1104,3 +1104,4 @@
      optional CommandWatchTopicUpdate watchTopicUpdate = 66;
      optional CommandWatchTopicListClose watchTopicListClose = 67;
  }
+ 

@@ -1,6 +1,6 @@
 /* eslint-disable */
 import Long from "long";
-import * as _m0 from "protobufjs/minimal";
+import _m0 from "protobufjs/minimal";
 
 export const protobufPackage = "pulsar.proto";
 
@@ -876,9 +876,9 @@ export interface CommandConnect {
   clientVersion: string;
   /** Deprecated. Use "auth_method_name" instead. */
   authMethod: AuthMethod;
-  authMethodName: string;
   authData: Uint8Array;
   protocolVersion: number;
+  authMethodName: string;
   /**
    * Client can ask to be proxyied to a specific broker
    * This is only honored by a Pulsar proxy
@@ -3406,9 +3406,9 @@ function createBaseCommandConnect(): CommandConnect {
   return {
     clientVersion: "",
     authMethod: 0,
-    authMethodName: "",
     authData: new Uint8Array(),
     protocolVersion: 0,
+    authMethodName: "",
     proxyToBrokerUrl: "",
     originalPrincipal: "",
     originalAuthData: "",
@@ -3428,14 +3428,14 @@ export const CommandConnect = {
     if (message.authMethod !== 0) {
       writer.uint32(16).int32(message.authMethod);
     }
-    if (message.authMethodName !== "") {
-      writer.uint32(42).string(message.authMethodName);
-    }
     if (message.authData.length !== 0) {
       writer.uint32(26).bytes(message.authData);
     }
     if (message.protocolVersion !== 0) {
       writer.uint32(32).int32(message.protocolVersion);
+    }
+    if (message.authMethodName !== "") {
+      writer.uint32(42).string(message.authMethodName);
     }
     if (message.proxyToBrokerUrl !== "") {
       writer.uint32(50).string(message.proxyToBrokerUrl);
@@ -3471,14 +3471,14 @@ export const CommandConnect = {
         case 2:
           message.authMethod = reader.int32() as any;
           break;
-        case 5:
-          message.authMethodName = reader.string();
-          break;
         case 3:
           message.authData = reader.bytes();
           break;
         case 4:
           message.protocolVersion = reader.int32();
+          break;
+        case 5:
+          message.authMethodName = reader.string();
           break;
         case 6:
           message.proxyToBrokerUrl = reader.string();
@@ -3511,15 +3511,15 @@ export const CommandConnect = {
       authMethod: isSet(object.authMethod)
         ? authMethodFromJSON(object.authMethod)
         : 0,
-      authMethodName: isSet(object.authMethodName)
-        ? String(object.authMethodName)
-        : "",
       authData: isSet(object.authData)
         ? bytesFromBase64(object.authData)
         : new Uint8Array(),
       protocolVersion: isSet(object.protocolVersion)
         ? Number(object.protocolVersion)
         : 0,
+      authMethodName: isSet(object.authMethodName)
+        ? String(object.authMethodName)
+        : "",
       proxyToBrokerUrl: isSet(object.proxyToBrokerUrl)
         ? String(object.proxyToBrokerUrl)
         : "",
@@ -3544,14 +3544,14 @@ export const CommandConnect = {
       (obj.clientVersion = message.clientVersion);
     message.authMethod !== undefined &&
       (obj.authMethod = authMethodToJSON(message.authMethod));
-    message.authMethodName !== undefined &&
-      (obj.authMethodName = message.authMethodName);
     message.authData !== undefined &&
       (obj.authData = base64FromBytes(
         message.authData !== undefined ? message.authData : new Uint8Array()
       ));
     message.protocolVersion !== undefined &&
       (obj.protocolVersion = Math.round(message.protocolVersion));
+    message.authMethodName !== undefined &&
+      (obj.authMethodName = message.authMethodName);
     message.proxyToBrokerUrl !== undefined &&
       (obj.proxyToBrokerUrl = message.proxyToBrokerUrl);
     message.originalPrincipal !== undefined &&
@@ -3573,9 +3573,9 @@ export const CommandConnect = {
     const message = createBaseCommandConnect();
     message.clientVersion = object.clientVersion ?? "";
     message.authMethod = object.authMethod ?? 0;
-    message.authMethodName = object.authMethodName ?? "";
     message.authData = object.authData ?? new Uint8Array();
     message.protocolVersion = object.protocolVersion ?? 0;
+    message.authMethodName = object.authMethodName ?? "";
     message.proxyToBrokerUrl = object.proxyToBrokerUrl ?? "";
     message.originalPrincipal = object.originalPrincipal ?? "";
     message.originalAuthData = object.originalAuthData ?? "";
@@ -11196,8 +11196,6 @@ function longToNumber(long: Long): number {
   return long.toNumber();
 }
 
-// If you get a compile-error about 'Constructor<Long> and ... have no overlap',
-// add '--ts_proto_opt=esModuleInterop=true' as a flag when calling 'protoc'.
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
   _m0.configure();
