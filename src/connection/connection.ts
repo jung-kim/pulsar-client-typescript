@@ -1,13 +1,15 @@
-import * as net from 'net'
+import { Auth } from 'auth'
+import { Socket, createConnection } from 'net'
 import { Writer } from 'protobufjs'
 import { connect, TLSSocket } from 'tls'
 import { URL } from 'url'
-import { BaseCommand } from '../proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type, ProtocolVersion } from '../proto/PulsarApi'
 
 const DEFAULT_TIMEOUT_MS = 10 * 1000
 
 export interface ConnectionOptions {
   url: string
+  auth: Auth
   timeoutMs?: number
 
   _hostname?: string
@@ -43,9 +45,12 @@ export const initializeConnectionOption = (options: ConnectionOptions) => {
 }
 
 export class Connection {
-  private socket: net.Socket | TLSSocket
-  private isReady: Promise<boolean>
+  private socket: Socket | TLSSocket
+  private state: 'INITIALIZING' | 'READY' | 'CLOSING' | 'CLOSED' | 'UNKNOWN' = 'INITIALIZING'
+  private readonly tcpConnectionPromise: Promise<void>
+  private readonly initializePromise: Promise<void>
   private options: ConnectionOptions
+  private readonly protocolVersion = ProtocolVersion.v13
 
   constructor(options: ConnectionOptions) {
     this.options = initializeConnectionOption(options)
@@ -53,8 +58,12 @@ export class Connection {
       throw Error('Invalid url was passed in')
     }
 
-    let resolve: (v: boolean) => void
-    this.isReady = new Promise((res) => { resolve = res })
+    let resolve: (v: void) => void
+    let reject: (v: Error) => void
+    this.tcpConnectionPromise = new Promise((res, rej) => { 
+      resolve = res 
+      reject = rej
+    })
 
     // initializing socket
     if (!this.options._hostname || !this.options._port) {
@@ -69,41 +78,74 @@ export class Connection {
         timeout: this.options.timeoutMs
       })
     } else {
-      this.socket = net.createConnection({
+      this.socket = createConnection({
         host: this.options._hostname,
         port: this.options._port,
         timeout: this.options.timeoutMs
       })
     }
 
-    this.socket.on('error', (err) => {
+    this.socket.once('error', (err: Error) => {
       if (this.socket.readyState === 'opening') {
+        this.state = 'CLOSING'
         this.destroy()
       }
       console.log('err', err)
+      reject(err)
     })
 
     this.socket.once('close', () => {
+      this.state = 'CLOSING'
       this.destroy()
       console.log('close')
+      reject(Error('socket closing'))
     })
 
     this.socket.once('ready', () => {
-      resolve(true)
       console.log('ready')
+      resolve()
     })
+
+    // send connect command
+    this.initializePromise = this.connect()
   }
 
   destroy() {
     this.socket.destroy()
-    this.isReady = Promise.reject(new Error('Socket is destroyed'))
+    this.state = 'CLOSED'
   }
-  
-  async sendCommand(command: BaseCommand) {
-    if (!(await this.isReady)) {
-      throw Error('Unable to connect')
-    }
 
+  private async connect() {
+    await this.tcpConnectionPromise
+
+    if (this.state !== 'INITIALIZING') {
+      throw Error(`Invalid state: ${this.state}`)
+    }
+    
+    const authType = this.options.auth.name
+    const authData = await this.options.auth.getAuthData()
+    const payload = BaseCommand.fromJSON({
+      type: BaseCommand_Type.CONNECT, 
+      connect: { 
+        protocolVersion: this.protocolVersion,
+        clientVersion: "Pulsar TS 0.1",
+        authMethodName: authType,
+        authData: Buffer.from(authData).toString('base64'),
+        featureFlags: {
+          supportsAuthRefresh: true
+        }
+      }
+    })
+
+    await this._sendCommand(payload)
+  }
+
+  async sendCommand(command: BaseCommand) {
+    await this.ensureReady()
+    return this._sendCommand(command)
+  }
+
+  private async _sendCommand(command: BaseCommand) {
     const marshalledCommand = BaseCommand.encode(command).finish()
     const commandSize = marshalledCommand.length
     const frameSize = commandSize + 4
@@ -123,5 +165,12 @@ export class Connection {
     })
     
     this.socket.write(payload)
+  }
+
+  private async ensureReady() {
+    await this.initializePromise
+    if (this.state !== 'READY') {
+      throw Error('Unable to connect')
+    }
   }
 }

@@ -5,7 +5,12 @@ export abstract class Auth {
   constructor() {}
 
   /**
-   * exract token from cache or get new token.
+   * Exract token from cache or get new token.
    */
   abstract getToken(): Promise<string>
+
+  /**
+   * This is the formated data we send to pulsar to do auth.
+   */
+  abstract getAuthData(): Promise<string>
 }

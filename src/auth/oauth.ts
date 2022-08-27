@@ -58,6 +58,10 @@ export class OAuth implements Auth {
     return this._getAccessToken(params)
   }
 
+  async getAuthData(): Promise<string> {
+    return await this.getAuthData()
+  }
+
   /**
    * Refresh current token via OIDC refresh workflow
    * @returns
