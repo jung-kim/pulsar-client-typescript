@@ -753,11 +753,11 @@ export function schema_TypeToJSON(object: Schema_Type): string {
 }
 
 export interface MessageIdData {
-  ledgerId: number;
-  entryId: number;
+  ledgerId: Long;
+  entryId: Long;
   partition: number;
   batchIndex: number;
-  ackSet: number[];
+  ackSet: Long[];
   batchSize: number;
   /** For the chunk message id, we need to specify the first chunk message id. */
   firstChunkMessageId: MessageIdData | undefined;
@@ -770,7 +770,7 @@ export interface KeyValue {
 
 export interface KeyLongValue {
   key: string;
-  value: number;
+  value: Long;
 }
 
 export interface IntRange {
@@ -786,8 +786,8 @@ export interface EncryptionKeys {
 
 export interface MessageMetadata {
   producerName: string;
-  sequenceId: number;
-  publishTime: number;
+  sequenceId: Long;
+  publishTime: Long;
   properties: KeyValue[];
   /**
    * Property set on replicated message,
@@ -811,7 +811,7 @@ export interface MessageMetadata {
    * the timestamp that this event occurs. it is typically set by applications.
    * if this field is omitted, `publish_time` can be used for the purpose of `event_time`.
    */
-  eventTime: number;
+  eventTime: Long;
   /** Contains encryption key name, encrypted key and metadata to describe the key */
   encryptionKeys: EncryptionKeys[];
   /** Algorithm used to encrypt data key */
@@ -823,7 +823,7 @@ export interface MessageMetadata {
   /** Specific a key to overwrite the message key which used for ordering dispatch in Key_Shared mode. */
   orderingKey: Uint8Array;
   /** Mark the message to be delivered at or after the specified timestamp */
-  deliverAtTime: number;
+  deliverAtTime: Long;
   /**
    * Identify whether a message is a "marker" message used for
    * internal metadata instead of application published data.
@@ -831,10 +831,10 @@ export interface MessageMetadata {
    */
   markerType: number;
   /** transaction related message info */
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   /** / Add highest sequence id to support batch message with external sequence id */
-  highestSequenceId: number;
+  highestSequenceId: Long;
   /** Indicate if the message payload value is set */
   nullValue: boolean;
   uuid: string;
@@ -854,12 +854,12 @@ export interface SingleMessageMetadata {
    * the timestamp that this event occurs. it is typically set by applications.
    * if this field is omitted, `publish_time` can be used for the purpose of `event_time`.
    */
-  eventTime: number;
+  eventTime: Long;
   partitionKeyB64Encoded: boolean;
   /** Specific a key to overwrite the message key which used for ordering dispatch in Key_Shared mode. */
   orderingKey: Uint8Array;
   /** Allows consumer retrieve the sequence id that the producer set. */
-  sequenceId: number;
+  sequenceId: Long;
   /** Indicate if the message payload value is set */
   nullValue: boolean;
   /** Indicate if the message partition key is set */
@@ -868,8 +868,8 @@ export interface SingleMessageMetadata {
 
 /** metadata added for entry from broker */
 export interface BrokerEntryMetadata {
-  brokerTimestamp: number;
-  index: number;
+  brokerTimestamp: Long;
+  index: Long;
 }
 
 export interface CommandConnect {
@@ -943,8 +943,8 @@ export interface CommandSubscribe {
   topic: string;
   subscription: string;
   subType: CommandSubscribe_SubType;
-  consumerId: number;
-  requestId: number;
+  consumerId: Long;
+  requestId: Long;
   consumerName: string;
   priorityLevel: number;
   /**
@@ -985,11 +985,11 @@ export interface CommandSubscribe {
    * If specified, the subscription will reset cursor's position back
    * to specified seconds and  will send messages from that point
    */
-  startMessageRollbackDurationSec: number;
+  startMessageRollbackDurationSec: Long;
   keySharedMeta: KeySharedMeta | undefined;
   subscriptionProperties: KeyValue[];
   /** The consumer epoch, when exclusive and failover consumer redeliver unack message will increase the epoch */
-  consumerEpoch: number;
+  consumerEpoch: Long;
 }
 
 export enum CommandSubscribe_SubType {
@@ -1080,7 +1080,7 @@ export function commandSubscribe_InitialPositionToJSON(
 
 export interface CommandPartitionedTopicMetadata {
   topic: string;
-  requestId: number;
+  requestId: Long;
   /**
    * TODO - Remove original_principal, original_auth_data, original_auth_method
    * Original principal that was verified by
@@ -1098,7 +1098,7 @@ export interface CommandPartitionedTopicMetadata {
 export interface CommandPartitionedTopicMetadataResponse {
   /** Optional in case of error */
   partitions: number;
-  requestId: number;
+  requestId: Long;
   response: CommandPartitionedTopicMetadataResponse_LookupType;
   error: ServerError;
   message: string;
@@ -1143,7 +1143,7 @@ export function commandPartitionedTopicMetadataResponse_LookupTypeToJSON(
 
 export interface CommandLookupTopic {
   topic: string;
-  requestId: number;
+  requestId: Long;
   authoritative: boolean;
   /**
    * TODO - Remove original_principal, original_auth_data, original_auth_method
@@ -1166,7 +1166,7 @@ export interface CommandLookupTopicResponse {
   brokerServiceUrl: string;
   brokerServiceUrlTls: string;
   response: CommandLookupTopicResponse_LookupType;
-  requestId: number;
+  requestId: Long;
   authoritative: boolean;
   error: ServerError;
   message: string;
@@ -1227,8 +1227,8 @@ export function commandLookupTopicResponse_LookupTypeToJSON(
  */
 export interface CommandProducer {
   topic: string;
-  producerId: number;
-  requestId: number;
+  producerId: Long;
+  requestId: Long;
   /**
    * / If a producer name is specified, the name will be used,
    * / otherwise the broker will generate a unique name
@@ -1239,7 +1239,7 @@ export interface CommandProducer {
   metadata: KeyValue[];
   schema: Schema | undefined;
   /** If producer reconnect to broker, the epoch of this producer will +1 */
-  epoch: number;
+  epoch: Long;
   /**
    * Indicate the name of the producer is generated or user provided
    * Use default true here is in order to be forward compatible with the client
@@ -1254,7 +1254,7 @@ export interface CommandProducer {
    * leave it empty and then it will always carry the same epoch number on
    * the subsequent reconnections.
    */
-  topicEpoch: number;
+  topicEpoch: Long;
   txnEnabled: boolean;
   /**
    * Name of the initial subscription of the topic.
@@ -1266,50 +1266,50 @@ export interface CommandProducer {
 }
 
 export interface CommandSend {
-  producerId: number;
-  sequenceId: number;
+  producerId: Long;
+  sequenceId: Long;
   numMessages: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   /** / Add highest sequence id to support batch message with external sequence id */
-  highestSequenceId: number;
+  highestSequenceId: Long;
   isChunk: boolean;
   /** Specify if the message being published is a Pulsar marker or not */
   marker: boolean;
 }
 
 export interface CommandSendReceipt {
-  producerId: number;
-  sequenceId: number;
+  producerId: Long;
+  sequenceId: Long;
   messageId: MessageIdData | undefined;
-  highestSequenceId: number;
+  highestSequenceId: Long;
 }
 
 export interface CommandSendError {
-  producerId: number;
-  sequenceId: number;
+  producerId: Long;
+  sequenceId: Long;
   error: ServerError;
   message: string;
 }
 
 export interface CommandMessage {
-  consumerId: number;
+  consumerId: Long;
   messageId: MessageIdData | undefined;
   redeliveryCount: number;
-  ackSet: number[];
-  consumerEpoch: number;
+  ackSet: Long[];
+  consumerEpoch: Long;
 }
 
 export interface CommandAck {
-  consumerId: number;
+  consumerId: Long;
   ackType: CommandAck_AckType;
   /** In case of individual acks, the client can pass a list of message ids */
   messageId: MessageIdData[];
   validationError: CommandAck_ValidationError;
   properties: KeyLongValue[];
-  txnidLeastBits: number;
-  txnidMostBits: number;
-  requestId: number;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
+  requestId: Long;
 }
 
 export enum CommandAck_AckType {
@@ -1406,22 +1406,22 @@ export function commandAck_ValidationErrorToJSON(
 }
 
 export interface CommandAckResponse {
-  consumerId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  consumerId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   error: ServerError;
   message: string;
-  requestId: number;
+  requestId: Long;
 }
 
 /** changes on active consumer */
 export interface CommandActiveConsumerChange {
-  consumerId: number;
+  consumerId: Long;
   isActive: boolean;
 }
 
 export interface CommandFlow {
-  consumerId: number;
+  consumerId: Long;
   /**
    * Max number of messages to prefetch, in addition
    * of any number previously specified
@@ -1430,16 +1430,16 @@ export interface CommandFlow {
 }
 
 export interface CommandUnsubscribe {
-  consumerId: number;
-  requestId: number;
+  consumerId: Long;
+  requestId: Long;
 }
 
 /** Reset an existing consumer to a particular message id */
 export interface CommandSeek {
-  consumerId: number;
-  requestId: number;
+  consumerId: Long;
+  requestId: Long;
   messageId: MessageIdData | undefined;
-  messagePublishTime: number;
+  messagePublishTime: Long;
 }
 
 /**
@@ -1448,45 +1448,45 @@ export interface CommandSeek {
  * messages left to consume
  */
 export interface CommandReachedEndOfTopic {
-  consumerId: number;
+  consumerId: Long;
 }
 
 export interface CommandCloseProducer {
-  producerId: number;
-  requestId: number;
+  producerId: Long;
+  requestId: Long;
 }
 
 export interface CommandCloseConsumer {
-  consumerId: number;
-  requestId: number;
+  consumerId: Long;
+  requestId: Long;
 }
 
 export interface CommandRedeliverUnacknowledgedMessages {
-  consumerId: number;
+  consumerId: Long;
   messageIds: MessageIdData[];
-  consumerEpoch: number;
+  consumerEpoch: Long;
 }
 
 export interface CommandSuccess {
-  requestId: number;
+  requestId: Long;
   schema: Schema | undefined;
 }
 
 /** / Response from CommandProducer */
 export interface CommandProducerSuccess {
-  requestId: number;
+  requestId: Long;
   producerName: string;
   /**
    * The last sequence id that was stored by this producer in the previous session
    * This will only be meaningful if deduplication has been enabled.
    */
-  lastSequenceId: number;
+  lastSequenceId: Long;
   schemaVersion: Uint8Array;
   /**
    * The topic epoch assigned by the broker. This field will only be set if we
    * were requiring exclusive access when creating the producer.
    */
-  topicEpoch: number;
+  topicEpoch: Long;
   /**
    * If producer is not "ready", the client will avoid to timeout the request
    * for creating the producer. Instead it will wait indefinitely until it gets
@@ -1496,7 +1496,7 @@ export interface CommandProducerSuccess {
 }
 
 export interface CommandError {
-  requestId: number;
+  requestId: Long;
   error: ServerError;
   message: string;
 }
@@ -1511,16 +1511,16 @@ export interface CommandPing {}
 export interface CommandPong {}
 
 export interface CommandConsumerStats {
-  requestId: number;
+  requestId: Long;
   /**
    * required string topic_name         = 2;
    * required string subscription_name  = 3;
    */
-  consumerId: number;
+  consumerId: Long;
 }
 
 export interface CommandConsumerStatsResponse {
-  requestId: number;
+  requestId: Long;
   errorCode: ServerError;
   errorMessage: string;
   /** / Total rate of messages delivered to the consumer. msg/s */
@@ -1532,9 +1532,9 @@ export interface CommandConsumerStatsResponse {
   /** / Name of the consumer */
   consumerName: string;
   /** / Number of available message permits for the consumer */
-  availablePermits: number;
+  availablePermits: Long;
   /** / Number of unacknowledged messages for the consumer */
-  unackedMessages: number;
+  unackedMessages: Long;
   /** / Flag to verify if consumer is blocked due to reaching threshold of unacked messages */
   blockedConsumerOnUnackedMsgs: boolean;
   /** / Address of this consumer */
@@ -1546,24 +1546,24 @@ export interface CommandConsumerStatsResponse {
   /** / Total rate of messages expired on this subscription. msg/s */
   msgRateExpired: number;
   /** / Number of messages in the subscription backlog */
-  msgBacklog: number;
+  msgBacklog: Long;
   /** / Total rate of messages ack. msg/s */
   messageAckRate: number;
 }
 
 export interface CommandGetLastMessageId {
-  consumerId: number;
-  requestId: number;
+  consumerId: Long;
+  requestId: Long;
 }
 
 export interface CommandGetLastMessageIdResponse {
   lastMessageId: MessageIdData | undefined;
-  requestId: number;
+  requestId: Long;
   consumerMarkDeletePosition: MessageIdData | undefined;
 }
 
 export interface CommandGetTopicsOfNamespace {
-  requestId: number;
+  requestId: Long;
   namespace: string;
   mode: CommandGetTopicsOfNamespace_Mode;
   topicsPattern: string;
@@ -1614,7 +1614,7 @@ export function commandGetTopicsOfNamespace_ModeToJSON(
 }
 
 export interface CommandGetTopicsOfNamespaceResponse {
-  requestId: number;
+  requestId: Long;
   topics: string[];
   /** true iff the topic list was filtered by the pattern supplied by the client */
   filtered: boolean;
@@ -1625,8 +1625,8 @@ export interface CommandGetTopicsOfNamespaceResponse {
 }
 
 export interface CommandWatchTopicList {
-  requestId: number;
-  watcherId: number;
+  requestId: Long;
+  watcherId: Long;
   namespace: string;
   topicsPattern: string;
   /** Only present when the client reconnects: */
@@ -1634,32 +1634,32 @@ export interface CommandWatchTopicList {
 }
 
 export interface CommandWatchTopicListSuccess {
-  requestId: number;
-  watcherId: number;
+  requestId: Long;
+  watcherId: Long;
   topic: string[];
   topicsHash: string;
 }
 
 export interface CommandWatchTopicUpdate {
-  watcherId: number;
+  watcherId: Long;
   newTopics: string[];
   deletedTopics: string[];
   topicsHash: string;
 }
 
 export interface CommandWatchTopicListClose {
-  requestId: number;
-  watcherId: number;
+  requestId: Long;
+  watcherId: Long;
 }
 
 export interface CommandGetSchema {
-  requestId: number;
+  requestId: Long;
   topic: string;
   schemaVersion: Uint8Array;
 }
 
 export interface CommandGetSchemaResponse {
-  requestId: number;
+  requestId: Long;
   errorCode: ServerError;
   errorMessage: string;
   schema: Schema | undefined;
@@ -1667,54 +1667,54 @@ export interface CommandGetSchemaResponse {
 }
 
 export interface CommandGetOrCreateSchema {
-  requestId: number;
+  requestId: Long;
   topic: string;
   schema: Schema | undefined;
 }
 
 export interface CommandGetOrCreateSchemaResponse {
-  requestId: number;
+  requestId: Long;
   errorCode: ServerError;
   errorMessage: string;
   schemaVersion: Uint8Array;
 }
 
 export interface CommandTcClientConnectRequest {
-  requestId: number;
-  tcId: number;
+  requestId: Long;
+  tcId: Long;
 }
 
 export interface CommandTcClientConnectResponse {
-  requestId: number;
+  requestId: Long;
   error: ServerError;
   message: string;
 }
 
 export interface CommandNewTxn {
-  requestId: number;
-  txnTtlSeconds: number;
-  tcId: number;
+  requestId: Long;
+  txnTtlSeconds: Long;
+  tcId: Long;
 }
 
 export interface CommandNewTxnResponse {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   error: ServerError;
   message: string;
 }
 
 export interface CommandAddPartitionToTxn {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   partitions: string[];
 }
 
 export interface CommandAddPartitionToTxnResponse {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   error: ServerError;
   message: string;
 }
@@ -1725,65 +1725,65 @@ export interface Subscription {
 }
 
 export interface CommandAddSubscriptionToTxn {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   subscription: Subscription[];
 }
 
 export interface CommandAddSubscriptionToTxnResponse {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   error: ServerError;
   message: string;
 }
 
 export interface CommandEndTxn {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   txnAction: TxnAction;
 }
 
 export interface CommandEndTxnResponse {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   error: ServerError;
   message: string;
 }
 
 export interface CommandEndTxnOnPartition {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   topic: string;
   txnAction: TxnAction;
-  txnidLeastBitsOfLowWatermark: number;
+  txnidLeastBitsOfLowWatermark: Long;
 }
 
 export interface CommandEndTxnOnPartitionResponse {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   error: ServerError;
   message: string;
 }
 
 export interface CommandEndTxnOnSubscription {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   subscription: Subscription | undefined;
   txnAction: TxnAction;
-  txnidLeastBitsOfLowWatermark: number;
+  txnidLeastBitsOfLowWatermark: Long;
 }
 
 export interface CommandEndTxnOnSubscriptionResponse {
-  requestId: number;
-  txnidLeastBits: number;
-  txnidMostBits: number;
+  requestId: Long;
+  txnidLeastBits: Long;
+  txnidMostBits: Long;
   error: ServerError;
   message: string;
 }
@@ -2313,8 +2313,8 @@ export const Schema = {
 
 function createBaseMessageIdData(): MessageIdData {
   return {
-    ledgerId: 0,
-    entryId: 0,
+    ledgerId: Long.UZERO,
+    entryId: Long.UZERO,
     partition: 0,
     batchIndex: 0,
     ackSet: [],
@@ -2328,10 +2328,10 @@ export const MessageIdData = {
     message: MessageIdData,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.ledgerId !== 0) {
+    if (!message.ledgerId.isZero()) {
       writer.uint32(8).uint64(message.ledgerId);
     }
-    if (message.entryId !== 0) {
+    if (!message.entryId.isZero()) {
       writer.uint32(16).uint64(message.entryId);
     }
     if (message.partition !== 0) {
@@ -2365,10 +2365,10 @@ export const MessageIdData = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.ledgerId = longToNumber(reader.uint64() as Long);
+          message.ledgerId = reader.uint64() as Long;
           break;
         case 2:
-          message.entryId = longToNumber(reader.uint64() as Long);
+          message.entryId = reader.uint64() as Long;
           break;
         case 3:
           message.partition = reader.int32();
@@ -2380,10 +2380,10 @@ export const MessageIdData = {
           if ((tag & 7) === 2) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
-              message.ackSet.push(longToNumber(reader.int64() as Long));
+              message.ackSet.push(reader.int64() as Long);
             }
           } else {
-            message.ackSet.push(longToNumber(reader.int64() as Long));
+            message.ackSet.push(reader.int64() as Long);
           }
           break;
         case 6:
@@ -2405,12 +2405,16 @@ export const MessageIdData = {
 
   fromJSON(object: any): MessageIdData {
     return {
-      ledgerId: isSet(object.ledgerId) ? Number(object.ledgerId) : 0,
-      entryId: isSet(object.entryId) ? Number(object.entryId) : 0,
+      ledgerId: isSet(object.ledgerId)
+        ? Long.fromValue(object.ledgerId)
+        : Long.UZERO,
+      entryId: isSet(object.entryId)
+        ? Long.fromValue(object.entryId)
+        : Long.UZERO,
       partition: isSet(object.partition) ? Number(object.partition) : 0,
       batchIndex: isSet(object.batchIndex) ? Number(object.batchIndex) : 0,
       ackSet: Array.isArray(object?.ackSet)
-        ? object.ackSet.map((e: any) => Number(e))
+        ? object.ackSet.map((e: any) => Long.fromValue(e))
         : [],
       batchSize: isSet(object.batchSize) ? Number(object.batchSize) : 0,
       firstChunkMessageId: isSet(object.firstChunkMessageId)
@@ -2422,15 +2426,15 @@ export const MessageIdData = {
   toJSON(message: MessageIdData): unknown {
     const obj: any = {};
     message.ledgerId !== undefined &&
-      (obj.ledgerId = Math.round(message.ledgerId));
+      (obj.ledgerId = (message.ledgerId || Long.UZERO).toString());
     message.entryId !== undefined &&
-      (obj.entryId = Math.round(message.entryId));
+      (obj.entryId = (message.entryId || Long.UZERO).toString());
     message.partition !== undefined &&
       (obj.partition = Math.round(message.partition));
     message.batchIndex !== undefined &&
       (obj.batchIndex = Math.round(message.batchIndex));
     if (message.ackSet) {
-      obj.ackSet = message.ackSet.map((e) => Math.round(e));
+      obj.ackSet = message.ackSet.map((e) => (e || Long.ZERO).toString());
     } else {
       obj.ackSet = [];
     }
@@ -2447,11 +2451,17 @@ export const MessageIdData = {
     object: I
   ): MessageIdData {
     const message = createBaseMessageIdData();
-    message.ledgerId = object.ledgerId ?? 0;
-    message.entryId = object.entryId ?? 0;
+    message.ledgerId =
+      object.ledgerId !== undefined && object.ledgerId !== null
+        ? Long.fromValue(object.ledgerId)
+        : Long.UZERO;
+    message.entryId =
+      object.entryId !== undefined && object.entryId !== null
+        ? Long.fromValue(object.entryId)
+        : Long.UZERO;
     message.partition = object.partition ?? 0;
     message.batchIndex = object.batchIndex ?? 0;
-    message.ackSet = object.ackSet?.map((e) => e) || [];
+    message.ackSet = object.ackSet?.map((e) => Long.fromValue(e)) || [];
     message.batchSize = object.batchSize ?? 0;
     message.firstChunkMessageId =
       object.firstChunkMessageId !== undefined &&
@@ -2524,7 +2534,7 @@ export const KeyValue = {
 };
 
 function createBaseKeyLongValue(): KeyLongValue {
-  return { key: "", value: 0 };
+  return { key: "", value: Long.UZERO };
 }
 
 export const KeyLongValue = {
@@ -2535,7 +2545,7 @@ export const KeyLongValue = {
     if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== 0) {
+    if (!message.value.isZero()) {
       writer.uint32(16).uint64(message.value);
     }
     return writer;
@@ -2552,7 +2562,7 @@ export const KeyLongValue = {
           message.key = reader.string();
           break;
         case 2:
-          message.value = longToNumber(reader.uint64() as Long);
+          message.value = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -2565,14 +2575,15 @@ export const KeyLongValue = {
   fromJSON(object: any): KeyLongValue {
     return {
       key: isSet(object.key) ? String(object.key) : "",
-      value: isSet(object.value) ? Number(object.value) : 0,
+      value: isSet(object.value) ? Long.fromValue(object.value) : Long.UZERO,
     };
   },
 
   toJSON(message: KeyLongValue): unknown {
     const obj: any = {};
     message.key !== undefined && (obj.key = message.key);
-    message.value !== undefined && (obj.value = Math.round(message.value));
+    message.value !== undefined &&
+      (obj.value = (message.value || Long.UZERO).toString());
     return obj;
   },
 
@@ -2581,7 +2592,10 @@ export const KeyLongValue = {
   ): KeyLongValue {
     const message = createBaseKeyLongValue();
     message.key = object.key ?? "";
-    message.value = object.value ?? 0;
+    message.value =
+      object.value !== undefined && object.value !== null
+        ? Long.fromValue(object.value)
+        : Long.UZERO;
     return message;
   },
 };
@@ -2736,8 +2750,8 @@ export const EncryptionKeys = {
 function createBaseMessageMetadata(): MessageMetadata {
   return {
     producerName: "",
-    sequenceId: 0,
-    publishTime: 0,
+    sequenceId: Long.UZERO,
+    publishTime: Long.UZERO,
     properties: [],
     replicatedFrom: "",
     partitionKey: "",
@@ -2745,18 +2759,18 @@ function createBaseMessageMetadata(): MessageMetadata {
     compression: 0,
     uncompressedSize: 0,
     numMessagesInBatch: 0,
-    eventTime: 0,
+    eventTime: Long.UZERO,
     encryptionKeys: [],
     encryptionAlgo: "",
     encryptionParam: new Uint8Array(),
     schemaVersion: new Uint8Array(),
     partitionKeyB64Encoded: false,
     orderingKey: new Uint8Array(),
-    deliverAtTime: 0,
+    deliverAtTime: Long.ZERO,
     markerType: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
-    highestSequenceId: 0,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
+    highestSequenceId: Long.UZERO,
     nullValue: false,
     uuid: "",
     numChunksFromMsg: 0,
@@ -2774,10 +2788,10 @@ export const MessageMetadata = {
     if (message.producerName !== "") {
       writer.uint32(10).string(message.producerName);
     }
-    if (message.sequenceId !== 0) {
+    if (!message.sequenceId.isZero()) {
       writer.uint32(16).uint64(message.sequenceId);
     }
-    if (message.publishTime !== 0) {
+    if (!message.publishTime.isZero()) {
       writer.uint32(24).uint64(message.publishTime);
     }
     for (const v of message.properties) {
@@ -2801,7 +2815,7 @@ export const MessageMetadata = {
     if (message.numMessagesInBatch !== 0) {
       writer.uint32(88).int32(message.numMessagesInBatch);
     }
-    if (message.eventTime !== 0) {
+    if (!message.eventTime.isZero()) {
       writer.uint32(96).uint64(message.eventTime);
     }
     for (const v of message.encryptionKeys) {
@@ -2822,19 +2836,19 @@ export const MessageMetadata = {
     if (message.orderingKey.length !== 0) {
       writer.uint32(146).bytes(message.orderingKey);
     }
-    if (message.deliverAtTime !== 0) {
+    if (!message.deliverAtTime.isZero()) {
       writer.uint32(152).int64(message.deliverAtTime);
     }
     if (message.markerType !== 0) {
       writer.uint32(160).int32(message.markerType);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(176).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(184).uint64(message.txnidMostBits);
     }
-    if (message.highestSequenceId !== 0) {
+    if (!message.highestSequenceId.isZero()) {
       writer.uint32(192).uint64(message.highestSequenceId);
     }
     if (message.nullValue === true) {
@@ -2869,10 +2883,10 @@ export const MessageMetadata = {
           message.producerName = reader.string();
           break;
         case 2:
-          message.sequenceId = longToNumber(reader.uint64() as Long);
+          message.sequenceId = reader.uint64() as Long;
           break;
         case 3:
-          message.publishTime = longToNumber(reader.uint64() as Long);
+          message.publishTime = reader.uint64() as Long;
           break;
         case 4:
           message.properties.push(KeyValue.decode(reader, reader.uint32()));
@@ -2896,7 +2910,7 @@ export const MessageMetadata = {
           message.numMessagesInBatch = reader.int32();
           break;
         case 12:
-          message.eventTime = longToNumber(reader.uint64() as Long);
+          message.eventTime = reader.uint64() as Long;
           break;
         case 13:
           message.encryptionKeys.push(
@@ -2919,19 +2933,19 @@ export const MessageMetadata = {
           message.orderingKey = reader.bytes();
           break;
         case 19:
-          message.deliverAtTime = longToNumber(reader.int64() as Long);
+          message.deliverAtTime = reader.int64() as Long;
           break;
         case 20:
           message.markerType = reader.int32();
           break;
         case 22:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 23:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 24:
-          message.highestSequenceId = longToNumber(reader.uint64() as Long);
+          message.highestSequenceId = reader.uint64() as Long;
           break;
         case 25:
           message.nullValue = reader.bool();
@@ -2964,8 +2978,12 @@ export const MessageMetadata = {
       producerName: isSet(object.producerName)
         ? String(object.producerName)
         : "",
-      sequenceId: isSet(object.sequenceId) ? Number(object.sequenceId) : 0,
-      publishTime: isSet(object.publishTime) ? Number(object.publishTime) : 0,
+      sequenceId: isSet(object.sequenceId)
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO,
+      publishTime: isSet(object.publishTime)
+        ? Long.fromValue(object.publishTime)
+        : Long.UZERO,
       properties: Array.isArray(object?.properties)
         ? object.properties.map((e: any) => KeyValue.fromJSON(e))
         : [],
@@ -2987,7 +3005,9 @@ export const MessageMetadata = {
       numMessagesInBatch: isSet(object.numMessagesInBatch)
         ? Number(object.numMessagesInBatch)
         : 0,
-      eventTime: isSet(object.eventTime) ? Number(object.eventTime) : 0,
+      eventTime: isSet(object.eventTime)
+        ? Long.fromValue(object.eventTime)
+        : Long.UZERO,
       encryptionKeys: Array.isArray(object?.encryptionKeys)
         ? object.encryptionKeys.map((e: any) => EncryptionKeys.fromJSON(e))
         : [],
@@ -3007,18 +3027,18 @@ export const MessageMetadata = {
         ? bytesFromBase64(object.orderingKey)
         : new Uint8Array(),
       deliverAtTime: isSet(object.deliverAtTime)
-        ? Number(object.deliverAtTime)
-        : 0,
+        ? Long.fromValue(object.deliverAtTime)
+        : Long.ZERO,
       markerType: isSet(object.markerType) ? Number(object.markerType) : 0,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       highestSequenceId: isSet(object.highestSequenceId)
-        ? Number(object.highestSequenceId)
-        : 0,
+        ? Long.fromValue(object.highestSequenceId)
+        : Long.UZERO,
       nullValue: isSet(object.nullValue) ? Boolean(object.nullValue) : false,
       uuid: isSet(object.uuid) ? String(object.uuid) : "",
       numChunksFromMsg: isSet(object.numChunksFromMsg)
@@ -3039,9 +3059,9 @@ export const MessageMetadata = {
     message.producerName !== undefined &&
       (obj.producerName = message.producerName);
     message.sequenceId !== undefined &&
-      (obj.sequenceId = Math.round(message.sequenceId));
+      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
     message.publishTime !== undefined &&
-      (obj.publishTime = Math.round(message.publishTime));
+      (obj.publishTime = (message.publishTime || Long.UZERO).toString());
     if (message.properties) {
       obj.properties = message.properties.map((e) =>
         e ? KeyValue.toJSON(e) : undefined
@@ -3065,7 +3085,7 @@ export const MessageMetadata = {
     message.numMessagesInBatch !== undefined &&
       (obj.numMessagesInBatch = Math.round(message.numMessagesInBatch));
     message.eventTime !== undefined &&
-      (obj.eventTime = Math.round(message.eventTime));
+      (obj.eventTime = (message.eventTime || Long.UZERO).toString());
     if (message.encryptionKeys) {
       obj.encryptionKeys = message.encryptionKeys.map((e) =>
         e ? EncryptionKeys.toJSON(e) : undefined
@@ -3096,15 +3116,17 @@ export const MessageMetadata = {
           : new Uint8Array()
       ));
     message.deliverAtTime !== undefined &&
-      (obj.deliverAtTime = Math.round(message.deliverAtTime));
+      (obj.deliverAtTime = (message.deliverAtTime || Long.ZERO).toString());
     message.markerType !== undefined &&
       (obj.markerType = Math.round(message.markerType));
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.highestSequenceId !== undefined &&
-      (obj.highestSequenceId = Math.round(message.highestSequenceId));
+      (obj.highestSequenceId = (
+        message.highestSequenceId || Long.UZERO
+      ).toString());
     message.nullValue !== undefined && (obj.nullValue = message.nullValue);
     message.uuid !== undefined && (obj.uuid = message.uuid);
     message.numChunksFromMsg !== undefined &&
@@ -3123,8 +3145,14 @@ export const MessageMetadata = {
   ): MessageMetadata {
     const message = createBaseMessageMetadata();
     message.producerName = object.producerName ?? "";
-    message.sequenceId = object.sequenceId ?? 0;
-    message.publishTime = object.publishTime ?? 0;
+    message.sequenceId =
+      object.sequenceId !== undefined && object.sequenceId !== null
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO;
+    message.publishTime =
+      object.publishTime !== undefined && object.publishTime !== null
+        ? Long.fromValue(object.publishTime)
+        : Long.UZERO;
     message.properties =
       object.properties?.map((e) => KeyValue.fromPartial(e)) || [];
     message.replicatedFrom = object.replicatedFrom ?? "";
@@ -3133,7 +3161,10 @@ export const MessageMetadata = {
     message.compression = object.compression ?? 0;
     message.uncompressedSize = object.uncompressedSize ?? 0;
     message.numMessagesInBatch = object.numMessagesInBatch ?? 0;
-    message.eventTime = object.eventTime ?? 0;
+    message.eventTime =
+      object.eventTime !== undefined && object.eventTime !== null
+        ? Long.fromValue(object.eventTime)
+        : Long.UZERO;
     message.encryptionKeys =
       object.encryptionKeys?.map((e) => EncryptionKeys.fromPartial(e)) || [];
     message.encryptionAlgo = object.encryptionAlgo ?? "";
@@ -3141,11 +3172,24 @@ export const MessageMetadata = {
     message.schemaVersion = object.schemaVersion ?? new Uint8Array();
     message.partitionKeyB64Encoded = object.partitionKeyB64Encoded ?? false;
     message.orderingKey = object.orderingKey ?? new Uint8Array();
-    message.deliverAtTime = object.deliverAtTime ?? 0;
+    message.deliverAtTime =
+      object.deliverAtTime !== undefined && object.deliverAtTime !== null
+        ? Long.fromValue(object.deliverAtTime)
+        : Long.ZERO;
     message.markerType = object.markerType ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
-    message.highestSequenceId = object.highestSequenceId ?? 0;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
+    message.highestSequenceId =
+      object.highestSequenceId !== undefined &&
+      object.highestSequenceId !== null
+        ? Long.fromValue(object.highestSequenceId)
+        : Long.UZERO;
     message.nullValue = object.nullValue ?? false;
     message.uuid = object.uuid ?? "";
     message.numChunksFromMsg = object.numChunksFromMsg ?? 0;
@@ -3162,10 +3206,10 @@ function createBaseSingleMessageMetadata(): SingleMessageMetadata {
     partitionKey: "",
     payloadSize: 0,
     compactedOut: false,
-    eventTime: 0,
+    eventTime: Long.UZERO,
     partitionKeyB64Encoded: false,
     orderingKey: new Uint8Array(),
-    sequenceId: 0,
+    sequenceId: Long.UZERO,
     nullValue: false,
     nullPartitionKey: false,
   };
@@ -3188,7 +3232,7 @@ export const SingleMessageMetadata = {
     if (message.compactedOut === true) {
       writer.uint32(32).bool(message.compactedOut);
     }
-    if (message.eventTime !== 0) {
+    if (!message.eventTime.isZero()) {
       writer.uint32(40).uint64(message.eventTime);
     }
     if (message.partitionKeyB64Encoded === true) {
@@ -3197,7 +3241,7 @@ export const SingleMessageMetadata = {
     if (message.orderingKey.length !== 0) {
       writer.uint32(58).bytes(message.orderingKey);
     }
-    if (message.sequenceId !== 0) {
+    if (!message.sequenceId.isZero()) {
       writer.uint32(64).uint64(message.sequenceId);
     }
     if (message.nullValue === true) {
@@ -3232,7 +3276,7 @@ export const SingleMessageMetadata = {
           message.compactedOut = reader.bool();
           break;
         case 5:
-          message.eventTime = longToNumber(reader.uint64() as Long);
+          message.eventTime = reader.uint64() as Long;
           break;
         case 6:
           message.partitionKeyB64Encoded = reader.bool();
@@ -3241,7 +3285,7 @@ export const SingleMessageMetadata = {
           message.orderingKey = reader.bytes();
           break;
         case 8:
-          message.sequenceId = longToNumber(reader.uint64() as Long);
+          message.sequenceId = reader.uint64() as Long;
           break;
         case 9:
           message.nullValue = reader.bool();
@@ -3269,14 +3313,18 @@ export const SingleMessageMetadata = {
       compactedOut: isSet(object.compactedOut)
         ? Boolean(object.compactedOut)
         : false,
-      eventTime: isSet(object.eventTime) ? Number(object.eventTime) : 0,
+      eventTime: isSet(object.eventTime)
+        ? Long.fromValue(object.eventTime)
+        : Long.UZERO,
       partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded)
         ? Boolean(object.partitionKeyB64Encoded)
         : false,
       orderingKey: isSet(object.orderingKey)
         ? bytesFromBase64(object.orderingKey)
         : new Uint8Array(),
-      sequenceId: isSet(object.sequenceId) ? Number(object.sequenceId) : 0,
+      sequenceId: isSet(object.sequenceId)
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO,
       nullValue: isSet(object.nullValue) ? Boolean(object.nullValue) : false,
       nullPartitionKey: isSet(object.nullPartitionKey)
         ? Boolean(object.nullPartitionKey)
@@ -3300,7 +3348,7 @@ export const SingleMessageMetadata = {
     message.compactedOut !== undefined &&
       (obj.compactedOut = message.compactedOut);
     message.eventTime !== undefined &&
-      (obj.eventTime = Math.round(message.eventTime));
+      (obj.eventTime = (message.eventTime || Long.UZERO).toString());
     message.partitionKeyB64Encoded !== undefined &&
       (obj.partitionKeyB64Encoded = message.partitionKeyB64Encoded);
     message.orderingKey !== undefined &&
@@ -3310,7 +3358,7 @@ export const SingleMessageMetadata = {
           : new Uint8Array()
       ));
     message.sequenceId !== undefined &&
-      (obj.sequenceId = Math.round(message.sequenceId));
+      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
     message.nullValue !== undefined && (obj.nullValue = message.nullValue);
     message.nullPartitionKey !== undefined &&
       (obj.nullPartitionKey = message.nullPartitionKey);
@@ -3326,10 +3374,16 @@ export const SingleMessageMetadata = {
     message.partitionKey = object.partitionKey ?? "";
     message.payloadSize = object.payloadSize ?? 0;
     message.compactedOut = object.compactedOut ?? false;
-    message.eventTime = object.eventTime ?? 0;
+    message.eventTime =
+      object.eventTime !== undefined && object.eventTime !== null
+        ? Long.fromValue(object.eventTime)
+        : Long.UZERO;
     message.partitionKeyB64Encoded = object.partitionKeyB64Encoded ?? false;
     message.orderingKey = object.orderingKey ?? new Uint8Array();
-    message.sequenceId = object.sequenceId ?? 0;
+    message.sequenceId =
+      object.sequenceId !== undefined && object.sequenceId !== null
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO;
     message.nullValue = object.nullValue ?? false;
     message.nullPartitionKey = object.nullPartitionKey ?? false;
     return message;
@@ -3337,7 +3391,7 @@ export const SingleMessageMetadata = {
 };
 
 function createBaseBrokerEntryMetadata(): BrokerEntryMetadata {
-  return { brokerTimestamp: 0, index: 0 };
+  return { brokerTimestamp: Long.UZERO, index: Long.UZERO };
 }
 
 export const BrokerEntryMetadata = {
@@ -3345,10 +3399,10 @@ export const BrokerEntryMetadata = {
     message: BrokerEntryMetadata,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.brokerTimestamp !== 0) {
+    if (!message.brokerTimestamp.isZero()) {
       writer.uint32(8).uint64(message.brokerTimestamp);
     }
-    if (message.index !== 0) {
+    if (!message.index.isZero()) {
       writer.uint32(16).uint64(message.index);
     }
     return writer;
@@ -3362,10 +3416,10 @@ export const BrokerEntryMetadata = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.brokerTimestamp = longToNumber(reader.uint64() as Long);
+          message.brokerTimestamp = reader.uint64() as Long;
           break;
         case 2:
-          message.index = longToNumber(reader.uint64() as Long);
+          message.index = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -3378,17 +3432,20 @@ export const BrokerEntryMetadata = {
   fromJSON(object: any): BrokerEntryMetadata {
     return {
       brokerTimestamp: isSet(object.brokerTimestamp)
-        ? Number(object.brokerTimestamp)
-        : 0,
-      index: isSet(object.index) ? Number(object.index) : 0,
+        ? Long.fromValue(object.brokerTimestamp)
+        : Long.UZERO,
+      index: isSet(object.index) ? Long.fromValue(object.index) : Long.UZERO,
     };
   },
 
   toJSON(message: BrokerEntryMetadata): unknown {
     const obj: any = {};
     message.brokerTimestamp !== undefined &&
-      (obj.brokerTimestamp = Math.round(message.brokerTimestamp));
-    message.index !== undefined && (obj.index = Math.round(message.index));
+      (obj.brokerTimestamp = (
+        message.brokerTimestamp || Long.UZERO
+      ).toString());
+    message.index !== undefined &&
+      (obj.index = (message.index || Long.UZERO).toString());
     return obj;
   },
 
@@ -3396,8 +3453,14 @@ export const BrokerEntryMetadata = {
     object: I
   ): BrokerEntryMetadata {
     const message = createBaseBrokerEntryMetadata();
-    message.brokerTimestamp = object.brokerTimestamp ?? 0;
-    message.index = object.index ?? 0;
+    message.brokerTimestamp =
+      object.brokerTimestamp !== undefined && object.brokerTimestamp !== null
+        ? Long.fromValue(object.brokerTimestamp)
+        : Long.UZERO;
+    message.index =
+      object.index !== undefined && object.index !== null
+        ? Long.fromValue(object.index)
+        : Long.UZERO;
     return message;
   },
 };
@@ -4129,8 +4192,8 @@ function createBaseCommandSubscribe(): CommandSubscribe {
     topic: "",
     subscription: "",
     subType: 0,
-    consumerId: 0,
-    requestId: 0,
+    consumerId: Long.UZERO,
+    requestId: Long.UZERO,
     consumerName: "",
     priorityLevel: 0,
     durable: false,
@@ -4141,10 +4204,10 @@ function createBaseCommandSubscribe(): CommandSubscribe {
     initialPosition: 0,
     replicateSubscriptionState: false,
     forceTopicCreation: false,
-    startMessageRollbackDurationSec: 0,
+    startMessageRollbackDurationSec: Long.UZERO,
     keySharedMeta: undefined,
     subscriptionProperties: [],
-    consumerEpoch: 0,
+    consumerEpoch: Long.UZERO,
   };
 }
 
@@ -4162,10 +4225,10 @@ export const CommandSubscribe = {
     if (message.subType !== 0) {
       writer.uint32(24).int32(message.subType);
     }
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(32).uint64(message.consumerId);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(40).uint64(message.requestId);
     }
     if (message.consumerName !== "") {
@@ -4201,7 +4264,7 @@ export const CommandSubscribe = {
     if (message.forceTopicCreation === true) {
       writer.uint32(120).bool(message.forceTopicCreation);
     }
-    if (message.startMessageRollbackDurationSec !== 0) {
+    if (!message.startMessageRollbackDurationSec.isZero()) {
       writer.uint32(128).uint64(message.startMessageRollbackDurationSec);
     }
     if (message.keySharedMeta !== undefined) {
@@ -4213,7 +4276,7 @@ export const CommandSubscribe = {
     for (const v of message.subscriptionProperties) {
       KeyValue.encode(v!, writer.uint32(146).fork()).ldelim();
     }
-    if (message.consumerEpoch !== 0) {
+    if (!message.consumerEpoch.isZero()) {
       writer.uint32(152).uint64(message.consumerEpoch);
     }
     return writer;
@@ -4236,10 +4299,10 @@ export const CommandSubscribe = {
           message.subType = reader.int32() as any;
           break;
         case 4:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 5:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 6:
           message.consumerName = reader.string();
@@ -4275,9 +4338,7 @@ export const CommandSubscribe = {
           message.forceTopicCreation = reader.bool();
           break;
         case 16:
-          message.startMessageRollbackDurationSec = longToNumber(
-            reader.uint64() as Long
-          );
+          message.startMessageRollbackDurationSec = reader.uint64() as Long;
           break;
         case 17:
           message.keySharedMeta = KeySharedMeta.decode(reader, reader.uint32());
@@ -4288,7 +4349,7 @@ export const CommandSubscribe = {
           );
           break;
         case 19:
-          message.consumerEpoch = longToNumber(reader.uint64() as Long);
+          message.consumerEpoch = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -4307,8 +4368,12 @@ export const CommandSubscribe = {
       subType: isSet(object.subType)
         ? commandSubscribe_SubTypeFromJSON(object.subType)
         : 0,
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       consumerName: isSet(object.consumerName)
         ? String(object.consumerName)
         : "",
@@ -4338,8 +4403,8 @@ export const CommandSubscribe = {
       startMessageRollbackDurationSec: isSet(
         object.startMessageRollbackDurationSec
       )
-        ? Number(object.startMessageRollbackDurationSec)
-        : 0,
+        ? Long.fromValue(object.startMessageRollbackDurationSec)
+        : Long.UZERO,
       keySharedMeta: isSet(object.keySharedMeta)
         ? KeySharedMeta.fromJSON(object.keySharedMeta)
         : undefined,
@@ -4347,8 +4412,8 @@ export const CommandSubscribe = {
         ? object.subscriptionProperties.map((e: any) => KeyValue.fromJSON(e))
         : [],
       consumerEpoch: isSet(object.consumerEpoch)
-        ? Number(object.consumerEpoch)
-        : 0,
+        ? Long.fromValue(object.consumerEpoch)
+        : Long.UZERO,
     };
   },
 
@@ -4360,9 +4425,9 @@ export const CommandSubscribe = {
     message.subType !== undefined &&
       (obj.subType = commandSubscribe_SubTypeToJSON(message.subType));
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.consumerName !== undefined &&
       (obj.consumerName = message.consumerName);
     message.priorityLevel !== undefined &&
@@ -4392,9 +4457,9 @@ export const CommandSubscribe = {
     message.forceTopicCreation !== undefined &&
       (obj.forceTopicCreation = message.forceTopicCreation);
     message.startMessageRollbackDurationSec !== undefined &&
-      (obj.startMessageRollbackDurationSec = Math.round(
-        message.startMessageRollbackDurationSec
-      ));
+      (obj.startMessageRollbackDurationSec = (
+        message.startMessageRollbackDurationSec || Long.UZERO
+      ).toString());
     message.keySharedMeta !== undefined &&
       (obj.keySharedMeta = message.keySharedMeta
         ? KeySharedMeta.toJSON(message.keySharedMeta)
@@ -4407,7 +4472,7 @@ export const CommandSubscribe = {
       obj.subscriptionProperties = [];
     }
     message.consumerEpoch !== undefined &&
-      (obj.consumerEpoch = Math.round(message.consumerEpoch));
+      (obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString());
     return obj;
   },
 
@@ -4418,8 +4483,14 @@ export const CommandSubscribe = {
     message.topic = object.topic ?? "";
     message.subscription = object.subscription ?? "";
     message.subType = object.subType ?? 0;
-    message.consumerId = object.consumerId ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.consumerName = object.consumerName ?? "";
     message.priorityLevel = object.priorityLevel ?? 0;
     message.durable = object.durable ?? false;
@@ -4439,14 +4510,20 @@ export const CommandSubscribe = {
       object.replicateSubscriptionState ?? false;
     message.forceTopicCreation = object.forceTopicCreation ?? false;
     message.startMessageRollbackDurationSec =
-      object.startMessageRollbackDurationSec ?? 0;
+      object.startMessageRollbackDurationSec !== undefined &&
+      object.startMessageRollbackDurationSec !== null
+        ? Long.fromValue(object.startMessageRollbackDurationSec)
+        : Long.UZERO;
     message.keySharedMeta =
       object.keySharedMeta !== undefined && object.keySharedMeta !== null
         ? KeySharedMeta.fromPartial(object.keySharedMeta)
         : undefined;
     message.subscriptionProperties =
       object.subscriptionProperties?.map((e) => KeyValue.fromPartial(e)) || [];
-    message.consumerEpoch = object.consumerEpoch ?? 0;
+    message.consumerEpoch =
+      object.consumerEpoch !== undefined && object.consumerEpoch !== null
+        ? Long.fromValue(object.consumerEpoch)
+        : Long.UZERO;
     return message;
   },
 };
@@ -4454,7 +4531,7 @@ export const CommandSubscribe = {
 function createBaseCommandPartitionedTopicMetadata(): CommandPartitionedTopicMetadata {
   return {
     topic: "",
-    requestId: 0,
+    requestId: Long.UZERO,
     originalPrincipal: "",
     originalAuthData: "",
     originalAuthMethod: "",
@@ -4469,7 +4546,7 @@ export const CommandPartitionedTopicMetadata = {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     if (message.originalPrincipal !== "") {
@@ -4498,7 +4575,7 @@ export const CommandPartitionedTopicMetadata = {
           message.topic = reader.string();
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 3:
           message.originalPrincipal = reader.string();
@@ -4520,7 +4597,9 @@ export const CommandPartitionedTopicMetadata = {
   fromJSON(object: any): CommandPartitionedTopicMetadata {
     return {
       topic: isSet(object.topic) ? String(object.topic) : "",
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       originalPrincipal: isSet(object.originalPrincipal)
         ? String(object.originalPrincipal)
         : "",
@@ -4537,7 +4616,7 @@ export const CommandPartitionedTopicMetadata = {
     const obj: any = {};
     message.topic !== undefined && (obj.topic = message.topic);
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.originalPrincipal !== undefined &&
       (obj.originalPrincipal = message.originalPrincipal);
     message.originalAuthData !== undefined &&
@@ -4552,7 +4631,10 @@ export const CommandPartitionedTopicMetadata = {
   ): CommandPartitionedTopicMetadata {
     const message = createBaseCommandPartitionedTopicMetadata();
     message.topic = object.topic ?? "";
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.originalPrincipal = object.originalPrincipal ?? "";
     message.originalAuthData = object.originalAuthData ?? "";
     message.originalAuthMethod = object.originalAuthMethod ?? "";
@@ -4561,7 +4643,13 @@ export const CommandPartitionedTopicMetadata = {
 };
 
 function createBaseCommandPartitionedTopicMetadataResponse(): CommandPartitionedTopicMetadataResponse {
-  return { partitions: 0, requestId: 0, response: 0, error: 0, message: "" };
+  return {
+    partitions: 0,
+    requestId: Long.UZERO,
+    response: 0,
+    error: 0,
+    message: "",
+  };
 }
 
 export const CommandPartitionedTopicMetadataResponse = {
@@ -4572,7 +4660,7 @@ export const CommandPartitionedTopicMetadataResponse = {
     if (message.partitions !== 0) {
       writer.uint32(8).uint32(message.partitions);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     if (message.response !== 0) {
@@ -4601,7 +4689,7 @@ export const CommandPartitionedTopicMetadataResponse = {
           message.partitions = reader.uint32();
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 3:
           message.response = reader.int32() as any;
@@ -4623,7 +4711,9 @@ export const CommandPartitionedTopicMetadataResponse = {
   fromJSON(object: any): CommandPartitionedTopicMetadataResponse {
     return {
       partitions: isSet(object.partitions) ? Number(object.partitions) : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       response: isSet(object.response)
         ? commandPartitionedTopicMetadataResponse_LookupTypeFromJSON(
             object.response
@@ -4639,7 +4729,7 @@ export const CommandPartitionedTopicMetadataResponse = {
     message.partitions !== undefined &&
       (obj.partitions = Math.round(message.partitions));
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.response !== undefined &&
       (obj.response = commandPartitionedTopicMetadataResponse_LookupTypeToJSON(
         message.response
@@ -4655,7 +4745,10 @@ export const CommandPartitionedTopicMetadataResponse = {
   >(object: I): CommandPartitionedTopicMetadataResponse {
     const message = createBaseCommandPartitionedTopicMetadataResponse();
     message.partitions = object.partitions ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.response = object.response ?? 0;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
@@ -4666,7 +4759,7 @@ export const CommandPartitionedTopicMetadataResponse = {
 function createBaseCommandLookupTopic(): CommandLookupTopic {
   return {
     topic: "",
-    requestId: 0,
+    requestId: Long.UZERO,
     authoritative: false,
     originalPrincipal: "",
     originalAuthData: "",
@@ -4683,7 +4776,7 @@ export const CommandLookupTopic = {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     if (message.authoritative === true) {
@@ -4715,7 +4808,7 @@ export const CommandLookupTopic = {
           message.topic = reader.string();
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 3:
           message.authoritative = reader.bool();
@@ -4743,7 +4836,9 @@ export const CommandLookupTopic = {
   fromJSON(object: any): CommandLookupTopic {
     return {
       topic: isSet(object.topic) ? String(object.topic) : "",
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       authoritative: isSet(object.authoritative)
         ? Boolean(object.authoritative)
         : false,
@@ -4766,7 +4861,7 @@ export const CommandLookupTopic = {
     const obj: any = {};
     message.topic !== undefined && (obj.topic = message.topic);
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.authoritative !== undefined &&
       (obj.authoritative = message.authoritative);
     message.originalPrincipal !== undefined &&
@@ -4785,7 +4880,10 @@ export const CommandLookupTopic = {
   ): CommandLookupTopic {
     const message = createBaseCommandLookupTopic();
     message.topic = object.topic ?? "";
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.authoritative = object.authoritative ?? false;
     message.originalPrincipal = object.originalPrincipal ?? "";
     message.originalAuthData = object.originalAuthData ?? "";
@@ -4800,7 +4898,7 @@ function createBaseCommandLookupTopicResponse(): CommandLookupTopicResponse {
     brokerServiceUrl: "",
     brokerServiceUrlTls: "",
     response: 0,
-    requestId: 0,
+    requestId: Long.UZERO,
     authoritative: false,
     error: 0,
     message: "",
@@ -4822,7 +4920,7 @@ export const CommandLookupTopicResponse = {
     if (message.response !== 0) {
       writer.uint32(24).int32(message.response);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(32).uint64(message.requestId);
     }
     if (message.authoritative === true) {
@@ -4860,7 +4958,7 @@ export const CommandLookupTopicResponse = {
           message.response = reader.int32() as any;
           break;
         case 4:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 5:
           message.authoritative = reader.bool();
@@ -4893,7 +4991,9 @@ export const CommandLookupTopicResponse = {
       response: isSet(object.response)
         ? commandLookupTopicResponse_LookupTypeFromJSON(object.response)
         : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       authoritative: isSet(object.authoritative)
         ? Boolean(object.authoritative)
         : false,
@@ -4916,7 +5016,7 @@ export const CommandLookupTopicResponse = {
         message.response
       ));
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.authoritative !== undefined &&
       (obj.authoritative = message.authoritative);
     message.error !== undefined &&
@@ -4934,7 +5034,10 @@ export const CommandLookupTopicResponse = {
     message.brokerServiceUrl = object.brokerServiceUrl ?? "";
     message.brokerServiceUrlTls = object.brokerServiceUrlTls ?? "";
     message.response = object.response ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.authoritative = object.authoritative ?? false;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
@@ -4946,16 +5049,16 @@ export const CommandLookupTopicResponse = {
 function createBaseCommandProducer(): CommandProducer {
   return {
     topic: "",
-    producerId: 0,
-    requestId: 0,
+    producerId: Long.UZERO,
+    requestId: Long.UZERO,
     producerName: "",
     encrypted: false,
     metadata: [],
     schema: undefined,
-    epoch: 0,
+    epoch: Long.UZERO,
     userProvidedProducerName: false,
     producerAccessMode: 0,
-    topicEpoch: 0,
+    topicEpoch: Long.UZERO,
     txnEnabled: false,
     initialSubscriptionName: "",
   };
@@ -4969,10 +5072,10 @@ export const CommandProducer = {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
-    if (message.producerId !== 0) {
+    if (!message.producerId.isZero()) {
       writer.uint32(16).uint64(message.producerId);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(24).uint64(message.requestId);
     }
     if (message.producerName !== "") {
@@ -4987,7 +5090,7 @@ export const CommandProducer = {
     if (message.schema !== undefined) {
       Schema.encode(message.schema, writer.uint32(58).fork()).ldelim();
     }
-    if (message.epoch !== 0) {
+    if (!message.epoch.isZero()) {
       writer.uint32(64).uint64(message.epoch);
     }
     if (message.userProvidedProducerName === true) {
@@ -4996,7 +5099,7 @@ export const CommandProducer = {
     if (message.producerAccessMode !== 0) {
       writer.uint32(80).int32(message.producerAccessMode);
     }
-    if (message.topicEpoch !== 0) {
+    if (!message.topicEpoch.isZero()) {
       writer.uint32(88).uint64(message.topicEpoch);
     }
     if (message.txnEnabled === true) {
@@ -5019,10 +5122,10 @@ export const CommandProducer = {
           message.topic = reader.string();
           break;
         case 2:
-          message.producerId = longToNumber(reader.uint64() as Long);
+          message.producerId = reader.uint64() as Long;
           break;
         case 3:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 4:
           message.producerName = reader.string();
@@ -5037,7 +5140,7 @@ export const CommandProducer = {
           message.schema = Schema.decode(reader, reader.uint32());
           break;
         case 8:
-          message.epoch = longToNumber(reader.uint64() as Long);
+          message.epoch = reader.uint64() as Long;
           break;
         case 9:
           message.userProvidedProducerName = reader.bool();
@@ -5046,7 +5149,7 @@ export const CommandProducer = {
           message.producerAccessMode = reader.int32() as any;
           break;
         case 11:
-          message.topicEpoch = longToNumber(reader.uint64() as Long);
+          message.topicEpoch = reader.uint64() as Long;
           break;
         case 12:
           message.txnEnabled = reader.bool();
@@ -5065,8 +5168,12 @@ export const CommandProducer = {
   fromJSON(object: any): CommandProducer {
     return {
       topic: isSet(object.topic) ? String(object.topic) : "",
-      producerId: isSet(object.producerId) ? Number(object.producerId) : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      producerId: isSet(object.producerId)
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       producerName: isSet(object.producerName)
         ? String(object.producerName)
         : "",
@@ -5075,14 +5182,16 @@ export const CommandProducer = {
         ? object.metadata.map((e: any) => KeyValue.fromJSON(e))
         : [],
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
-      epoch: isSet(object.epoch) ? Number(object.epoch) : 0,
+      epoch: isSet(object.epoch) ? Long.fromValue(object.epoch) : Long.UZERO,
       userProvidedProducerName: isSet(object.userProvidedProducerName)
         ? Boolean(object.userProvidedProducerName)
         : false,
       producerAccessMode: isSet(object.producerAccessMode)
         ? producerAccessModeFromJSON(object.producerAccessMode)
         : 0,
-      topicEpoch: isSet(object.topicEpoch) ? Number(object.topicEpoch) : 0,
+      topicEpoch: isSet(object.topicEpoch)
+        ? Long.fromValue(object.topicEpoch)
+        : Long.UZERO,
       txnEnabled: isSet(object.txnEnabled) ? Boolean(object.txnEnabled) : false,
       initialSubscriptionName: isSet(object.initialSubscriptionName)
         ? String(object.initialSubscriptionName)
@@ -5094,9 +5203,9 @@ export const CommandProducer = {
     const obj: any = {};
     message.topic !== undefined && (obj.topic = message.topic);
     message.producerId !== undefined &&
-      (obj.producerId = Math.round(message.producerId));
+      (obj.producerId = (message.producerId || Long.UZERO).toString());
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.producerName !== undefined &&
       (obj.producerName = message.producerName);
     message.encrypted !== undefined && (obj.encrypted = message.encrypted);
@@ -5109,7 +5218,8 @@ export const CommandProducer = {
     }
     message.schema !== undefined &&
       (obj.schema = message.schema ? Schema.toJSON(message.schema) : undefined);
-    message.epoch !== undefined && (obj.epoch = Math.round(message.epoch));
+    message.epoch !== undefined &&
+      (obj.epoch = (message.epoch || Long.UZERO).toString());
     message.userProvidedProducerName !== undefined &&
       (obj.userProvidedProducerName = message.userProvidedProducerName);
     message.producerAccessMode !== undefined &&
@@ -5117,7 +5227,7 @@ export const CommandProducer = {
         message.producerAccessMode
       ));
     message.topicEpoch !== undefined &&
-      (obj.topicEpoch = Math.round(message.topicEpoch));
+      (obj.topicEpoch = (message.topicEpoch || Long.UZERO).toString());
     message.txnEnabled !== undefined && (obj.txnEnabled = message.txnEnabled);
     message.initialSubscriptionName !== undefined &&
       (obj.initialSubscriptionName = message.initialSubscriptionName);
@@ -5129,8 +5239,14 @@ export const CommandProducer = {
   ): CommandProducer {
     const message = createBaseCommandProducer();
     message.topic = object.topic ?? "";
-    message.producerId = object.producerId ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.producerId =
+      object.producerId !== undefined && object.producerId !== null
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.producerName = object.producerName ?? "";
     message.encrypted = object.encrypted ?? false;
     message.metadata =
@@ -5139,10 +5255,16 @@ export const CommandProducer = {
       object.schema !== undefined && object.schema !== null
         ? Schema.fromPartial(object.schema)
         : undefined;
-    message.epoch = object.epoch ?? 0;
+    message.epoch =
+      object.epoch !== undefined && object.epoch !== null
+        ? Long.fromValue(object.epoch)
+        : Long.UZERO;
     message.userProvidedProducerName = object.userProvidedProducerName ?? false;
     message.producerAccessMode = object.producerAccessMode ?? 0;
-    message.topicEpoch = object.topicEpoch ?? 0;
+    message.topicEpoch =
+      object.topicEpoch !== undefined && object.topicEpoch !== null
+        ? Long.fromValue(object.topicEpoch)
+        : Long.UZERO;
     message.txnEnabled = object.txnEnabled ?? false;
     message.initialSubscriptionName = object.initialSubscriptionName ?? "";
     return message;
@@ -5151,12 +5273,12 @@ export const CommandProducer = {
 
 function createBaseCommandSend(): CommandSend {
   return {
-    producerId: 0,
-    sequenceId: 0,
+    producerId: Long.UZERO,
+    sequenceId: Long.UZERO,
     numMessages: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
-    highestSequenceId: 0,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
+    highestSequenceId: Long.UZERO,
     isChunk: false,
     marker: false,
   };
@@ -5167,22 +5289,22 @@ export const CommandSend = {
     message: CommandSend,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.producerId !== 0) {
+    if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
-    if (message.sequenceId !== 0) {
+    if (!message.sequenceId.isZero()) {
       writer.uint32(16).uint64(message.sequenceId);
     }
     if (message.numMessages !== 0) {
       writer.uint32(24).int32(message.numMessages);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(32).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(40).uint64(message.txnidMostBits);
     }
-    if (message.highestSequenceId !== 0) {
+    if (!message.highestSequenceId.isZero()) {
       writer.uint32(48).uint64(message.highestSequenceId);
     }
     if (message.isChunk === true) {
@@ -5202,22 +5324,22 @@ export const CommandSend = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.producerId = longToNumber(reader.uint64() as Long);
+          message.producerId = reader.uint64() as Long;
           break;
         case 2:
-          message.sequenceId = longToNumber(reader.uint64() as Long);
+          message.sequenceId = reader.uint64() as Long;
           break;
         case 3:
           message.numMessages = reader.int32();
           break;
         case 4:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 5:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 6:
-          message.highestSequenceId = longToNumber(reader.uint64() as Long);
+          message.highestSequenceId = reader.uint64() as Long;
           break;
         case 7:
           message.isChunk = reader.bool();
@@ -5235,18 +5357,22 @@ export const CommandSend = {
 
   fromJSON(object: any): CommandSend {
     return {
-      producerId: isSet(object.producerId) ? Number(object.producerId) : 0,
-      sequenceId: isSet(object.sequenceId) ? Number(object.sequenceId) : 0,
+      producerId: isSet(object.producerId)
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO,
+      sequenceId: isSet(object.sequenceId)
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO,
       numMessages: isSet(object.numMessages) ? Number(object.numMessages) : 0,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       highestSequenceId: isSet(object.highestSequenceId)
-        ? Number(object.highestSequenceId)
-        : 0,
+        ? Long.fromValue(object.highestSequenceId)
+        : Long.UZERO,
       isChunk: isSet(object.isChunk) ? Boolean(object.isChunk) : false,
       marker: isSet(object.marker) ? Boolean(object.marker) : false,
     };
@@ -5255,17 +5381,19 @@ export const CommandSend = {
   toJSON(message: CommandSend): unknown {
     const obj: any = {};
     message.producerId !== undefined &&
-      (obj.producerId = Math.round(message.producerId));
+      (obj.producerId = (message.producerId || Long.UZERO).toString());
     message.sequenceId !== undefined &&
-      (obj.sequenceId = Math.round(message.sequenceId));
+      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
     message.numMessages !== undefined &&
       (obj.numMessages = Math.round(message.numMessages));
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.highestSequenceId !== undefined &&
-      (obj.highestSequenceId = Math.round(message.highestSequenceId));
+      (obj.highestSequenceId = (
+        message.highestSequenceId || Long.UZERO
+      ).toString());
     message.isChunk !== undefined && (obj.isChunk = message.isChunk);
     message.marker !== undefined && (obj.marker = message.marker);
     return obj;
@@ -5275,12 +5403,28 @@ export const CommandSend = {
     object: I
   ): CommandSend {
     const message = createBaseCommandSend();
-    message.producerId = object.producerId ?? 0;
-    message.sequenceId = object.sequenceId ?? 0;
+    message.producerId =
+      object.producerId !== undefined && object.producerId !== null
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO;
+    message.sequenceId =
+      object.sequenceId !== undefined && object.sequenceId !== null
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO;
     message.numMessages = object.numMessages ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
-    message.highestSequenceId = object.highestSequenceId ?? 0;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
+    message.highestSequenceId =
+      object.highestSequenceId !== undefined &&
+      object.highestSequenceId !== null
+        ? Long.fromValue(object.highestSequenceId)
+        : Long.UZERO;
     message.isChunk = object.isChunk ?? false;
     message.marker = object.marker ?? false;
     return message;
@@ -5289,10 +5433,10 @@ export const CommandSend = {
 
 function createBaseCommandSendReceipt(): CommandSendReceipt {
   return {
-    producerId: 0,
-    sequenceId: 0,
+    producerId: Long.UZERO,
+    sequenceId: Long.UZERO,
     messageId: undefined,
-    highestSequenceId: 0,
+    highestSequenceId: Long.UZERO,
   };
 }
 
@@ -5301,10 +5445,10 @@ export const CommandSendReceipt = {
     message: CommandSendReceipt,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.producerId !== 0) {
+    if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
-    if (message.sequenceId !== 0) {
+    if (!message.sequenceId.isZero()) {
       writer.uint32(16).uint64(message.sequenceId);
     }
     if (message.messageId !== undefined) {
@@ -5313,7 +5457,7 @@ export const CommandSendReceipt = {
         writer.uint32(26).fork()
       ).ldelim();
     }
-    if (message.highestSequenceId !== 0) {
+    if (!message.highestSequenceId.isZero()) {
       writer.uint32(32).uint64(message.highestSequenceId);
     }
     return writer;
@@ -5327,16 +5471,16 @@ export const CommandSendReceipt = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.producerId = longToNumber(reader.uint64() as Long);
+          message.producerId = reader.uint64() as Long;
           break;
         case 2:
-          message.sequenceId = longToNumber(reader.uint64() as Long);
+          message.sequenceId = reader.uint64() as Long;
           break;
         case 3:
           message.messageId = MessageIdData.decode(reader, reader.uint32());
           break;
         case 4:
-          message.highestSequenceId = longToNumber(reader.uint64() as Long);
+          message.highestSequenceId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -5348,29 +5492,35 @@ export const CommandSendReceipt = {
 
   fromJSON(object: any): CommandSendReceipt {
     return {
-      producerId: isSet(object.producerId) ? Number(object.producerId) : 0,
-      sequenceId: isSet(object.sequenceId) ? Number(object.sequenceId) : 0,
+      producerId: isSet(object.producerId)
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO,
+      sequenceId: isSet(object.sequenceId)
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO,
       messageId: isSet(object.messageId)
         ? MessageIdData.fromJSON(object.messageId)
         : undefined,
       highestSequenceId: isSet(object.highestSequenceId)
-        ? Number(object.highestSequenceId)
-        : 0,
+        ? Long.fromValue(object.highestSequenceId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandSendReceipt): unknown {
     const obj: any = {};
     message.producerId !== undefined &&
-      (obj.producerId = Math.round(message.producerId));
+      (obj.producerId = (message.producerId || Long.UZERO).toString());
     message.sequenceId !== undefined &&
-      (obj.sequenceId = Math.round(message.sequenceId));
+      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
     message.messageId !== undefined &&
       (obj.messageId = message.messageId
         ? MessageIdData.toJSON(message.messageId)
         : undefined);
     message.highestSequenceId !== undefined &&
-      (obj.highestSequenceId = Math.round(message.highestSequenceId));
+      (obj.highestSequenceId = (
+        message.highestSequenceId || Long.UZERO
+      ).toString());
     return obj;
   },
 
@@ -5378,19 +5528,34 @@ export const CommandSendReceipt = {
     object: I
   ): CommandSendReceipt {
     const message = createBaseCommandSendReceipt();
-    message.producerId = object.producerId ?? 0;
-    message.sequenceId = object.sequenceId ?? 0;
+    message.producerId =
+      object.producerId !== undefined && object.producerId !== null
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO;
+    message.sequenceId =
+      object.sequenceId !== undefined && object.sequenceId !== null
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO;
     message.messageId =
       object.messageId !== undefined && object.messageId !== null
         ? MessageIdData.fromPartial(object.messageId)
         : undefined;
-    message.highestSequenceId = object.highestSequenceId ?? 0;
+    message.highestSequenceId =
+      object.highestSequenceId !== undefined &&
+      object.highestSequenceId !== null
+        ? Long.fromValue(object.highestSequenceId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandSendError(): CommandSendError {
-  return { producerId: 0, sequenceId: 0, error: 0, message: "" };
+  return {
+    producerId: Long.UZERO,
+    sequenceId: Long.UZERO,
+    error: 0,
+    message: "",
+  };
 }
 
 export const CommandSendError = {
@@ -5398,10 +5563,10 @@ export const CommandSendError = {
     message: CommandSendError,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.producerId !== 0) {
+    if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
-    if (message.sequenceId !== 0) {
+    if (!message.sequenceId.isZero()) {
       writer.uint32(16).uint64(message.sequenceId);
     }
     if (message.error !== 0) {
@@ -5421,10 +5586,10 @@ export const CommandSendError = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.producerId = longToNumber(reader.uint64() as Long);
+          message.producerId = reader.uint64() as Long;
           break;
         case 2:
-          message.sequenceId = longToNumber(reader.uint64() as Long);
+          message.sequenceId = reader.uint64() as Long;
           break;
         case 3:
           message.error = reader.int32() as any;
@@ -5442,8 +5607,12 @@ export const CommandSendError = {
 
   fromJSON(object: any): CommandSendError {
     return {
-      producerId: isSet(object.producerId) ? Number(object.producerId) : 0,
-      sequenceId: isSet(object.sequenceId) ? Number(object.sequenceId) : 0,
+      producerId: isSet(object.producerId)
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO,
+      sequenceId: isSet(object.sequenceId)
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -5452,9 +5621,9 @@ export const CommandSendError = {
   toJSON(message: CommandSendError): unknown {
     const obj: any = {};
     message.producerId !== undefined &&
-      (obj.producerId = Math.round(message.producerId));
+      (obj.producerId = (message.producerId || Long.UZERO).toString());
     message.sequenceId !== undefined &&
-      (obj.sequenceId = Math.round(message.sequenceId));
+      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -5465,8 +5634,14 @@ export const CommandSendError = {
     object: I
   ): CommandSendError {
     const message = createBaseCommandSendError();
-    message.producerId = object.producerId ?? 0;
-    message.sequenceId = object.sequenceId ?? 0;
+    message.producerId =
+      object.producerId !== undefined && object.producerId !== null
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO;
+    message.sequenceId =
+      object.sequenceId !== undefined && object.sequenceId !== null
+        ? Long.fromValue(object.sequenceId)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -5475,11 +5650,11 @@ export const CommandSendError = {
 
 function createBaseCommandMessage(): CommandMessage {
   return {
-    consumerId: 0,
+    consumerId: Long.UZERO,
     messageId: undefined,
     redeliveryCount: 0,
     ackSet: [],
-    consumerEpoch: 0,
+    consumerEpoch: Long.UZERO,
   };
 }
 
@@ -5488,7 +5663,7 @@ export const CommandMessage = {
     message: CommandMessage,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
     if (message.messageId !== undefined) {
@@ -5505,7 +5680,7 @@ export const CommandMessage = {
       writer.int64(v);
     }
     writer.ldelim();
-    if (message.consumerEpoch !== 0) {
+    if (!message.consumerEpoch.isZero()) {
       writer.uint32(40).uint64(message.consumerEpoch);
     }
     return writer;
@@ -5519,7 +5694,7 @@ export const CommandMessage = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
           message.messageId = MessageIdData.decode(reader, reader.uint32());
@@ -5531,14 +5706,14 @@ export const CommandMessage = {
           if ((tag & 7) === 2) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
-              message.ackSet.push(longToNumber(reader.int64() as Long));
+              message.ackSet.push(reader.int64() as Long);
             }
           } else {
-            message.ackSet.push(longToNumber(reader.int64() as Long));
+            message.ackSet.push(reader.int64() as Long);
           }
           break;
         case 5:
-          message.consumerEpoch = longToNumber(reader.uint64() as Long);
+          message.consumerEpoch = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -5550,7 +5725,9 @@ export const CommandMessage = {
 
   fromJSON(object: any): CommandMessage {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
       messageId: isSet(object.messageId)
         ? MessageIdData.fromJSON(object.messageId)
         : undefined,
@@ -5558,18 +5735,18 @@ export const CommandMessage = {
         ? Number(object.redeliveryCount)
         : 0,
       ackSet: Array.isArray(object?.ackSet)
-        ? object.ackSet.map((e: any) => Number(e))
+        ? object.ackSet.map((e: any) => Long.fromValue(e))
         : [],
       consumerEpoch: isSet(object.consumerEpoch)
-        ? Number(object.consumerEpoch)
-        : 0,
+        ? Long.fromValue(object.consumerEpoch)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandMessage): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.messageId !== undefined &&
       (obj.messageId = message.messageId
         ? MessageIdData.toJSON(message.messageId)
@@ -5577,12 +5754,12 @@ export const CommandMessage = {
     message.redeliveryCount !== undefined &&
       (obj.redeliveryCount = Math.round(message.redeliveryCount));
     if (message.ackSet) {
-      obj.ackSet = message.ackSet.map((e) => Math.round(e));
+      obj.ackSet = message.ackSet.map((e) => (e || Long.ZERO).toString());
     } else {
       obj.ackSet = [];
     }
     message.consumerEpoch !== undefined &&
-      (obj.consumerEpoch = Math.round(message.consumerEpoch));
+      (obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString());
     return obj;
   },
 
@@ -5590,28 +5767,34 @@ export const CommandMessage = {
     object: I
   ): CommandMessage {
     const message = createBaseCommandMessage();
-    message.consumerId = object.consumerId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
     message.messageId =
       object.messageId !== undefined && object.messageId !== null
         ? MessageIdData.fromPartial(object.messageId)
         : undefined;
     message.redeliveryCount = object.redeliveryCount ?? 0;
-    message.ackSet = object.ackSet?.map((e) => e) || [];
-    message.consumerEpoch = object.consumerEpoch ?? 0;
+    message.ackSet = object.ackSet?.map((e) => Long.fromValue(e)) || [];
+    message.consumerEpoch =
+      object.consumerEpoch !== undefined && object.consumerEpoch !== null
+        ? Long.fromValue(object.consumerEpoch)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandAck(): CommandAck {
   return {
-    consumerId: 0,
+    consumerId: Long.UZERO,
     ackType: 0,
     messageId: [],
     validationError: 0,
     properties: [],
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
-    requestId: 0,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
+    requestId: Long.UZERO,
   };
 }
 
@@ -5620,7 +5803,7 @@ export const CommandAck = {
     message: CommandAck,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
     if (message.ackType !== 0) {
@@ -5635,13 +5818,13 @@ export const CommandAck = {
     for (const v of message.properties) {
       KeyLongValue.encode(v!, writer.uint32(42).fork()).ldelim();
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(48).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(56).uint64(message.txnidMostBits);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(64).uint64(message.requestId);
     }
     return writer;
@@ -5655,7 +5838,7 @@ export const CommandAck = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
           message.ackType = reader.int32() as any;
@@ -5670,13 +5853,13 @@ export const CommandAck = {
           message.properties.push(KeyLongValue.decode(reader, reader.uint32()));
           break;
         case 6:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 7:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 8:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -5688,7 +5871,9 @@ export const CommandAck = {
 
   fromJSON(object: any): CommandAck {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
       ackType: isSet(object.ackType)
         ? commandAck_AckTypeFromJSON(object.ackType)
         : 0,
@@ -5702,19 +5887,21 @@ export const CommandAck = {
         ? object.properties.map((e: any) => KeyLongValue.fromJSON(e))
         : [],
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandAck): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.ackType !== undefined &&
       (obj.ackType = commandAck_AckTypeToJSON(message.ackType));
     if (message.messageId) {
@@ -5736,11 +5923,11 @@ export const CommandAck = {
       obj.properties = [];
     }
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     return obj;
   },
 
@@ -5748,28 +5935,40 @@ export const CommandAck = {
     object: I
   ): CommandAck {
     const message = createBaseCommandAck();
-    message.consumerId = object.consumerId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
     message.ackType = object.ackType ?? 0;
     message.messageId =
       object.messageId?.map((e) => MessageIdData.fromPartial(e)) || [];
     message.validationError = object.validationError ?? 0;
     message.properties =
       object.properties?.map((e) => KeyLongValue.fromPartial(e)) || [];
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandAckResponse(): CommandAckResponse {
   return {
-    consumerId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    consumerId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     error: 0,
     message: "",
-    requestId: 0,
+    requestId: Long.UZERO,
   };
 }
 
@@ -5778,13 +5977,13 @@ export const CommandAckResponse = {
     message: CommandAckResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.error !== 0) {
@@ -5793,7 +5992,7 @@ export const CommandAckResponse = {
     if (message.message !== "") {
       writer.uint32(42).string(message.message);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(48).uint64(message.requestId);
     }
     return writer;
@@ -5807,13 +6006,13 @@ export const CommandAckResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.error = reader.int32() as any;
@@ -5822,7 +6021,7 @@ export const CommandAckResponse = {
           message.message = reader.string();
           break;
         case 6:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -5834,32 +6033,36 @@ export const CommandAckResponse = {
 
   fromJSON(object: any): CommandAckResponse {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandAckResponse): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     return obj;
   },
 
@@ -5867,18 +6070,30 @@ export const CommandAckResponse = {
     object: I
   ): CommandAckResponse {
     const message = createBaseCommandAckResponse();
-    message.consumerId = object.consumerId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandActiveConsumerChange(): CommandActiveConsumerChange {
-  return { consumerId: 0, isActive: false };
+  return { consumerId: Long.UZERO, isActive: false };
 }
 
 export const CommandActiveConsumerChange = {
@@ -5886,7 +6101,7 @@ export const CommandActiveConsumerChange = {
     message: CommandActiveConsumerChange,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
     if (message.isActive === true) {
@@ -5906,7 +6121,7 @@ export const CommandActiveConsumerChange = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
           message.isActive = reader.bool();
@@ -5921,7 +6136,9 @@ export const CommandActiveConsumerChange = {
 
   fromJSON(object: any): CommandActiveConsumerChange {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
       isActive: isSet(object.isActive) ? Boolean(object.isActive) : false,
     };
   },
@@ -5929,7 +6146,7 @@ export const CommandActiveConsumerChange = {
   toJSON(message: CommandActiveConsumerChange): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.isActive !== undefined && (obj.isActive = message.isActive);
     return obj;
   },
@@ -5938,14 +6155,17 @@ export const CommandActiveConsumerChange = {
     object: I
   ): CommandActiveConsumerChange {
     const message = createBaseCommandActiveConsumerChange();
-    message.consumerId = object.consumerId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
     message.isActive = object.isActive ?? false;
     return message;
   },
 };
 
 function createBaseCommandFlow(): CommandFlow {
-  return { consumerId: 0, messagePermits: 0 };
+  return { consumerId: Long.UZERO, messagePermits: 0 };
 }
 
 export const CommandFlow = {
@@ -5953,7 +6173,7 @@ export const CommandFlow = {
     message: CommandFlow,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
     if (message.messagePermits !== 0) {
@@ -5970,7 +6190,7 @@ export const CommandFlow = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
           message.messagePermits = reader.uint32();
@@ -5985,7 +6205,9 @@ export const CommandFlow = {
 
   fromJSON(object: any): CommandFlow {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
       messagePermits: isSet(object.messagePermits)
         ? Number(object.messagePermits)
         : 0,
@@ -5995,7 +6217,7 @@ export const CommandFlow = {
   toJSON(message: CommandFlow): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.messagePermits !== undefined &&
       (obj.messagePermits = Math.round(message.messagePermits));
     return obj;
@@ -6005,14 +6227,17 @@ export const CommandFlow = {
     object: I
   ): CommandFlow {
     const message = createBaseCommandFlow();
-    message.consumerId = object.consumerId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
     message.messagePermits = object.messagePermits ?? 0;
     return message;
   },
 };
 
 function createBaseCommandUnsubscribe(): CommandUnsubscribe {
-  return { consumerId: 0, requestId: 0 };
+  return { consumerId: Long.UZERO, requestId: Long.UZERO };
 }
 
 export const CommandUnsubscribe = {
@@ -6020,10 +6245,10 @@ export const CommandUnsubscribe = {
     message: CommandUnsubscribe,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     return writer;
@@ -6037,10 +6262,10 @@ export const CommandUnsubscribe = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -6052,17 +6277,21 @@ export const CommandUnsubscribe = {
 
   fromJSON(object: any): CommandUnsubscribe {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandUnsubscribe): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     return obj;
   },
 
@@ -6070,18 +6299,24 @@ export const CommandUnsubscribe = {
     object: I
   ): CommandUnsubscribe {
     const message = createBaseCommandUnsubscribe();
-    message.consumerId = object.consumerId ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandSeek(): CommandSeek {
   return {
-    consumerId: 0,
-    requestId: 0,
+    consumerId: Long.UZERO,
+    requestId: Long.UZERO,
     messageId: undefined,
-    messagePublishTime: 0,
+    messagePublishTime: Long.UZERO,
   };
 }
 
@@ -6090,10 +6325,10 @@ export const CommandSeek = {
     message: CommandSeek,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     if (message.messageId !== undefined) {
@@ -6102,7 +6337,7 @@ export const CommandSeek = {
         writer.uint32(26).fork()
       ).ldelim();
     }
-    if (message.messagePublishTime !== 0) {
+    if (!message.messagePublishTime.isZero()) {
       writer.uint32(32).uint64(message.messagePublishTime);
     }
     return writer;
@@ -6116,16 +6351,16 @@ export const CommandSeek = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 3:
           message.messageId = MessageIdData.decode(reader, reader.uint32());
           break;
         case 4:
-          message.messagePublishTime = longToNumber(reader.uint64() as Long);
+          message.messagePublishTime = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -6137,29 +6372,35 @@ export const CommandSeek = {
 
   fromJSON(object: any): CommandSeek {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       messageId: isSet(object.messageId)
         ? MessageIdData.fromJSON(object.messageId)
         : undefined,
       messagePublishTime: isSet(object.messagePublishTime)
-        ? Number(object.messagePublishTime)
-        : 0,
+        ? Long.fromValue(object.messagePublishTime)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandSeek): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.messageId !== undefined &&
       (obj.messageId = message.messageId
         ? MessageIdData.toJSON(message.messageId)
         : undefined);
     message.messagePublishTime !== undefined &&
-      (obj.messagePublishTime = Math.round(message.messagePublishTime));
+      (obj.messagePublishTime = (
+        message.messagePublishTime || Long.UZERO
+      ).toString());
     return obj;
   },
 
@@ -6167,19 +6408,29 @@ export const CommandSeek = {
     object: I
   ): CommandSeek {
     const message = createBaseCommandSeek();
-    message.consumerId = object.consumerId ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.messageId =
       object.messageId !== undefined && object.messageId !== null
         ? MessageIdData.fromPartial(object.messageId)
         : undefined;
-    message.messagePublishTime = object.messagePublishTime ?? 0;
+    message.messagePublishTime =
+      object.messagePublishTime !== undefined &&
+      object.messagePublishTime !== null
+        ? Long.fromValue(object.messagePublishTime)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandReachedEndOfTopic(): CommandReachedEndOfTopic {
-  return { consumerId: 0 };
+  return { consumerId: Long.UZERO };
 }
 
 export const CommandReachedEndOfTopic = {
@@ -6187,7 +6438,7 @@ export const CommandReachedEndOfTopic = {
     message: CommandReachedEndOfTopic,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
     return writer;
@@ -6204,7 +6455,7 @@ export const CommandReachedEndOfTopic = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -6216,14 +6467,16 @@ export const CommandReachedEndOfTopic = {
 
   fromJSON(object: any): CommandReachedEndOfTopic {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandReachedEndOfTopic): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     return obj;
   },
 
@@ -6231,13 +6484,16 @@ export const CommandReachedEndOfTopic = {
     object: I
   ): CommandReachedEndOfTopic {
     const message = createBaseCommandReachedEndOfTopic();
-    message.consumerId = object.consumerId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandCloseProducer(): CommandCloseProducer {
-  return { producerId: 0, requestId: 0 };
+  return { producerId: Long.UZERO, requestId: Long.UZERO };
 }
 
 export const CommandCloseProducer = {
@@ -6245,10 +6501,10 @@ export const CommandCloseProducer = {
     message: CommandCloseProducer,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.producerId !== 0) {
+    if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     return writer;
@@ -6265,10 +6521,10 @@ export const CommandCloseProducer = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.producerId = longToNumber(reader.uint64() as Long);
+          message.producerId = reader.uint64() as Long;
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -6280,17 +6536,21 @@ export const CommandCloseProducer = {
 
   fromJSON(object: any): CommandCloseProducer {
     return {
-      producerId: isSet(object.producerId) ? Number(object.producerId) : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      producerId: isSet(object.producerId)
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandCloseProducer): unknown {
     const obj: any = {};
     message.producerId !== undefined &&
-      (obj.producerId = Math.round(message.producerId));
+      (obj.producerId = (message.producerId || Long.UZERO).toString());
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     return obj;
   },
 
@@ -6298,14 +6558,20 @@ export const CommandCloseProducer = {
     object: I
   ): CommandCloseProducer {
     const message = createBaseCommandCloseProducer();
-    message.producerId = object.producerId ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.producerId =
+      object.producerId !== undefined && object.producerId !== null
+        ? Long.fromValue(object.producerId)
+        : Long.UZERO;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandCloseConsumer(): CommandCloseConsumer {
-  return { consumerId: 0, requestId: 0 };
+  return { consumerId: Long.UZERO, requestId: Long.UZERO };
 }
 
 export const CommandCloseConsumer = {
@@ -6313,10 +6579,10 @@ export const CommandCloseConsumer = {
     message: CommandCloseConsumer,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     return writer;
@@ -6333,10 +6599,10 @@ export const CommandCloseConsumer = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -6348,17 +6614,21 @@ export const CommandCloseConsumer = {
 
   fromJSON(object: any): CommandCloseConsumer {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandCloseConsumer): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     return obj;
   },
 
@@ -6366,14 +6636,20 @@ export const CommandCloseConsumer = {
     object: I
   ): CommandCloseConsumer {
     const message = createBaseCommandCloseConsumer();
-    message.consumerId = object.consumerId ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandRedeliverUnacknowledgedMessages(): CommandRedeliverUnacknowledgedMessages {
-  return { consumerId: 0, messageIds: [], consumerEpoch: 0 };
+  return { consumerId: Long.UZERO, messageIds: [], consumerEpoch: Long.UZERO };
 }
 
 export const CommandRedeliverUnacknowledgedMessages = {
@@ -6381,13 +6657,13 @@ export const CommandRedeliverUnacknowledgedMessages = {
     message: CommandRedeliverUnacknowledgedMessages,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
     for (const v of message.messageIds) {
       MessageIdData.encode(v!, writer.uint32(18).fork()).ldelim();
     }
-    if (message.consumerEpoch !== 0) {
+    if (!message.consumerEpoch.isZero()) {
       writer.uint32(24).uint64(message.consumerEpoch);
     }
     return writer;
@@ -6404,7 +6680,7 @@ export const CommandRedeliverUnacknowledgedMessages = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
           message.messageIds.push(
@@ -6412,7 +6688,7 @@ export const CommandRedeliverUnacknowledgedMessages = {
           );
           break;
         case 3:
-          message.consumerEpoch = longToNumber(reader.uint64() as Long);
+          message.consumerEpoch = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -6424,20 +6700,22 @@ export const CommandRedeliverUnacknowledgedMessages = {
 
   fromJSON(object: any): CommandRedeliverUnacknowledgedMessages {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
       messageIds: Array.isArray(object?.messageIds)
         ? object.messageIds.map((e: any) => MessageIdData.fromJSON(e))
         : [],
       consumerEpoch: isSet(object.consumerEpoch)
-        ? Number(object.consumerEpoch)
-        : 0,
+        ? Long.fromValue(object.consumerEpoch)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandRedeliverUnacknowledgedMessages): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     if (message.messageIds) {
       obj.messageIds = message.messageIds.map((e) =>
         e ? MessageIdData.toJSON(e) : undefined
@@ -6446,7 +6724,7 @@ export const CommandRedeliverUnacknowledgedMessages = {
       obj.messageIds = [];
     }
     message.consumerEpoch !== undefined &&
-      (obj.consumerEpoch = Math.round(message.consumerEpoch));
+      (obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString());
     return obj;
   },
 
@@ -6454,16 +6732,22 @@ export const CommandRedeliverUnacknowledgedMessages = {
     I extends Exact<DeepPartial<CommandRedeliverUnacknowledgedMessages>, I>
   >(object: I): CommandRedeliverUnacknowledgedMessages {
     const message = createBaseCommandRedeliverUnacknowledgedMessages();
-    message.consumerId = object.consumerId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
     message.messageIds =
       object.messageIds?.map((e) => MessageIdData.fromPartial(e)) || [];
-    message.consumerEpoch = object.consumerEpoch ?? 0;
+    message.consumerEpoch =
+      object.consumerEpoch !== undefined && object.consumerEpoch !== null
+        ? Long.fromValue(object.consumerEpoch)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandSuccess(): CommandSuccess {
-  return { requestId: 0, schema: undefined };
+  return { requestId: Long.UZERO, schema: undefined };
 }
 
 export const CommandSuccess = {
@@ -6471,7 +6755,7 @@ export const CommandSuccess = {
     message: CommandSuccess,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.schema !== undefined) {
@@ -6488,7 +6772,7 @@ export const CommandSuccess = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.schema = Schema.decode(reader, reader.uint32());
@@ -6503,7 +6787,9 @@ export const CommandSuccess = {
 
   fromJSON(object: any): CommandSuccess {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
     };
   },
@@ -6511,7 +6797,7 @@ export const CommandSuccess = {
   toJSON(message: CommandSuccess): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.schema !== undefined &&
       (obj.schema = message.schema ? Schema.toJSON(message.schema) : undefined);
     return obj;
@@ -6521,7 +6807,10 @@ export const CommandSuccess = {
     object: I
   ): CommandSuccess {
     const message = createBaseCommandSuccess();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.schema =
       object.schema !== undefined && object.schema !== null
         ? Schema.fromPartial(object.schema)
@@ -6532,11 +6821,11 @@ export const CommandSuccess = {
 
 function createBaseCommandProducerSuccess(): CommandProducerSuccess {
   return {
-    requestId: 0,
+    requestId: Long.UZERO,
     producerName: "",
-    lastSequenceId: 0,
+    lastSequenceId: Long.ZERO,
     schemaVersion: new Uint8Array(),
-    topicEpoch: 0,
+    topicEpoch: Long.UZERO,
     producerReady: false,
   };
 }
@@ -6546,19 +6835,19 @@ export const CommandProducerSuccess = {
     message: CommandProducerSuccess,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.producerName !== "") {
       writer.uint32(18).string(message.producerName);
     }
-    if (message.lastSequenceId !== 0) {
+    if (!message.lastSequenceId.isZero()) {
       writer.uint32(24).int64(message.lastSequenceId);
     }
     if (message.schemaVersion.length !== 0) {
       writer.uint32(34).bytes(message.schemaVersion);
     }
-    if (message.topicEpoch !== 0) {
+    if (!message.topicEpoch.isZero()) {
       writer.uint32(40).uint64(message.topicEpoch);
     }
     if (message.producerReady === true) {
@@ -6578,19 +6867,19 @@ export const CommandProducerSuccess = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.producerName = reader.string();
           break;
         case 3:
-          message.lastSequenceId = longToNumber(reader.int64() as Long);
+          message.lastSequenceId = reader.int64() as Long;
           break;
         case 4:
           message.schemaVersion = reader.bytes();
           break;
         case 5:
-          message.topicEpoch = longToNumber(reader.uint64() as Long);
+          message.topicEpoch = reader.uint64() as Long;
           break;
         case 6:
           message.producerReady = reader.bool();
@@ -6605,17 +6894,21 @@ export const CommandProducerSuccess = {
 
   fromJSON(object: any): CommandProducerSuccess {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       producerName: isSet(object.producerName)
         ? String(object.producerName)
         : "",
       lastSequenceId: isSet(object.lastSequenceId)
-        ? Number(object.lastSequenceId)
-        : 0,
+        ? Long.fromValue(object.lastSequenceId)
+        : Long.ZERO,
       schemaVersion: isSet(object.schemaVersion)
         ? bytesFromBase64(object.schemaVersion)
         : new Uint8Array(),
-      topicEpoch: isSet(object.topicEpoch) ? Number(object.topicEpoch) : 0,
+      topicEpoch: isSet(object.topicEpoch)
+        ? Long.fromValue(object.topicEpoch)
+        : Long.UZERO,
       producerReady: isSet(object.producerReady)
         ? Boolean(object.producerReady)
         : false,
@@ -6625,11 +6918,11 @@ export const CommandProducerSuccess = {
   toJSON(message: CommandProducerSuccess): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.producerName !== undefined &&
       (obj.producerName = message.producerName);
     message.lastSequenceId !== undefined &&
-      (obj.lastSequenceId = Math.round(message.lastSequenceId));
+      (obj.lastSequenceId = (message.lastSequenceId || Long.ZERO).toString());
     message.schemaVersion !== undefined &&
       (obj.schemaVersion = base64FromBytes(
         message.schemaVersion !== undefined
@@ -6637,7 +6930,7 @@ export const CommandProducerSuccess = {
           : new Uint8Array()
       ));
     message.topicEpoch !== undefined &&
-      (obj.topicEpoch = Math.round(message.topicEpoch));
+      (obj.topicEpoch = (message.topicEpoch || Long.UZERO).toString());
     message.producerReady !== undefined &&
       (obj.producerReady = message.producerReady);
     return obj;
@@ -6647,18 +6940,27 @@ export const CommandProducerSuccess = {
     object: I
   ): CommandProducerSuccess {
     const message = createBaseCommandProducerSuccess();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.producerName = object.producerName ?? "";
-    message.lastSequenceId = object.lastSequenceId ?? 0;
+    message.lastSequenceId =
+      object.lastSequenceId !== undefined && object.lastSequenceId !== null
+        ? Long.fromValue(object.lastSequenceId)
+        : Long.ZERO;
     message.schemaVersion = object.schemaVersion ?? new Uint8Array();
-    message.topicEpoch = object.topicEpoch ?? 0;
+    message.topicEpoch =
+      object.topicEpoch !== undefined && object.topicEpoch !== null
+        ? Long.fromValue(object.topicEpoch)
+        : Long.UZERO;
     message.producerReady = object.producerReady ?? false;
     return message;
   },
 };
 
 function createBaseCommandError(): CommandError {
-  return { requestId: 0, error: 0, message: "" };
+  return { requestId: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandError = {
@@ -6666,7 +6968,7 @@ export const CommandError = {
     message: CommandError,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.error !== 0) {
@@ -6686,7 +6988,7 @@ export const CommandError = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.error = reader.int32() as any;
@@ -6704,7 +7006,9 @@ export const CommandError = {
 
   fromJSON(object: any): CommandError {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -6713,7 +7017,7 @@ export const CommandError = {
   toJSON(message: CommandError): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -6724,7 +7028,10 @@ export const CommandError = {
     object: I
   ): CommandError {
     const message = createBaseCommandError();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -6810,7 +7117,7 @@ export const CommandPong = {
 };
 
 function createBaseCommandConsumerStats(): CommandConsumerStats {
-  return { requestId: 0, consumerId: 0 };
+  return { requestId: Long.UZERO, consumerId: Long.UZERO };
 }
 
 export const CommandConsumerStats = {
@@ -6818,10 +7125,10 @@ export const CommandConsumerStats = {
     message: CommandConsumerStats,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(32).uint64(message.consumerId);
     }
     return writer;
@@ -6838,10 +7145,10 @@ export const CommandConsumerStats = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 4:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -6853,17 +7160,21 @@ export const CommandConsumerStats = {
 
   fromJSON(object: any): CommandConsumerStats {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandConsumerStats): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     return obj;
   },
 
@@ -6871,29 +7182,35 @@ export const CommandConsumerStats = {
     object: I
   ): CommandConsumerStats {
     const message = createBaseCommandConsumerStats();
-    message.requestId = object.requestId ?? 0;
-    message.consumerId = object.consumerId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandConsumerStatsResponse(): CommandConsumerStatsResponse {
   return {
-    requestId: 0,
+    requestId: Long.UZERO,
     errorCode: 0,
     errorMessage: "",
     msgRateOut: 0,
     msgThroughputOut: 0,
     msgRateRedeliver: 0,
     consumerName: "",
-    availablePermits: 0,
-    unackedMessages: 0,
+    availablePermits: Long.UZERO,
+    unackedMessages: Long.UZERO,
     blockedConsumerOnUnackedMsgs: false,
     address: "",
     connectedSince: "",
     type: "",
     msgRateExpired: 0,
-    msgBacklog: 0,
+    msgBacklog: Long.UZERO,
     messageAckRate: 0,
   };
 }
@@ -6903,7 +7220,7 @@ export const CommandConsumerStatsResponse = {
     message: CommandConsumerStatsResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.errorCode !== 0) {
@@ -6924,10 +7241,10 @@ export const CommandConsumerStatsResponse = {
     if (message.consumerName !== "") {
       writer.uint32(58).string(message.consumerName);
     }
-    if (message.availablePermits !== 0) {
+    if (!message.availablePermits.isZero()) {
       writer.uint32(64).uint64(message.availablePermits);
     }
-    if (message.unackedMessages !== 0) {
+    if (!message.unackedMessages.isZero()) {
       writer.uint32(72).uint64(message.unackedMessages);
     }
     if (message.blockedConsumerOnUnackedMsgs === true) {
@@ -6945,7 +7262,7 @@ export const CommandConsumerStatsResponse = {
     if (message.msgRateExpired !== 0) {
       writer.uint32(113).double(message.msgRateExpired);
     }
-    if (message.msgBacklog !== 0) {
+    if (!message.msgBacklog.isZero()) {
       writer.uint32(120).uint64(message.msgBacklog);
     }
     if (message.messageAckRate !== 0) {
@@ -6965,7 +7282,7 @@ export const CommandConsumerStatsResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.errorCode = reader.int32() as any;
@@ -6986,10 +7303,10 @@ export const CommandConsumerStatsResponse = {
           message.consumerName = reader.string();
           break;
         case 8:
-          message.availablePermits = longToNumber(reader.uint64() as Long);
+          message.availablePermits = reader.uint64() as Long;
           break;
         case 9:
-          message.unackedMessages = longToNumber(reader.uint64() as Long);
+          message.unackedMessages = reader.uint64() as Long;
           break;
         case 10:
           message.blockedConsumerOnUnackedMsgs = reader.bool();
@@ -7007,7 +7324,7 @@ export const CommandConsumerStatsResponse = {
           message.msgRateExpired = reader.double();
           break;
         case 15:
-          message.msgBacklog = longToNumber(reader.uint64() as Long);
+          message.msgBacklog = reader.uint64() as Long;
           break;
         case 16:
           message.messageAckRate = reader.double();
@@ -7022,7 +7339,9 @@ export const CommandConsumerStatsResponse = {
 
   fromJSON(object: any): CommandConsumerStatsResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       errorCode: isSet(object.errorCode)
         ? serverErrorFromJSON(object.errorCode)
         : 0,
@@ -7040,11 +7359,11 @@ export const CommandConsumerStatsResponse = {
         ? String(object.consumerName)
         : "",
       availablePermits: isSet(object.availablePermits)
-        ? Number(object.availablePermits)
-        : 0,
+        ? Long.fromValue(object.availablePermits)
+        : Long.UZERO,
       unackedMessages: isSet(object.unackedMessages)
-        ? Number(object.unackedMessages)
-        : 0,
+        ? Long.fromValue(object.unackedMessages)
+        : Long.UZERO,
       blockedConsumerOnUnackedMsgs: isSet(object.blockedConsumerOnUnackedMsgs)
         ? Boolean(object.blockedConsumerOnUnackedMsgs)
         : false,
@@ -7056,7 +7375,9 @@ export const CommandConsumerStatsResponse = {
       msgRateExpired: isSet(object.msgRateExpired)
         ? Number(object.msgRateExpired)
         : 0,
-      msgBacklog: isSet(object.msgBacklog) ? Number(object.msgBacklog) : 0,
+      msgBacklog: isSet(object.msgBacklog)
+        ? Long.fromValue(object.msgBacklog)
+        : Long.UZERO,
       messageAckRate: isSet(object.messageAckRate)
         ? Number(object.messageAckRate)
         : 0,
@@ -7066,7 +7387,7 @@ export const CommandConsumerStatsResponse = {
   toJSON(message: CommandConsumerStatsResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.errorCode !== undefined &&
       (obj.errorCode = serverErrorToJSON(message.errorCode));
     message.errorMessage !== undefined &&
@@ -7079,9 +7400,13 @@ export const CommandConsumerStatsResponse = {
     message.consumerName !== undefined &&
       (obj.consumerName = message.consumerName);
     message.availablePermits !== undefined &&
-      (obj.availablePermits = Math.round(message.availablePermits));
+      (obj.availablePermits = (
+        message.availablePermits || Long.UZERO
+      ).toString());
     message.unackedMessages !== undefined &&
-      (obj.unackedMessages = Math.round(message.unackedMessages));
+      (obj.unackedMessages = (
+        message.unackedMessages || Long.UZERO
+      ).toString());
     message.blockedConsumerOnUnackedMsgs !== undefined &&
       (obj.blockedConsumerOnUnackedMsgs = message.blockedConsumerOnUnackedMsgs);
     message.address !== undefined && (obj.address = message.address);
@@ -7091,7 +7416,7 @@ export const CommandConsumerStatsResponse = {
     message.msgRateExpired !== undefined &&
       (obj.msgRateExpired = message.msgRateExpired);
     message.msgBacklog !== undefined &&
-      (obj.msgBacklog = Math.round(message.msgBacklog));
+      (obj.msgBacklog = (message.msgBacklog || Long.UZERO).toString());
     message.messageAckRate !== undefined &&
       (obj.messageAckRate = message.messageAckRate);
     return obj;
@@ -7101,29 +7426,41 @@ export const CommandConsumerStatsResponse = {
     object: I
   ): CommandConsumerStatsResponse {
     const message = createBaseCommandConsumerStatsResponse();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.errorCode = object.errorCode ?? 0;
     message.errorMessage = object.errorMessage ?? "";
     message.msgRateOut = object.msgRateOut ?? 0;
     message.msgThroughputOut = object.msgThroughputOut ?? 0;
     message.msgRateRedeliver = object.msgRateRedeliver ?? 0;
     message.consumerName = object.consumerName ?? "";
-    message.availablePermits = object.availablePermits ?? 0;
-    message.unackedMessages = object.unackedMessages ?? 0;
+    message.availablePermits =
+      object.availablePermits !== undefined && object.availablePermits !== null
+        ? Long.fromValue(object.availablePermits)
+        : Long.UZERO;
+    message.unackedMessages =
+      object.unackedMessages !== undefined && object.unackedMessages !== null
+        ? Long.fromValue(object.unackedMessages)
+        : Long.UZERO;
     message.blockedConsumerOnUnackedMsgs =
       object.blockedConsumerOnUnackedMsgs ?? false;
     message.address = object.address ?? "";
     message.connectedSince = object.connectedSince ?? "";
     message.type = object.type ?? "";
     message.msgRateExpired = object.msgRateExpired ?? 0;
-    message.msgBacklog = object.msgBacklog ?? 0;
+    message.msgBacklog =
+      object.msgBacklog !== undefined && object.msgBacklog !== null
+        ? Long.fromValue(object.msgBacklog)
+        : Long.UZERO;
     message.messageAckRate = object.messageAckRate ?? 0;
     return message;
   },
 };
 
 function createBaseCommandGetLastMessageId(): CommandGetLastMessageId {
-  return { consumerId: 0, requestId: 0 };
+  return { consumerId: Long.UZERO, requestId: Long.UZERO };
 }
 
 export const CommandGetLastMessageId = {
@@ -7131,10 +7468,10 @@ export const CommandGetLastMessageId = {
     message: CommandGetLastMessageId,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.consumerId !== 0) {
+    if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     return writer;
@@ -7151,10 +7488,10 @@ export const CommandGetLastMessageId = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.consumerId = longToNumber(reader.uint64() as Long);
+          message.consumerId = reader.uint64() as Long;
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -7166,17 +7503,21 @@ export const CommandGetLastMessageId = {
 
   fromJSON(object: any): CommandGetLastMessageId {
     return {
-      consumerId: isSet(object.consumerId) ? Number(object.consumerId) : 0,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      consumerId: isSet(object.consumerId)
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandGetLastMessageId): unknown {
     const obj: any = {};
     message.consumerId !== undefined &&
-      (obj.consumerId = Math.round(message.consumerId));
+      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     return obj;
   },
 
@@ -7184,8 +7525,14 @@ export const CommandGetLastMessageId = {
     object: I
   ): CommandGetLastMessageId {
     const message = createBaseCommandGetLastMessageId();
-    message.consumerId = object.consumerId ?? 0;
-    message.requestId = object.requestId ?? 0;
+    message.consumerId =
+      object.consumerId !== undefined && object.consumerId !== null
+        ? Long.fromValue(object.consumerId)
+        : Long.UZERO;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     return message;
   },
 };
@@ -7193,7 +7540,7 @@ export const CommandGetLastMessageId = {
 function createBaseCommandGetLastMessageIdResponse(): CommandGetLastMessageIdResponse {
   return {
     lastMessageId: undefined,
-    requestId: 0,
+    requestId: Long.UZERO,
     consumerMarkDeletePosition: undefined,
   };
 }
@@ -7209,7 +7556,7 @@ export const CommandGetLastMessageIdResponse = {
         writer.uint32(10).fork()
       ).ldelim();
     }
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     if (message.consumerMarkDeletePosition !== undefined) {
@@ -7235,7 +7582,7 @@ export const CommandGetLastMessageIdResponse = {
           message.lastMessageId = MessageIdData.decode(reader, reader.uint32());
           break;
         case 2:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 3:
           message.consumerMarkDeletePosition = MessageIdData.decode(
@@ -7256,7 +7603,9 @@ export const CommandGetLastMessageIdResponse = {
       lastMessageId: isSet(object.lastMessageId)
         ? MessageIdData.fromJSON(object.lastMessageId)
         : undefined,
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       consumerMarkDeletePosition: isSet(object.consumerMarkDeletePosition)
         ? MessageIdData.fromJSON(object.consumerMarkDeletePosition)
         : undefined,
@@ -7270,7 +7619,7 @@ export const CommandGetLastMessageIdResponse = {
         ? MessageIdData.toJSON(message.lastMessageId)
         : undefined);
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.consumerMarkDeletePosition !== undefined &&
       (obj.consumerMarkDeletePosition = message.consumerMarkDeletePosition
         ? MessageIdData.toJSON(message.consumerMarkDeletePosition)
@@ -7286,7 +7635,10 @@ export const CommandGetLastMessageIdResponse = {
       object.lastMessageId !== undefined && object.lastMessageId !== null
         ? MessageIdData.fromPartial(object.lastMessageId)
         : undefined;
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.consumerMarkDeletePosition =
       object.consumerMarkDeletePosition !== undefined &&
       object.consumerMarkDeletePosition !== null
@@ -7298,7 +7650,7 @@ export const CommandGetLastMessageIdResponse = {
 
 function createBaseCommandGetTopicsOfNamespace(): CommandGetTopicsOfNamespace {
   return {
-    requestId: 0,
+    requestId: Long.UZERO,
     namespace: "",
     mode: 0,
     topicsPattern: "",
@@ -7311,7 +7663,7 @@ export const CommandGetTopicsOfNamespace = {
     message: CommandGetTopicsOfNamespace,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.namespace !== "") {
@@ -7340,7 +7692,7 @@ export const CommandGetTopicsOfNamespace = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.namespace = reader.string();
@@ -7364,7 +7716,9 @@ export const CommandGetTopicsOfNamespace = {
 
   fromJSON(object: any): CommandGetTopicsOfNamespace {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       namespace: isSet(object.namespace) ? String(object.namespace) : "",
       mode: isSet(object.mode)
         ? commandGetTopicsOfNamespace_ModeFromJSON(object.mode)
@@ -7379,7 +7733,7 @@ export const CommandGetTopicsOfNamespace = {
   toJSON(message: CommandGetTopicsOfNamespace): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.namespace !== undefined && (obj.namespace = message.namespace);
     message.mode !== undefined &&
       (obj.mode = commandGetTopicsOfNamespace_ModeToJSON(message.mode));
@@ -7393,7 +7747,10 @@ export const CommandGetTopicsOfNamespace = {
     object: I
   ): CommandGetTopicsOfNamespace {
     const message = createBaseCommandGetTopicsOfNamespace();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.namespace = object.namespace ?? "";
     message.mode = object.mode ?? 0;
     message.topicsPattern = object.topicsPattern ?? "";
@@ -7404,7 +7761,7 @@ export const CommandGetTopicsOfNamespace = {
 
 function createBaseCommandGetTopicsOfNamespaceResponse(): CommandGetTopicsOfNamespaceResponse {
   return {
-    requestId: 0,
+    requestId: Long.UZERO,
     topics: [],
     filtered: false,
     topicsHash: "",
@@ -7417,7 +7774,7 @@ export const CommandGetTopicsOfNamespaceResponse = {
     message: CommandGetTopicsOfNamespaceResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     for (const v of message.topics) {
@@ -7446,7 +7803,7 @@ export const CommandGetTopicsOfNamespaceResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.topics.push(reader.string());
@@ -7470,7 +7827,9 @@ export const CommandGetTopicsOfNamespaceResponse = {
 
   fromJSON(object: any): CommandGetTopicsOfNamespaceResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       topics: Array.isArray(object?.topics)
         ? object.topics.map((e: any) => String(e))
         : [],
@@ -7483,7 +7842,7 @@ export const CommandGetTopicsOfNamespaceResponse = {
   toJSON(message: CommandGetTopicsOfNamespaceResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     if (message.topics) {
       obj.topics = message.topics.map((e) => e);
     } else {
@@ -7499,7 +7858,10 @@ export const CommandGetTopicsOfNamespaceResponse = {
     I extends Exact<DeepPartial<CommandGetTopicsOfNamespaceResponse>, I>
   >(object: I): CommandGetTopicsOfNamespaceResponse {
     const message = createBaseCommandGetTopicsOfNamespaceResponse();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.topics = object.topics?.map((e) => e) || [];
     message.filtered = object.filtered ?? false;
     message.topicsHash = object.topicsHash ?? "";
@@ -7510,8 +7872,8 @@ export const CommandGetTopicsOfNamespaceResponse = {
 
 function createBaseCommandWatchTopicList(): CommandWatchTopicList {
   return {
-    requestId: 0,
-    watcherId: 0,
+    requestId: Long.UZERO,
+    watcherId: Long.UZERO,
     namespace: "",
     topicsPattern: "",
     topicsHash: "",
@@ -7523,10 +7885,10 @@ export const CommandWatchTopicList = {
     message: CommandWatchTopicList,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.watcherId !== 0) {
+    if (!message.watcherId.isZero()) {
       writer.uint32(16).uint64(message.watcherId);
     }
     if (message.namespace !== "") {
@@ -7552,10 +7914,10 @@ export const CommandWatchTopicList = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.watcherId = longToNumber(reader.uint64() as Long);
+          message.watcherId = reader.uint64() as Long;
           break;
         case 3:
           message.namespace = reader.string();
@@ -7576,8 +7938,12 @@ export const CommandWatchTopicList = {
 
   fromJSON(object: any): CommandWatchTopicList {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
-      watcherId: isSet(object.watcherId) ? Number(object.watcherId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
+      watcherId: isSet(object.watcherId)
+        ? Long.fromValue(object.watcherId)
+        : Long.UZERO,
       namespace: isSet(object.namespace) ? String(object.namespace) : "",
       topicsPattern: isSet(object.topicsPattern)
         ? String(object.topicsPattern)
@@ -7589,9 +7955,9 @@ export const CommandWatchTopicList = {
   toJSON(message: CommandWatchTopicList): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.watcherId !== undefined &&
-      (obj.watcherId = Math.round(message.watcherId));
+      (obj.watcherId = (message.watcherId || Long.UZERO).toString());
     message.namespace !== undefined && (obj.namespace = message.namespace);
     message.topicsPattern !== undefined &&
       (obj.topicsPattern = message.topicsPattern);
@@ -7603,8 +7969,14 @@ export const CommandWatchTopicList = {
     object: I
   ): CommandWatchTopicList {
     const message = createBaseCommandWatchTopicList();
-    message.requestId = object.requestId ?? 0;
-    message.watcherId = object.watcherId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.watcherId =
+      object.watcherId !== undefined && object.watcherId !== null
+        ? Long.fromValue(object.watcherId)
+        : Long.UZERO;
     message.namespace = object.namespace ?? "";
     message.topicsPattern = object.topicsPattern ?? "";
     message.topicsHash = object.topicsHash ?? "";
@@ -7613,7 +7985,12 @@ export const CommandWatchTopicList = {
 };
 
 function createBaseCommandWatchTopicListSuccess(): CommandWatchTopicListSuccess {
-  return { requestId: 0, watcherId: 0, topic: [], topicsHash: "" };
+  return {
+    requestId: Long.UZERO,
+    watcherId: Long.UZERO,
+    topic: [],
+    topicsHash: "",
+  };
 }
 
 export const CommandWatchTopicListSuccess = {
@@ -7621,10 +7998,10 @@ export const CommandWatchTopicListSuccess = {
     message: CommandWatchTopicListSuccess,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.watcherId !== 0) {
+    if (!message.watcherId.isZero()) {
       writer.uint32(16).uint64(message.watcherId);
     }
     for (const v of message.topic) {
@@ -7647,10 +8024,10 @@ export const CommandWatchTopicListSuccess = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.watcherId = longToNumber(reader.uint64() as Long);
+          message.watcherId = reader.uint64() as Long;
           break;
         case 3:
           message.topic.push(reader.string());
@@ -7668,8 +8045,12 @@ export const CommandWatchTopicListSuccess = {
 
   fromJSON(object: any): CommandWatchTopicListSuccess {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
-      watcherId: isSet(object.watcherId) ? Number(object.watcherId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
+      watcherId: isSet(object.watcherId)
+        ? Long.fromValue(object.watcherId)
+        : Long.UZERO,
       topic: Array.isArray(object?.topic)
         ? object.topic.map((e: any) => String(e))
         : [],
@@ -7680,9 +8061,9 @@ export const CommandWatchTopicListSuccess = {
   toJSON(message: CommandWatchTopicListSuccess): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.watcherId !== undefined &&
-      (obj.watcherId = Math.round(message.watcherId));
+      (obj.watcherId = (message.watcherId || Long.UZERO).toString());
     if (message.topic) {
       obj.topic = message.topic.map((e) => e);
     } else {
@@ -7696,8 +8077,14 @@ export const CommandWatchTopicListSuccess = {
     object: I
   ): CommandWatchTopicListSuccess {
     const message = createBaseCommandWatchTopicListSuccess();
-    message.requestId = object.requestId ?? 0;
-    message.watcherId = object.watcherId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.watcherId =
+      object.watcherId !== undefined && object.watcherId !== null
+        ? Long.fromValue(object.watcherId)
+        : Long.UZERO;
     message.topic = object.topic?.map((e) => e) || [];
     message.topicsHash = object.topicsHash ?? "";
     return message;
@@ -7705,7 +8092,12 @@ export const CommandWatchTopicListSuccess = {
 };
 
 function createBaseCommandWatchTopicUpdate(): CommandWatchTopicUpdate {
-  return { watcherId: 0, newTopics: [], deletedTopics: [], topicsHash: "" };
+  return {
+    watcherId: Long.UZERO,
+    newTopics: [],
+    deletedTopics: [],
+    topicsHash: "",
+  };
 }
 
 export const CommandWatchTopicUpdate = {
@@ -7713,7 +8105,7 @@ export const CommandWatchTopicUpdate = {
     message: CommandWatchTopicUpdate,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.watcherId !== 0) {
+    if (!message.watcherId.isZero()) {
       writer.uint32(8).uint64(message.watcherId);
     }
     for (const v of message.newTopics) {
@@ -7739,7 +8131,7 @@ export const CommandWatchTopicUpdate = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.watcherId = longToNumber(reader.uint64() as Long);
+          message.watcherId = reader.uint64() as Long;
           break;
         case 2:
           message.newTopics.push(reader.string());
@@ -7760,7 +8152,9 @@ export const CommandWatchTopicUpdate = {
 
   fromJSON(object: any): CommandWatchTopicUpdate {
     return {
-      watcherId: isSet(object.watcherId) ? Number(object.watcherId) : 0,
+      watcherId: isSet(object.watcherId)
+        ? Long.fromValue(object.watcherId)
+        : Long.UZERO,
       newTopics: Array.isArray(object?.newTopics)
         ? object.newTopics.map((e: any) => String(e))
         : [],
@@ -7774,7 +8168,7 @@ export const CommandWatchTopicUpdate = {
   toJSON(message: CommandWatchTopicUpdate): unknown {
     const obj: any = {};
     message.watcherId !== undefined &&
-      (obj.watcherId = Math.round(message.watcherId));
+      (obj.watcherId = (message.watcherId || Long.UZERO).toString());
     if (message.newTopics) {
       obj.newTopics = message.newTopics.map((e) => e);
     } else {
@@ -7793,7 +8187,10 @@ export const CommandWatchTopicUpdate = {
     object: I
   ): CommandWatchTopicUpdate {
     const message = createBaseCommandWatchTopicUpdate();
-    message.watcherId = object.watcherId ?? 0;
+    message.watcherId =
+      object.watcherId !== undefined && object.watcherId !== null
+        ? Long.fromValue(object.watcherId)
+        : Long.UZERO;
     message.newTopics = object.newTopics?.map((e) => e) || [];
     message.deletedTopics = object.deletedTopics?.map((e) => e) || [];
     message.topicsHash = object.topicsHash ?? "";
@@ -7802,7 +8199,7 @@ export const CommandWatchTopicUpdate = {
 };
 
 function createBaseCommandWatchTopicListClose(): CommandWatchTopicListClose {
-  return { requestId: 0, watcherId: 0 };
+  return { requestId: Long.UZERO, watcherId: Long.UZERO };
 }
 
 export const CommandWatchTopicListClose = {
@@ -7810,10 +8207,10 @@ export const CommandWatchTopicListClose = {
     message: CommandWatchTopicListClose,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.watcherId !== 0) {
+    if (!message.watcherId.isZero()) {
       writer.uint32(16).uint64(message.watcherId);
     }
     return writer;
@@ -7830,10 +8227,10 @@ export const CommandWatchTopicListClose = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.watcherId = longToNumber(reader.uint64() as Long);
+          message.watcherId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -7845,17 +8242,21 @@ export const CommandWatchTopicListClose = {
 
   fromJSON(object: any): CommandWatchTopicListClose {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
-      watcherId: isSet(object.watcherId) ? Number(object.watcherId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
+      watcherId: isSet(object.watcherId)
+        ? Long.fromValue(object.watcherId)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandWatchTopicListClose): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.watcherId !== undefined &&
-      (obj.watcherId = Math.round(message.watcherId));
+      (obj.watcherId = (message.watcherId || Long.UZERO).toString());
     return obj;
   },
 
@@ -7863,14 +8264,20 @@ export const CommandWatchTopicListClose = {
     object: I
   ): CommandWatchTopicListClose {
     const message = createBaseCommandWatchTopicListClose();
-    message.requestId = object.requestId ?? 0;
-    message.watcherId = object.watcherId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.watcherId =
+      object.watcherId !== undefined && object.watcherId !== null
+        ? Long.fromValue(object.watcherId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandGetSchema(): CommandGetSchema {
-  return { requestId: 0, topic: "", schemaVersion: new Uint8Array() };
+  return { requestId: Long.UZERO, topic: "", schemaVersion: new Uint8Array() };
 }
 
 export const CommandGetSchema = {
@@ -7878,7 +8285,7 @@ export const CommandGetSchema = {
     message: CommandGetSchema,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.topic !== "") {
@@ -7898,7 +8305,7 @@ export const CommandGetSchema = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.topic = reader.string();
@@ -7916,7 +8323,9 @@ export const CommandGetSchema = {
 
   fromJSON(object: any): CommandGetSchema {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       topic: isSet(object.topic) ? String(object.topic) : "",
       schemaVersion: isSet(object.schemaVersion)
         ? bytesFromBase64(object.schemaVersion)
@@ -7927,7 +8336,7 @@ export const CommandGetSchema = {
   toJSON(message: CommandGetSchema): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.topic !== undefined && (obj.topic = message.topic);
     message.schemaVersion !== undefined &&
       (obj.schemaVersion = base64FromBytes(
@@ -7942,7 +8351,10 @@ export const CommandGetSchema = {
     object: I
   ): CommandGetSchema {
     const message = createBaseCommandGetSchema();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.topic = object.topic ?? "";
     message.schemaVersion = object.schemaVersion ?? new Uint8Array();
     return message;
@@ -7951,7 +8363,7 @@ export const CommandGetSchema = {
 
 function createBaseCommandGetSchemaResponse(): CommandGetSchemaResponse {
   return {
-    requestId: 0,
+    requestId: Long.UZERO,
     errorCode: 0,
     errorMessage: "",
     schema: undefined,
@@ -7964,7 +8376,7 @@ export const CommandGetSchemaResponse = {
     message: CommandGetSchemaResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.errorCode !== 0) {
@@ -7993,7 +8405,7 @@ export const CommandGetSchemaResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.errorCode = reader.int32() as any;
@@ -8017,7 +8429,9 @@ export const CommandGetSchemaResponse = {
 
   fromJSON(object: any): CommandGetSchemaResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       errorCode: isSet(object.errorCode)
         ? serverErrorFromJSON(object.errorCode)
         : 0,
@@ -8034,7 +8448,7 @@ export const CommandGetSchemaResponse = {
   toJSON(message: CommandGetSchemaResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.errorCode !== undefined &&
       (obj.errorCode = serverErrorToJSON(message.errorCode));
     message.errorMessage !== undefined &&
@@ -8054,7 +8468,10 @@ export const CommandGetSchemaResponse = {
     object: I
   ): CommandGetSchemaResponse {
     const message = createBaseCommandGetSchemaResponse();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.errorCode = object.errorCode ?? 0;
     message.errorMessage = object.errorMessage ?? "";
     message.schema =
@@ -8067,7 +8484,7 @@ export const CommandGetSchemaResponse = {
 };
 
 function createBaseCommandGetOrCreateSchema(): CommandGetOrCreateSchema {
-  return { requestId: 0, topic: "", schema: undefined };
+  return { requestId: Long.UZERO, topic: "", schema: undefined };
 }
 
 export const CommandGetOrCreateSchema = {
@@ -8075,7 +8492,7 @@ export const CommandGetOrCreateSchema = {
     message: CommandGetOrCreateSchema,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.topic !== "") {
@@ -8098,7 +8515,7 @@ export const CommandGetOrCreateSchema = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.topic = reader.string();
@@ -8116,7 +8533,9 @@ export const CommandGetOrCreateSchema = {
 
   fromJSON(object: any): CommandGetOrCreateSchema {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       topic: isSet(object.topic) ? String(object.topic) : "",
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
     };
@@ -8125,7 +8544,7 @@ export const CommandGetOrCreateSchema = {
   toJSON(message: CommandGetOrCreateSchema): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.topic !== undefined && (obj.topic = message.topic);
     message.schema !== undefined &&
       (obj.schema = message.schema ? Schema.toJSON(message.schema) : undefined);
@@ -8136,7 +8555,10 @@ export const CommandGetOrCreateSchema = {
     object: I
   ): CommandGetOrCreateSchema {
     const message = createBaseCommandGetOrCreateSchema();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.topic = object.topic ?? "";
     message.schema =
       object.schema !== undefined && object.schema !== null
@@ -8148,7 +8570,7 @@ export const CommandGetOrCreateSchema = {
 
 function createBaseCommandGetOrCreateSchemaResponse(): CommandGetOrCreateSchemaResponse {
   return {
-    requestId: 0,
+    requestId: Long.UZERO,
     errorCode: 0,
     errorMessage: "",
     schemaVersion: new Uint8Array(),
@@ -8160,7 +8582,7 @@ export const CommandGetOrCreateSchemaResponse = {
     message: CommandGetOrCreateSchemaResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.errorCode !== 0) {
@@ -8186,7 +8608,7 @@ export const CommandGetOrCreateSchemaResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.errorCode = reader.int32() as any;
@@ -8207,7 +8629,9 @@ export const CommandGetOrCreateSchemaResponse = {
 
   fromJSON(object: any): CommandGetOrCreateSchemaResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       errorCode: isSet(object.errorCode)
         ? serverErrorFromJSON(object.errorCode)
         : 0,
@@ -8223,7 +8647,7 @@ export const CommandGetOrCreateSchemaResponse = {
   toJSON(message: CommandGetOrCreateSchemaResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.errorCode !== undefined &&
       (obj.errorCode = serverErrorToJSON(message.errorCode));
     message.errorMessage !== undefined &&
@@ -8241,7 +8665,10 @@ export const CommandGetOrCreateSchemaResponse = {
     I extends Exact<DeepPartial<CommandGetOrCreateSchemaResponse>, I>
   >(object: I): CommandGetOrCreateSchemaResponse {
     const message = createBaseCommandGetOrCreateSchemaResponse();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.errorCode = object.errorCode ?? 0;
     message.errorMessage = object.errorMessage ?? "";
     message.schemaVersion = object.schemaVersion ?? new Uint8Array();
@@ -8250,7 +8677,7 @@ export const CommandGetOrCreateSchemaResponse = {
 };
 
 function createBaseCommandTcClientConnectRequest(): CommandTcClientConnectRequest {
-  return { requestId: 0, tcId: 0 };
+  return { requestId: Long.UZERO, tcId: Long.UZERO };
 }
 
 export const CommandTcClientConnectRequest = {
@@ -8258,10 +8685,10 @@ export const CommandTcClientConnectRequest = {
     message: CommandTcClientConnectRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.tcId !== 0) {
+    if (!message.tcId.isZero()) {
       writer.uint32(16).uint64(message.tcId);
     }
     return writer;
@@ -8278,10 +8705,10 @@ export const CommandTcClientConnectRequest = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.tcId = longToNumber(reader.uint64() as Long);
+          message.tcId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -8293,16 +8720,19 @@ export const CommandTcClientConnectRequest = {
 
   fromJSON(object: any): CommandTcClientConnectRequest {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
-      tcId: isSet(object.tcId) ? Number(object.tcId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
+      tcId: isSet(object.tcId) ? Long.fromValue(object.tcId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandTcClientConnectRequest): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
-    message.tcId !== undefined && (obj.tcId = Math.round(message.tcId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
+    message.tcId !== undefined &&
+      (obj.tcId = (message.tcId || Long.UZERO).toString());
     return obj;
   },
 
@@ -8310,14 +8740,20 @@ export const CommandTcClientConnectRequest = {
     object: I
   ): CommandTcClientConnectRequest {
     const message = createBaseCommandTcClientConnectRequest();
-    message.requestId = object.requestId ?? 0;
-    message.tcId = object.tcId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.tcId =
+      object.tcId !== undefined && object.tcId !== null
+        ? Long.fromValue(object.tcId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandTcClientConnectResponse(): CommandTcClientConnectResponse {
-  return { requestId: 0, error: 0, message: "" };
+  return { requestId: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandTcClientConnectResponse = {
@@ -8325,7 +8761,7 @@ export const CommandTcClientConnectResponse = {
     message: CommandTcClientConnectResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
     if (message.error !== 0) {
@@ -8348,7 +8784,7 @@ export const CommandTcClientConnectResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
           message.error = reader.int32() as any;
@@ -8366,7 +8802,9 @@ export const CommandTcClientConnectResponse = {
 
   fromJSON(object: any): CommandTcClientConnectResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -8375,7 +8813,7 @@ export const CommandTcClientConnectResponse = {
   toJSON(message: CommandTcClientConnectResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -8386,7 +8824,10 @@ export const CommandTcClientConnectResponse = {
     object: I
   ): CommandTcClientConnectResponse {
     const message = createBaseCommandTcClientConnectResponse();
-    message.requestId = object.requestId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -8394,7 +8835,7 @@ export const CommandTcClientConnectResponse = {
 };
 
 function createBaseCommandNewTxn(): CommandNewTxn {
-  return { requestId: 0, txnTtlSeconds: 0, tcId: 0 };
+  return { requestId: Long.UZERO, txnTtlSeconds: Long.UZERO, tcId: Long.UZERO };
 }
 
 export const CommandNewTxn = {
@@ -8402,13 +8843,13 @@ export const CommandNewTxn = {
     message: CommandNewTxn,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnTtlSeconds !== 0) {
+    if (!message.txnTtlSeconds.isZero()) {
       writer.uint32(16).uint64(message.txnTtlSeconds);
     }
-    if (message.tcId !== 0) {
+    if (!message.tcId.isZero()) {
       writer.uint32(24).uint64(message.tcId);
     }
     return writer;
@@ -8422,13 +8863,13 @@ export const CommandNewTxn = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnTtlSeconds = longToNumber(reader.uint64() as Long);
+          message.txnTtlSeconds = reader.uint64() as Long;
           break;
         case 3:
-          message.tcId = longToNumber(reader.uint64() as Long);
+          message.tcId = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -8440,21 +8881,24 @@ export const CommandNewTxn = {
 
   fromJSON(object: any): CommandNewTxn {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnTtlSeconds: isSet(object.txnTtlSeconds)
-        ? Number(object.txnTtlSeconds)
-        : 0,
-      tcId: isSet(object.tcId) ? Number(object.tcId) : 0,
+        ? Long.fromValue(object.txnTtlSeconds)
+        : Long.UZERO,
+      tcId: isSet(object.tcId) ? Long.fromValue(object.tcId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandNewTxn): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnTtlSeconds !== undefined &&
-      (obj.txnTtlSeconds = Math.round(message.txnTtlSeconds));
-    message.tcId !== undefined && (obj.tcId = Math.round(message.tcId));
+      (obj.txnTtlSeconds = (message.txnTtlSeconds || Long.UZERO).toString());
+    message.tcId !== undefined &&
+      (obj.tcId = (message.tcId || Long.UZERO).toString());
     return obj;
   },
 
@@ -8462,18 +8906,27 @@ export const CommandNewTxn = {
     object: I
   ): CommandNewTxn {
     const message = createBaseCommandNewTxn();
-    message.requestId = object.requestId ?? 0;
-    message.txnTtlSeconds = object.txnTtlSeconds ?? 0;
-    message.tcId = object.tcId ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnTtlSeconds =
+      object.txnTtlSeconds !== undefined && object.txnTtlSeconds !== null
+        ? Long.fromValue(object.txnTtlSeconds)
+        : Long.UZERO;
+    message.tcId =
+      object.tcId !== undefined && object.tcId !== null
+        ? Long.fromValue(object.tcId)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandNewTxnResponse(): CommandNewTxnResponse {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     error: 0,
     message: "",
   };
@@ -8484,13 +8937,13 @@ export const CommandNewTxnResponse = {
     message: CommandNewTxnResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.error !== 0) {
@@ -8513,13 +8966,13 @@ export const CommandNewTxnResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.error = reader.int32() as any;
@@ -8537,13 +8990,15 @@ export const CommandNewTxnResponse = {
 
   fromJSON(object: any): CommandNewTxnResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -8552,11 +9007,11 @@ export const CommandNewTxnResponse = {
   toJSON(message: CommandNewTxnResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -8567,9 +9022,18 @@ export const CommandNewTxnResponse = {
     object: I
   ): CommandNewTxnResponse {
     const message = createBaseCommandNewTxnResponse();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -8577,7 +9041,12 @@ export const CommandNewTxnResponse = {
 };
 
 function createBaseCommandAddPartitionToTxn(): CommandAddPartitionToTxn {
-  return { requestId: 0, txnidLeastBits: 0, txnidMostBits: 0, partitions: [] };
+  return {
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
+    partitions: [],
+  };
 }
 
 export const CommandAddPartitionToTxn = {
@@ -8585,13 +9054,13 @@ export const CommandAddPartitionToTxn = {
     message: CommandAddPartitionToTxn,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     for (const v of message.partitions) {
@@ -8611,13 +9080,13 @@ export const CommandAddPartitionToTxn = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.partitions.push(reader.string());
@@ -8632,13 +9101,15 @@ export const CommandAddPartitionToTxn = {
 
   fromJSON(object: any): CommandAddPartitionToTxn {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       partitions: Array.isArray(object?.partitions)
         ? object.partitions.map((e: any) => String(e))
         : [],
@@ -8648,11 +9119,11 @@ export const CommandAddPartitionToTxn = {
   toJSON(message: CommandAddPartitionToTxn): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     if (message.partitions) {
       obj.partitions = message.partitions.map((e) => e);
     } else {
@@ -8665,9 +9136,18 @@ export const CommandAddPartitionToTxn = {
     object: I
   ): CommandAddPartitionToTxn {
     const message = createBaseCommandAddPartitionToTxn();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.partitions = object.partitions?.map((e) => e) || [];
     return message;
   },
@@ -8675,9 +9155,9 @@ export const CommandAddPartitionToTxn = {
 
 function createBaseCommandAddPartitionToTxnResponse(): CommandAddPartitionToTxnResponse {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     error: 0,
     message: "",
   };
@@ -8688,13 +9168,13 @@ export const CommandAddPartitionToTxnResponse = {
     message: CommandAddPartitionToTxnResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.error !== 0) {
@@ -8717,13 +9197,13 @@ export const CommandAddPartitionToTxnResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.error = reader.int32() as any;
@@ -8741,13 +9221,15 @@ export const CommandAddPartitionToTxnResponse = {
 
   fromJSON(object: any): CommandAddPartitionToTxnResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -8756,11 +9238,11 @@ export const CommandAddPartitionToTxnResponse = {
   toJSON(message: CommandAddPartitionToTxnResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -8771,9 +9253,18 @@ export const CommandAddPartitionToTxnResponse = {
     I extends Exact<DeepPartial<CommandAddPartitionToTxnResponse>, I>
   >(object: I): CommandAddPartitionToTxnResponse {
     const message = createBaseCommandAddPartitionToTxnResponse();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -8848,9 +9339,9 @@ export const Subscription = {
 
 function createBaseCommandAddSubscriptionToTxn(): CommandAddSubscriptionToTxn {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     subscription: [],
   };
 }
@@ -8860,13 +9351,13 @@ export const CommandAddSubscriptionToTxn = {
     message: CommandAddSubscriptionToTxn,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     for (const v of message.subscription) {
@@ -8886,13 +9377,13 @@ export const CommandAddSubscriptionToTxn = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.subscription.push(
@@ -8909,13 +9400,15 @@ export const CommandAddSubscriptionToTxn = {
 
   fromJSON(object: any): CommandAddSubscriptionToTxn {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       subscription: Array.isArray(object?.subscription)
         ? object.subscription.map((e: any) => Subscription.fromJSON(e))
         : [],
@@ -8925,11 +9418,11 @@ export const CommandAddSubscriptionToTxn = {
   toJSON(message: CommandAddSubscriptionToTxn): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     if (message.subscription) {
       obj.subscription = message.subscription.map((e) =>
         e ? Subscription.toJSON(e) : undefined
@@ -8944,9 +9437,18 @@ export const CommandAddSubscriptionToTxn = {
     object: I
   ): CommandAddSubscriptionToTxn {
     const message = createBaseCommandAddSubscriptionToTxn();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.subscription =
       object.subscription?.map((e) => Subscription.fromPartial(e)) || [];
     return message;
@@ -8955,9 +9457,9 @@ export const CommandAddSubscriptionToTxn = {
 
 function createBaseCommandAddSubscriptionToTxnResponse(): CommandAddSubscriptionToTxnResponse {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     error: 0,
     message: "",
   };
@@ -8968,13 +9470,13 @@ export const CommandAddSubscriptionToTxnResponse = {
     message: CommandAddSubscriptionToTxnResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.error !== 0) {
@@ -8997,13 +9499,13 @@ export const CommandAddSubscriptionToTxnResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.error = reader.int32() as any;
@@ -9021,13 +9523,15 @@ export const CommandAddSubscriptionToTxnResponse = {
 
   fromJSON(object: any): CommandAddSubscriptionToTxnResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -9036,11 +9540,11 @@ export const CommandAddSubscriptionToTxnResponse = {
   toJSON(message: CommandAddSubscriptionToTxnResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -9051,9 +9555,18 @@ export const CommandAddSubscriptionToTxnResponse = {
     I extends Exact<DeepPartial<CommandAddSubscriptionToTxnResponse>, I>
   >(object: I): CommandAddSubscriptionToTxnResponse {
     const message = createBaseCommandAddSubscriptionToTxnResponse();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -9061,7 +9574,12 @@ export const CommandAddSubscriptionToTxnResponse = {
 };
 
 function createBaseCommandEndTxn(): CommandEndTxn {
-  return { requestId: 0, txnidLeastBits: 0, txnidMostBits: 0, txnAction: 0 };
+  return {
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
+    txnAction: 0,
+  };
 }
 
 export const CommandEndTxn = {
@@ -9069,13 +9587,13 @@ export const CommandEndTxn = {
     message: CommandEndTxn,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.txnAction !== 0) {
@@ -9092,13 +9610,13 @@ export const CommandEndTxn = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.txnAction = reader.int32() as any;
@@ -9113,13 +9631,15 @@ export const CommandEndTxn = {
 
   fromJSON(object: any): CommandEndTxn {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       txnAction: isSet(object.txnAction)
         ? txnActionFromJSON(object.txnAction)
         : 0,
@@ -9129,11 +9649,11 @@ export const CommandEndTxn = {
   toJSON(message: CommandEndTxn): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.txnAction !== undefined &&
       (obj.txnAction = txnActionToJSON(message.txnAction));
     return obj;
@@ -9143,9 +9663,18 @@ export const CommandEndTxn = {
     object: I
   ): CommandEndTxn {
     const message = createBaseCommandEndTxn();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.txnAction = object.txnAction ?? 0;
     return message;
   },
@@ -9153,9 +9682,9 @@ export const CommandEndTxn = {
 
 function createBaseCommandEndTxnResponse(): CommandEndTxnResponse {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     error: 0,
     message: "",
   };
@@ -9166,13 +9695,13 @@ export const CommandEndTxnResponse = {
     message: CommandEndTxnResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.error !== 0) {
@@ -9195,13 +9724,13 @@ export const CommandEndTxnResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.error = reader.int32() as any;
@@ -9219,13 +9748,15 @@ export const CommandEndTxnResponse = {
 
   fromJSON(object: any): CommandEndTxnResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -9234,11 +9765,11 @@ export const CommandEndTxnResponse = {
   toJSON(message: CommandEndTxnResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -9249,9 +9780,18 @@ export const CommandEndTxnResponse = {
     object: I
   ): CommandEndTxnResponse {
     const message = createBaseCommandEndTxnResponse();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -9260,12 +9800,12 @@ export const CommandEndTxnResponse = {
 
 function createBaseCommandEndTxnOnPartition(): CommandEndTxnOnPartition {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     topic: "",
     txnAction: 0,
-    txnidLeastBitsOfLowWatermark: 0,
+    txnidLeastBitsOfLowWatermark: Long.UZERO,
   };
 }
 
@@ -9274,13 +9814,13 @@ export const CommandEndTxnOnPartition = {
     message: CommandEndTxnOnPartition,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.topic !== "") {
@@ -9289,7 +9829,7 @@ export const CommandEndTxnOnPartition = {
     if (message.txnAction !== 0) {
       writer.uint32(40).int32(message.txnAction);
     }
-    if (message.txnidLeastBitsOfLowWatermark !== 0) {
+    if (!message.txnidLeastBitsOfLowWatermark.isZero()) {
       writer.uint32(48).uint64(message.txnidLeastBitsOfLowWatermark);
     }
     return writer;
@@ -9306,13 +9846,13 @@ export const CommandEndTxnOnPartition = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.topic = reader.string();
@@ -9321,9 +9861,7 @@ export const CommandEndTxnOnPartition = {
           message.txnAction = reader.int32() as any;
           break;
         case 6:
-          message.txnidLeastBitsOfLowWatermark = longToNumber(
-            reader.uint64() as Long
-          );
+          message.txnidLeastBitsOfLowWatermark = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -9335,38 +9873,40 @@ export const CommandEndTxnOnPartition = {
 
   fromJSON(object: any): CommandEndTxnOnPartition {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       topic: isSet(object.topic) ? String(object.topic) : "",
       txnAction: isSet(object.txnAction)
         ? txnActionFromJSON(object.txnAction)
         : 0,
       txnidLeastBitsOfLowWatermark: isSet(object.txnidLeastBitsOfLowWatermark)
-        ? Number(object.txnidLeastBitsOfLowWatermark)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandEndTxnOnPartition): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.topic !== undefined && (obj.topic = message.topic);
     message.txnAction !== undefined &&
       (obj.txnAction = txnActionToJSON(message.txnAction));
     message.txnidLeastBitsOfLowWatermark !== undefined &&
-      (obj.txnidLeastBitsOfLowWatermark = Math.round(
-        message.txnidLeastBitsOfLowWatermark
-      ));
+      (obj.txnidLeastBitsOfLowWatermark = (
+        message.txnidLeastBitsOfLowWatermark || Long.UZERO
+      ).toString());
     return obj;
   },
 
@@ -9374,22 +9914,34 @@ export const CommandEndTxnOnPartition = {
     object: I
   ): CommandEndTxnOnPartition {
     const message = createBaseCommandEndTxnOnPartition();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.topic = object.topic ?? "";
     message.txnAction = object.txnAction ?? 0;
     message.txnidLeastBitsOfLowWatermark =
-      object.txnidLeastBitsOfLowWatermark ?? 0;
+      object.txnidLeastBitsOfLowWatermark !== undefined &&
+      object.txnidLeastBitsOfLowWatermark !== null
+        ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandEndTxnOnPartitionResponse(): CommandEndTxnOnPartitionResponse {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     error: 0,
     message: "",
   };
@@ -9400,13 +9952,13 @@ export const CommandEndTxnOnPartitionResponse = {
     message: CommandEndTxnOnPartitionResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.error !== 0) {
@@ -9429,13 +9981,13 @@ export const CommandEndTxnOnPartitionResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.error = reader.int32() as any;
@@ -9453,13 +10005,15 @@ export const CommandEndTxnOnPartitionResponse = {
 
   fromJSON(object: any): CommandEndTxnOnPartitionResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -9468,11 +10022,11 @@ export const CommandEndTxnOnPartitionResponse = {
   toJSON(message: CommandEndTxnOnPartitionResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -9483,9 +10037,18 @@ export const CommandEndTxnOnPartitionResponse = {
     I extends Exact<DeepPartial<CommandEndTxnOnPartitionResponse>, I>
   >(object: I): CommandEndTxnOnPartitionResponse {
     const message = createBaseCommandEndTxnOnPartitionResponse();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -9494,12 +10057,12 @@ export const CommandEndTxnOnPartitionResponse = {
 
 function createBaseCommandEndTxnOnSubscription(): CommandEndTxnOnSubscription {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     subscription: undefined,
     txnAction: 0,
-    txnidLeastBitsOfLowWatermark: 0,
+    txnidLeastBitsOfLowWatermark: Long.UZERO,
   };
 }
 
@@ -9508,13 +10071,13 @@ export const CommandEndTxnOnSubscription = {
     message: CommandEndTxnOnSubscription,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.subscription !== undefined) {
@@ -9526,7 +10089,7 @@ export const CommandEndTxnOnSubscription = {
     if (message.txnAction !== 0) {
       writer.uint32(40).int32(message.txnAction);
     }
-    if (message.txnidLeastBitsOfLowWatermark !== 0) {
+    if (!message.txnidLeastBitsOfLowWatermark.isZero()) {
       writer.uint32(48).uint64(message.txnidLeastBitsOfLowWatermark);
     }
     return writer;
@@ -9543,13 +10106,13 @@ export const CommandEndTxnOnSubscription = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.subscription = Subscription.decode(reader, reader.uint32());
@@ -9558,9 +10121,7 @@ export const CommandEndTxnOnSubscription = {
           message.txnAction = reader.int32() as any;
           break;
         case 6:
-          message.txnidLeastBitsOfLowWatermark = longToNumber(
-            reader.uint64() as Long
-          );
+          message.txnidLeastBitsOfLowWatermark = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -9572,13 +10133,15 @@ export const CommandEndTxnOnSubscription = {
 
   fromJSON(object: any): CommandEndTxnOnSubscription {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       subscription: isSet(object.subscription)
         ? Subscription.fromJSON(object.subscription)
         : undefined,
@@ -9586,19 +10149,19 @@ export const CommandEndTxnOnSubscription = {
         ? txnActionFromJSON(object.txnAction)
         : 0,
       txnidLeastBitsOfLowWatermark: isSet(object.txnidLeastBitsOfLowWatermark)
-        ? Number(object.txnidLeastBitsOfLowWatermark)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: CommandEndTxnOnSubscription): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.subscription !== undefined &&
       (obj.subscription = message.subscription
         ? Subscription.toJSON(message.subscription)
@@ -9606,9 +10169,9 @@ export const CommandEndTxnOnSubscription = {
     message.txnAction !== undefined &&
       (obj.txnAction = txnActionToJSON(message.txnAction));
     message.txnidLeastBitsOfLowWatermark !== undefined &&
-      (obj.txnidLeastBitsOfLowWatermark = Math.round(
-        message.txnidLeastBitsOfLowWatermark
-      ));
+      (obj.txnidLeastBitsOfLowWatermark = (
+        message.txnidLeastBitsOfLowWatermark || Long.UZERO
+      ).toString());
     return obj;
   },
 
@@ -9616,25 +10179,37 @@ export const CommandEndTxnOnSubscription = {
     object: I
   ): CommandEndTxnOnSubscription {
     const message = createBaseCommandEndTxnOnSubscription();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.subscription =
       object.subscription !== undefined && object.subscription !== null
         ? Subscription.fromPartial(object.subscription)
         : undefined;
     message.txnAction = object.txnAction ?? 0;
     message.txnidLeastBitsOfLowWatermark =
-      object.txnidLeastBitsOfLowWatermark ?? 0;
+      object.txnidLeastBitsOfLowWatermark !== undefined &&
+      object.txnidLeastBitsOfLowWatermark !== null
+        ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandEndTxnOnSubscriptionResponse(): CommandEndTxnOnSubscriptionResponse {
   return {
-    requestId: 0,
-    txnidLeastBits: 0,
-    txnidMostBits: 0,
+    requestId: Long.UZERO,
+    txnidLeastBits: Long.UZERO,
+    txnidMostBits: Long.UZERO,
     error: 0,
     message: "",
   };
@@ -9645,13 +10220,13 @@ export const CommandEndTxnOnSubscriptionResponse = {
     message: CommandEndTxnOnSubscriptionResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.requestId !== 0) {
+    if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
-    if (message.txnidLeastBits !== 0) {
+    if (!message.txnidLeastBits.isZero()) {
       writer.uint32(16).uint64(message.txnidLeastBits);
     }
-    if (message.txnidMostBits !== 0) {
+    if (!message.txnidMostBits.isZero()) {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.error !== 0) {
@@ -9674,13 +10249,13 @@ export const CommandEndTxnOnSubscriptionResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.requestId = longToNumber(reader.uint64() as Long);
+          message.requestId = reader.uint64() as Long;
           break;
         case 2:
-          message.txnidLeastBits = longToNumber(reader.uint64() as Long);
+          message.txnidLeastBits = reader.uint64() as Long;
           break;
         case 3:
-          message.txnidMostBits = longToNumber(reader.uint64() as Long);
+          message.txnidMostBits = reader.uint64() as Long;
           break;
         case 4:
           message.error = reader.int32() as any;
@@ -9698,13 +10273,15 @@ export const CommandEndTxnOnSubscriptionResponse = {
 
   fromJSON(object: any): CommandEndTxnOnSubscriptionResponse {
     return {
-      requestId: isSet(object.requestId) ? Number(object.requestId) : 0,
+      requestId: isSet(object.requestId)
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Number(object.txnidLeastBits)
-        : 0,
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits)
-        ? Number(object.txnidMostBits)
-        : 0,
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -9713,11 +10290,11 @@ export const CommandEndTxnOnSubscriptionResponse = {
   toJSON(message: CommandEndTxnOnSubscriptionResponse): unknown {
     const obj: any = {};
     message.requestId !== undefined &&
-      (obj.requestId = Math.round(message.requestId));
+      (obj.requestId = (message.requestId || Long.UZERO).toString());
     message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = Math.round(message.txnidLeastBits));
+      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
     message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = Math.round(message.txnidMostBits));
+      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
     message.error !== undefined &&
       (obj.error = serverErrorToJSON(message.error));
     message.message !== undefined && (obj.message = message.message);
@@ -9728,9 +10305,18 @@ export const CommandEndTxnOnSubscriptionResponse = {
     I extends Exact<DeepPartial<CommandEndTxnOnSubscriptionResponse>, I>
   >(object: I): CommandEndTxnOnSubscriptionResponse {
     const message = createBaseCommandEndTxnOnSubscriptionResponse();
-    message.requestId = object.requestId ?? 0;
-    message.txnidLeastBits = object.txnidLeastBits ?? 0;
-    message.txnidMostBits = object.txnidMostBits ?? 0;
+    message.requestId =
+      object.requestId !== undefined && object.requestId !== null
+        ? Long.fromValue(object.requestId)
+        : Long.UZERO;
+    message.txnidLeastBits =
+      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
+        ? Long.fromValue(object.txnidLeastBits)
+        : Long.UZERO;
+    message.txnidMostBits =
+      object.txnidMostBits !== undefined && object.txnidMostBits !== null
+        ? Long.fromValue(object.txnidMostBits)
+        : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -11173,6 +11759,8 @@ type Builtin =
 
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -11188,13 +11776,6 @@ export type Exact<P, I extends P> = P extends Builtin
         Exclude<keyof I, KeysOfUnion<P>>,
         never
       >;
-
-function longToNumber(long: Long): number {
-  if (long.gt(Number.MAX_SAFE_INTEGER)) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  return long.toNumber();
-}
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

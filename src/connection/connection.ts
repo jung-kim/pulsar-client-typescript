@@ -1,11 +1,12 @@
 import { Auth } from 'auth'
 import { Socket, createConnection } from 'net'
-import { Writer } from 'protobufjs'
+import { Reader, Writer } from 'protobufjs'
 import { connect, TLSSocket } from 'tls'
 import { URL } from 'url'
 import { BaseCommand, BaseCommand_Type, ProtocolVersion } from '../proto/PulsarApi'
 
 const DEFAULT_TIMEOUT_MS = 10 * 1000
+const DEFAULT_MAX_MESSAGEE_SIZE = 5 * 1024 * 1024
 
 export interface ConnectionOptions {
   url: string
@@ -49,8 +50,9 @@ export class Connection {
   private state: 'INITIALIZING' | 'READY' | 'CLOSING' | 'CLOSED' | 'UNKNOWN' = 'INITIALIZING'
   private readonly tcpConnectionPromise: Promise<void>
   private readonly initializePromise: Promise<void>
-  private options: ConnectionOptions
+  private readonly options: ConnectionOptions
   private readonly protocolVersion = ProtocolVersion.v13
+  private maxMesageSize: number = -1
 
   constructor(options: ConnectionOptions) {
     this.options = initializeConnectionOption(options)
@@ -85,20 +87,16 @@ export class Connection {
       })
     }
 
-    this.socket.once('error', (err: Error) => {
-      if (this.socket.readyState === 'opening') {
-        this.state = 'CLOSING'
-        this.destroy()
-      }
+    this.socket.on('error', (err: Error) => {
+      // close event will trigger automatically after this event so not destroying here.
       console.log('err', err)
-      reject(err)
     })
 
-    this.socket.once('close', () => {
+    this.socket.on('close', () => {
       this.state = 'CLOSING'
+      reject(Error('socket closing'))
       this.destroy()
       console.log('close')
-      reject(Error('socket closing'))
     })
 
     this.socket.once('ready', () => {
@@ -107,7 +105,7 @@ export class Connection {
     })
 
     // send connect command
-    this.initializePromise = this.connect()
+    this.initializePromise = this.handShake()
   }
 
   destroy() {
@@ -115,7 +113,7 @@ export class Connection {
     this.state = 'CLOSED'
   }
 
-  private async connect() {
+  private async handShake() {
     await this.tcpConnectionPromise
 
     if (this.state !== 'INITIALIZING') {
@@ -137,7 +135,35 @@ export class Connection {
       }
     })
 
+    let handShakeResolve: (v: Buffer) => void
+    const handShakePromise = new Promise<Buffer>((res, rej) => {
+      handShakeResolve = res
+    })
+    this.socket.once('data', (data: Buffer) => {
+      handShakeResolve(data)
+    })
+
     await this._sendCommand(payload)
+    const response = await handShakePromise
+    const { baseCommand } = this.internalReceiveCommand(response)
+
+    if (!baseCommand.connected) {
+      if (baseCommand.error) {
+        console.log(`error during handshake ${baseCommand.error.message}`)
+      } else {
+        this.destroy()
+        throw Error(`Invalid response recevived`)
+      }
+    }
+
+    if (baseCommand.connected?.maxMessageSize) {
+      this.maxMesageSize = baseCommand.connected?.maxMessageSize
+    } else {
+      this.maxMesageSize = DEFAULT_MAX_MESSAGEE_SIZE
+    }
+
+    this.state = 'READY'
+    console.log('connected!!')
   }
 
   async sendCommand(command: BaseCommand) {
@@ -158,19 +184,26 @@ export class Connection {
       ...marshalledCommand
     ])
 
-    this.socket.once('data', (data: Buffer) => {
-      console.log(388482, data)
-      const test = BaseCommand.decode(data)
-      console.log(838842, test)
-    })
-    
     this.socket.write(payload)
   }
 
   private async ensureReady() {
     await this.initializePromise
     if (this.state !== 'READY') {
-      throw Error('Unable to connect')
+      throw Error('Socket not connected')
+    }
+  }
+
+  private internalReceiveCommand(data: Buffer) {
+    const frameSize = (new Reader(data.subarray(0, 4))).fixed32()
+    const commandSize = (new Reader(data.subarray(4, 8))).fixed32()
+    const headersAndPayloadSize = frameSize - (commandSize + 4)
+
+    const command = data.subarray(8, commandSize + 8)
+    const headersAndPayload = data.subarray(commandSize + 8, commandSize + headersAndPayloadSize + 8)
+    return {
+      baseCommand: BaseCommand.decode(command),
+      headersAndPayload
     }
   }
 }

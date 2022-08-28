@@ -3,19 +3,22 @@ import { OutgoingHttpHeaders } from "http"
 import * as OAuthLib from 'oauth'
 
 export interface OAuthOptions {
-  clientId: string,
-  clientSecret: string,
-  baseSite: string,
-  authorizePath?: string,
-  accessTokenPath?: string,
+  clientId: string
+  clientSecret: string
+  baseSite: string
+  authorizePath?: string
+  accessTokenPath?: string
   customHeaders?: OutgoingHttpHeaders
-  customParams?: Record<string, string> 
+  customParams?: Record<string, string>
+
+  _token?: string // this is more for debuging, used if passed in instead of token exchange
 }
 
 export class OAuth implements Auth {
-  readonly name = 'oauth'
+  readonly name = 'token'
   readonly oauth: OAuthLib.OAuth2
   readonly customParams: Record<string, string>
+  readonly tokenOverride: string | undefined
   _accessToken: string = ''
   _refreshToken: string = ''
   _expiresAt: number | undefined
@@ -31,6 +34,7 @@ export class OAuth implements Auth {
     )
 
     this.customParams = { ...options.customParams }
+    this.tokenOverride = options._token
   }
 
   /**
@@ -42,6 +46,9 @@ export class OAuth implements Auth {
    * @returns 
    */
   async getToken(): Promise<string> {
+    if (this.tokenOverride) {
+      return this.tokenOverride
+    }
     if (this.isCurrentTokenValid()) {
       return this._accessToken
     }
@@ -59,7 +66,7 @@ export class OAuth implements Auth {
   }
 
   async getAuthData(): Promise<string> {
-    return await this.getAuthData()
+    return await this.getToken()
   }
 
   /**
@@ -121,7 +128,7 @@ export class OAuth implements Auth {
 
         this._accessToken = access_token
         this._refreshToken = refresh_token
-        if (results['expires_in']) {
+        if (results && results['expires_in']) {
           // set when the token expires in and set the token expiresAt.
           // assumes `expires_in` is in seconds, subtract 30second just to refresh preemptively
           this._expiresAt = Date.now() + (results['expires_in'] * 1000) - 30000
