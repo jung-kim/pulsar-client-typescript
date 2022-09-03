@@ -13,6 +13,7 @@
     "@streamnative/pulsar-admin-client-typescript": "^0.1.10",
     "@types/lodash": "^4.14.182",
     "@types/oauth": "^0.9.1",
+    "async-retry": "^1.3.3",
     "axios": "^0.25.0",
     "lodash": "^4.17.21",
     "long": "^5.2.0",
@@ -23,6 +24,7 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
+    "@types/async-retry": "^1.4.5",
     "@types/node": "^18.0.0",
     "@types/yargs": "^17.0.10",
     "protoc-gen-ts": "^0.8.5"

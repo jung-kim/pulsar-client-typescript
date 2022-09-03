@@ -4,6 +4,7 @@ import { Reader, Writer } from 'protobufjs'
 import { connect, TLSSocket } from 'tls'
 import { URL } from 'url'
 import { BaseCommand, BaseCommand_Type, ProtocolVersion } from '../proto/PulsarApi'
+import AsyncRetry from 'async-retry'
 
 const DEFAULT_TIMEOUT_MS = 10 * 1000
 const DEFAULT_MAX_MESSAGEE_SIZE = 5 * 1024 * 1024
@@ -17,6 +18,7 @@ export interface ConnectionOptions {
   _port?: number
   _protocol?: string
   _isTlsEnabled?: boolean
+  _maxMesageSize?: number
 }
 
 export const initializeConnectionOption = (options: ConnectionOptions) => {
@@ -46,78 +48,128 @@ export const initializeConnectionOption = (options: ConnectionOptions) => {
 }
 
 export class Connection {
-  private socket: Socket | TLSSocket
   private state: 'INITIALIZING' | 'READY' | 'CLOSING' | 'CLOSED' | 'UNKNOWN' = 'INITIALIZING'
-  private readonly tcpConnectionPromise: Promise<void>
-  private readonly initializePromise: Promise<void>
+  private socket: Socket | TLSSocket | undefined = undefined
+  private initializePromise: Promise<void> | undefined = undefined
   private readonly options: ConnectionOptions
   private readonly protocolVersion = ProtocolVersion.v13
-  private maxMesageSize: number = -1
 
   constructor(options: ConnectionOptions) {
     this.options = initializeConnectionOption(options)
-    if (!options._hostname || !options._port) {
-      throw Error('Invalid url was passed in')
-    }
-
-    let resolve: (v: void) => void
-    let reject: (v: Error) => void
-    this.tcpConnectionPromise = new Promise((res, rej) => { 
-      resolve = res 
-      reject = rej
-    })
-
-    // initializing socket
-    if (!this.options._hostname || !this.options._port) {
-      throw Error('Invalid url was passed in')
-    }
-
-    if (this.options._isTlsEnabled) {
-      this.socket = connect({
-        host: this.options._hostname,
-        port: this.options._port,
-        servername: this.options._hostname,
-        timeout: this.options.timeoutMs
-      })
-    } else {
-      this.socket = createConnection({
-        host: this.options._hostname,
-        port: this.options._port,
-        timeout: this.options.timeoutMs
-      })
-    }
-
-    this.socket.on('error', (err: Error) => {
-      // close event will trigger automatically after this event so not destroying here.
-      console.log('err', err)
-    })
-
-    this.socket.on('close', () => {
-      this.state = 'CLOSING'
-      reject(Error('socket closing'))
-      this.destroy()
-      console.log('close')
-    })
-
-    this.socket.once('ready', () => {
-      console.log('ready')
-      resolve()
-    })
-
-    // send connect command
-    this.initializePromise = this.handShake()
+    // set initializePromise
+    this.reconnect()
   }
 
-  destroy() {
-    this.socket.destroy()
+  /**
+   * Either returns ongoing initialization attempt, or return new initialization attempt.
+   * This function is the only one that modifies `state` variable, except for the `close`
+   * function.
+   * @returns initializePromise
+   */
+  reconnect() {
+    if (this.initializePromise) {
+      return this.initializePromise
+    }
+
+    this.initializePromise = AsyncRetry(
+      async () => {
+        let resolve: (v: void) => void
+        let reject: (v: Error) => void
+        const tcpConnectionPromise = new Promise((res, rej) => { 
+          resolve = res 
+          reject = rej
+        })
+
+        // initialize socket
+        if (this.options._isTlsEnabled) {
+          this.socket = connect({
+            host: this.options._hostname,
+            port: this.options._port,
+            servername: this.options._hostname,
+            timeout: this.options.timeoutMs
+          })
+        } else {
+          this.socket = createConnection({
+            host: this.options._hostname as string,
+            port: this.options._port as number,
+            timeout: this.options.timeoutMs
+          })
+        }
+    
+        this.socket.on('error', (err: Error) => {
+          this.state = 'CLOSING'
+          // close event will trigger automatically after this event so not destroying here.
+          console.log('err', err)
+        })
+    
+        this.socket.on('close', () => {
+          this.state = 'CLOSING'
+          reject(Error('socket closing'))
+          console.log('close')
+        })
+    
+        this.socket.once('ready', () => {
+          // tcp socket is ready!
+          resolve()
+        })
+
+        try {
+          await tcpConnectionPromise
+          await this.handShake()
+        } catch(e) {
+          this.close()
+          throw e
+        }
+        this.state = 'READY'
+      },
+      {
+        retries: 5,
+        maxTimeout: 20000
+      }
+    )
+
+    return this.initializePromise
+  }
+
+  /**
+   * closes the connection. Can be reconnected via `reconnect`
+   */
+  close() {
+    this.socket?.destroy()
+    this.socket = undefined
     this.state = 'CLOSED'
+    this.initializePromise = undefined
   }
 
-  private async handShake() {
-    await this.tcpConnectionPromise
+  /**
+   * gets read only copy of the options the connection is operating with.
+   * @returns 
+   */
+  getOption(): Readonly<ConnectionOptions> {
+    return this.options
+  }
 
+  /**
+   * Send pulsar commands to the pulsar server.
+   * @param command 
+   * @returns 
+   */
+  async sendCommand(command: BaseCommand) {
+    await this.ensureReady()
+    return this._sendCommand(command)
+  }
+
+  /**
+   * Attempts handshake with pulsar server with established tcp socket.
+   * Assumes tcp connection is established
+   */
+  private async handShake() {
     if (this.state !== 'INITIALIZING') {
       throw Error(`Invalid state: ${this.state}`)
+    }
+
+    if (!this.socket || this.socket.readyState !== 'open') {
+      throw Error(`socket is not defined or not ready`)
     }
     
     const authType = this.options.auth.name
@@ -139,7 +191,7 @@ export class Connection {
     const handShakePromise = new Promise<Buffer>((res, rej) => {
       handShakeResolve = res
     })
-    this.socket.once('data', (data: Buffer) => {
+    this.socket?.once('data', (data: Buffer) => {
       handShakeResolve(data)
     })
 
@@ -149,26 +201,20 @@ export class Connection {
 
     if (!baseCommand.connected) {
       if (baseCommand.error) {
-        console.log(`error during handshake ${baseCommand.error.message}`)
+        console.error(`error during handshake ${baseCommand.error.message}`)
       } else {
-        this.destroy()
-        throw Error(`Invalid response recevived`)
+        console.error(`unkonwn base command was received: ${baseCommand.type}`)
       }
+      throw Error(`Invalid response recevived`)
     }
 
     if (baseCommand.connected?.maxMessageSize) {
-      this.maxMesageSize = baseCommand.connected?.maxMessageSize
+      this.options._maxMesageSize = baseCommand.connected?.maxMessageSize
     } else {
-      this.maxMesageSize = DEFAULT_MAX_MESSAGEE_SIZE
+      this.options._maxMesageSize = DEFAULT_MAX_MESSAGEE_SIZE
     }
 
-    this.state = 'READY'
     console.log('connected!!')
-  }
-
-  async sendCommand(command: BaseCommand) {
-    await this.ensureReady()
-    return this._sendCommand(command)
   }
 
   private async _sendCommand(command: BaseCommand) {
@@ -184,9 +230,15 @@ export class Connection {
       ...marshalledCommand
     ])
 
-    this.socket.write(payload)
+    this.socket?.write(payload)
   }
 
+  /**
+   * Wait for existing or non existing initialization attempt to finish,
+   * and throws error if state is not ready, if ready, proceeds.
+   * 
+   * Await on this function before send anything to pulsar cluster.
+   */
   private async ensureReady() {
     await this.initializePromise
     if (this.state !== 'READY') {
