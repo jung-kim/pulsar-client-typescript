@@ -4,21 +4,29 @@ import AsyncRetry from 'async-retry'
 import { Connection } from './Connection'
 import { BaseCommand, BaseCommand_Type, ProtocolVersion } from '../proto/PulsarApi'
 import { Reader, Writer } from 'protobufjs'
-import { ConnectionOptions } from './connectionOptions'
+import { ConnectionOptions } from './ConnectionOptions'
+import { Signal } from 'micro-signals';
+
+export interface Message {
+  baseCommand: BaseCommand,
+  headersAndPayload: Buffer,
+}
 
 /**
  * represents raw socket conenction to pulsar.
  * This object is to be used by Connection
  */
-export class PulsarSocket {
+export class BaseSocket {
   private state: 'INITIALIZING' | 'READY' | 'CLOSING' | 'CLOSED' | 'UNKNOWN' = 'INITIALIZING'
-  private socket: Socket | TLSSocket | undefined = undefined
+  protected socket: Socket | TLSSocket | undefined = undefined
   private initializePromise: Promise<void> | undefined = undefined
   private initializePromiseRes: (() => void) | undefined = undefined
   private initializePromiseRej: ((e: any) => void) | undefined = undefined
-  private readonly parent: Connection
-  private readonly options: ConnectionOptions
-  private readonly protocolVersion = ProtocolVersion.v13
+  private _dataStream = new Signal<Message>()
+  protected readonly parent: Connection
+  protected readonly options: ConnectionOptions
+  protected readonly protocolVersion = ProtocolVersion.v13
+  public dataStream = this._dataStream.readOnly()
 
   constructor(connection: Connection) {
     this.parent = connection
@@ -44,56 +52,60 @@ export class PulsarSocket {
 
     AsyncRetry(
       async () => {
-        try {
-          // initialize tcp socket and wait for it
-          await new Promise((res, rej) => {
-            // initialize socket
-            if (this.options._isTlsEnabled) {
-              this.socket = connect({
-                host: this.options._hostname,
-                port: this.options._port,
-                servername: this.options._hostname,
-                timeout: this.options.timeoutMs
-              })
-            } else {
-              this.socket = createConnection({
-                host: this.options._hostname as string,
-                port: this.options._port as number,
-                timeout: this.options.timeoutMs
-              })
-            }
-
-            this.socket.on('error', (err: Error) => {
-              this.state = 'CLOSING'
-              this.socket?.removeAllListeners()
-              // close event will trigger automatically after this event so not destroying here.
-              console.log('err', err)
+        // initialize tcp socket and wait for it
+        await new Promise((res, rej) => {
+          // initialize socket
+          if (this.options._isTlsEnabled) {
+            this.socket = connect({
+              host: this.options._hostname,
+              port: this.options._port,
+              servername: this.options._hostname,
+              timeout: this.options.connectionTimeoutMs
             })
-
-            this.socket.on('close', () => {
-              this.state = 'CLOSING'
-              this.socket?.removeAllListeners()
-              rej(Error('socket closing'))
-              console.log('close')
+          } else {
+            this.socket = createConnection({
+              host: this.options._hostname as string,
+              port: this.options._port as number,
+              timeout: this.options.connectionTimeoutMs
             })
+          }
 
-            this.socket.once('ready', () => {
-              // tcp socket is ready!
-              res(undefined)
-            })
+          this.socket.on('error', (err: Error) => {
+            this.state = 'CLOSING'
+            this.socket?.removeAllListeners()
+            // close event will trigger automatically after this event so not destroying here.
+            console.log('err', err)
           })
 
-          // after tcp socket is established, wait for handshake to be finished
-          await this.handShake()
-        } catch (e) {
-          this.close()
-          throw e
-        }
+          this.socket.on('close', () => {
+            this.state = 'CLOSING'
+            this.socket?.removeAllListeners()
+            rej(Error('socket closing'))
+            console.log('close')
+          })
+
+          this.socket.once('ready', () => {
+            // tcp socket is ready!
+            res(undefined)
+          })
+        })
+
+        // after tcp socket is established, wait for handshake to be finished
+        await this.handShake()
 
         // no errors, socket is ready
         if (this.state === 'INITIALIZING') {
           this.state = 'READY'
         }
+
+        this.socket?.on('data', (data: Buffer) => {
+          try {
+            const message = this.parseReceived(data)
+            this._dataStream.dispatch(message)
+          } catch(e) {
+            console.error('error received while parsing received message', e)
+          }
+        })
         if (this.initializePromiseRes) {
           this.initializePromiseRes()
         }
@@ -103,6 +115,7 @@ export class PulsarSocket {
         maxTimeout: 20000
       }
     ).catch((e) => {
+      this.parent.close()
       if (this.initializePromiseRej) {
         this.initializePromiseRej(e)
       }
@@ -201,7 +214,7 @@ export class PulsarSocket {
 
     await this._sendCommand(payload)
     const response = await handShakePromise
-    const { baseCommand } = this.internalReceiveCommand(response)
+    const { baseCommand } = this.parseReceived(response)
 
     if (!baseCommand.connected) {
       if (baseCommand.error) {
@@ -212,12 +225,12 @@ export class PulsarSocket {
       throw Error(`Invalid response recevived`)
     }
 
-    this.parent.getOption().setMaxMessageSize(baseCommand.connected?.maxMessageSize)
+    this.options.setMaxMessageSize(baseCommand.connected?.maxMessageSize)
 
     console.log('connected!!')
   }
 
-  private internalReceiveCommand(data: Buffer) {
+  protected parseReceived(data: Buffer): Message {
     const frameSize = (new Reader(data.subarray(0, 4))).fixed32()
     const commandSize = (new Reader(data.subarray(4, 8))).fixed32()
     const headersAndPayloadSize = frameSize - (commandSize + 4)

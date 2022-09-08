@@ -1,7 +1,7 @@
 import { BaseCommand } from '../proto/PulsarApi'
-import { ConnectionOptions, ConnectionOptionsRaw } from './connectionOptions'
-import { PulsarSocket } from './pulsarSocket'
+import { ConnectionOptions, ConnectionOptionsRaw } from './ConnectionOptions'
 import os from 'os'
+import { PingPongSocket } from './pingPongSocket';
 
 const localAddress = Object.values(os.networkInterfaces())
   .flat()
@@ -9,7 +9,7 @@ const localAddress = Object.values(os.networkInterfaces())
   .find(Boolean)?.address ?? '127.0.0.1';
 
 export class Connection {
-  private readonly socket: PulsarSocket
+  private readonly socket: PingPongSocket
   private readonly options: ConnectionOptions
 
   // https://www.npmjs.com/package/long
@@ -19,7 +19,7 @@ export class Connection {
   constructor(options: ConnectionOptionsRaw) {
     this.options = new ConnectionOptions(options)
     // set initializePromise
-    this.socket = new PulsarSocket(this)
+    this.socket = new PingPongSocket(this)
   }
 
   reconnect() {

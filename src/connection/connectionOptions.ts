@@ -1,18 +1,21 @@
 import { Auth } from "auth"
 
-const DEFAULT_TIMEOUT_MS = 10 * 1000
+const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
+const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
 const DEFAULT_MAX_MESSAGEE_SIZE = 5 * 1024 * 1024
 
 export interface ConnectionOptionsRaw {
   url: string
   auth: Auth
-  timeoutMs?: number
+  connectionTimeoutMs?: number
+  keepAliveIntervalMs?: number
 }
 
 export class ConnectionOptions {
   public readonly url: string
   public readonly auth: Auth
-  public readonly timeoutMs?: number
+  public readonly connectionTimeoutMs?: number
+  public readonly keepAliveIntervalMs: number
 
   public readonly _hostname?: string
   public readonly _port?: number
@@ -25,6 +28,8 @@ export class ConnectionOptions {
 
     this.url = options.url
     this.auth = options.auth
+    this.connectionTimeoutMs = options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS
+    this.keepAliveIntervalMs = options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS
 
     this._hostname = url.hostname
     this._port = parseInt(url.port)
@@ -41,10 +46,6 @@ export class ConnectionOptions {
         break
       default:
         throw Error('Invalid protocol was passed in')
-    }
-
-    if (options.timeoutMs) {
-      options.timeoutMs = DEFAULT_TIMEOUT_MS
     }
   }
 
