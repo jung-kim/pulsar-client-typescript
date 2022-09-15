@@ -127,6 +127,10 @@ export abstract class BaseSocket {
     this.initializePromiseRej = undefined
   }
 
+  getState() {
+    return this.state
+  }
+
   protected getInitializePromise() {
     return this.initializePromise
   }

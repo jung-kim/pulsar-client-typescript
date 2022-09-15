@@ -1,4 +1,4 @@
-import { Socket } from "net";
+import { Socket } from "net"
 import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
 import { Reader, Writer } from "protobufjs";
 import { TLSSocket } from "tls";
