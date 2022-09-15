@@ -1,9 +1,9 @@
 import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
 import { Connection } from "./Connection";
-import { Message, BaseSocket } from "./baseSocket";
+import { AbstractPulsarSocket, Message } from "./AbstractPulsarSocket";
 
 // handles pingpong logic
-export class PingPongSocket extends BaseSocket {
+export abstract class PingPongSocket extends AbstractPulsarSocket {
   private readonly interval: ReturnType<typeof setInterval>
   private lastDataReceived: number = 0
 
@@ -23,7 +23,7 @@ export class PingPongSocket extends BaseSocket {
     this.interval = setInterval(this.handleInterval, this.options.keepAliveIntervalMs)
   }
 
-  handleInterval() {
+  private handleInterval() {
     this.sendPing()
 
     if (this.lastDataReceived + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
@@ -37,7 +37,7 @@ export class PingPongSocket extends BaseSocket {
     super.close()
   }
 
-  sendPing() {
+  private sendPing() {
     return this.sendCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PING
@@ -45,9 +45,9 @@ export class PingPongSocket extends BaseSocket {
     )
   }
 
-  handlePong() {}
+  private handlePong() {}
 
-  handlePing() {
+  private handlePing() {
     return this.sendCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PONG
@@ -57,6 +57,6 @@ export class PingPongSocket extends BaseSocket {
 
   protected parseReceived(data: Buffer) {
     this.lastDataReceived = (new Date()).getMilliseconds()
-    return super.parseReceived(data)
+    return this._parseReceived(data)
   }
 }

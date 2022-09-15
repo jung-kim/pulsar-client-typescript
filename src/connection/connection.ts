@@ -2,6 +2,7 @@ import { BaseCommand } from '../proto/PulsarApi'
 import { ConnectionOptions, ConnectionOptionsRaw } from './ConnectionOptions'
 import os from 'os'
 import { PingPongSocket } from './pingPongSocket';
+import { PulsarSocket } from './pulsarSocket';
 
 const localAddress = Object.values(os.networkInterfaces())
   .flat()
@@ -18,8 +19,7 @@ export class Connection {
 
   constructor(options: ConnectionOptionsRaw) {
     this.options = new ConnectionOptions(options)
-    // set initializePromise
-    this.socket = new PingPongSocket(this)
+    this.socket = new PulsarSocket(this)
   }
 
   reconnect() {
