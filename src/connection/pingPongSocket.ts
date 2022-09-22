@@ -1,10 +1,10 @@
 import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
 import { Connection } from "./Connection";
-import { AbstractPulsarSocket, Message } from "./AbstractPulsarSocket";
+import { AbstractPulsarSocket, Message } from "./abstractPulsarSocket";
 
 // handles pingpong logic
 export abstract class PingPongSocket extends AbstractPulsarSocket {
-  private readonly interval: ReturnType<typeof setInterval>
+  private interval: ReturnType<typeof setInterval> | undefined = undefined
   private lastDataReceived: number = 0
 
   constructor(connection: Connection) {
@@ -20,7 +20,14 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
           break
       }
     })
-    this.interval = setInterval(this.handleInterval, this.options.keepAliveIntervalMs)
+    this.reconnect()
+  }
+
+   reconnect() {
+    if (!this.interval) {
+      this.interval = setInterval(this.handleInterval, this.options.keepAliveIntervalMs)
+    }
+    return super.reconnect()
   }
 
   private handleInterval() {

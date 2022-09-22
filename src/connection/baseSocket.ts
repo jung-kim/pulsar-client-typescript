@@ -14,11 +14,9 @@ export abstract class BaseSocket {
   private initializePromise: Promise<void> | undefined = undefined
   private initializePromiseRes: (() => void) | undefined = undefined
   private initializePromiseRej: ((e: any) => void) | undefined = undefined
-  // private _dataStream = new Signal<Message>()
   protected readonly parent: Connection
   protected readonly options: ConnectionOptions
   protected readonly protocolVersion = ProtocolVersion.v13
-  // public dataStream = this._dataStream.readOnly()
 
   constructor(connection: Connection) {
     this.parent = connection
