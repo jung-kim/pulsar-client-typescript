@@ -6,6 +6,8 @@ import { Message } from "./abstractPulsarSocket";
 import { Connection } from "./Connection";
 import { PingPongSocket } from "./pingPongSocket";
 
+const pulsarClientVersion = 'Pulsar TS 0.1'
+
 
 export class PulsarSocket extends PingPongSocket {
   constructor(connection: Connection) {
@@ -27,6 +29,23 @@ export class PulsarSocket extends PingPongSocket {
       ...marshalledCommand
     ])
     return this.send(payload)
+  }
+  
+  public async handleAuthChallenge(_: Message) {
+    const authData = await this.options.auth.getAuthData()
+    const payload = BaseCommand.fromJSON({
+      type: BaseCommand_Type.AUTH_RESPONSE,
+      connect: {
+        protocolVersion: this.protocolVersion,
+        clientVersion: pulsarClientVersion,
+        authMethodName: this.options.auth.name,
+        authData: Buffer.from(authData).toString('base64'),
+        featureFlags: {
+          supportsAuthRefresh: true
+        }
+      }
+    })
+    this.sendCommand(payload)
   }
 
   protected handleData(data: Buffer) {
@@ -70,7 +89,7 @@ export class PulsarSocket extends PingPongSocket {
       type: BaseCommand_Type.CONNECT,
       connect: {
         protocolVersion: this.protocolVersion,
-        clientVersion: "Pulsar TS 0.1",
+        clientVersion: pulsarClientVersion,
         authMethodName: authType,
         authData: Buffer.from(authData).toString('base64'),
         featureFlags: {

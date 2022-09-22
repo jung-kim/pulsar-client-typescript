@@ -12,7 +12,7 @@ const localAddress = Object.values(os.networkInterfaces())
   .find(Boolean)?.address ?? '127.0.0.1';
 
 export class Connection {
-  private readonly socket: PingPongSocket
+  private readonly socket: PulsarSocket
   private readonly options: ConnectionOptions
   private readonly producerListener: ProducerListener
 
@@ -28,11 +28,31 @@ export class Connection {
     this.producerListener = new ProducerListener(this.socket)
     this.socket.dataStream.add((message: Message) => {
       switch (message.baseCommand.type) {
+        case BaseCommand_Type.SUCCESS:
+        case BaseCommand_Type.PRODUCER_SUCCESS:
+        case BaseCommand_Type.PARTITIONED_METADATA_RESPONSE:
+        case BaseCommand_Type.LOOKUP_RESPONSE:
+        case BaseCommand_Type.CONSUMER_STATS_RESPONSE:
+        case BaseCommand_Type.GET_LAST_MESSAGE_ID_RESPONSE:
+        case BaseCommand_Type.GET_TOPICS_OF_NAMESPACE_RESPONSE:
+        case BaseCommand_Type.GET_SCHEMA_RESPONSE:
+        case BaseCommand_Type.ERROR:
+        case BaseCommand_Type.SEND_ERROR:
+          if (this.producerListener.handleSendError(message)) {
+            this.socket.close()
+          }
+          break
+        case BaseCommand_Type.CLOSE_PRODUCER:
+          this.producerListener.handleCloseProducer(message)
+          break
+        case BaseCommand_Type.CLOSE_CONSUMER:
+        case BaseCommand_Type.AUTH_CHALLENGE:
+          this.socket.handleAuthChallenge(message)
         case BaseCommand_Type.SEND_RECEIPT:
-          this.producerListener.handleSendRecipt(message)
-          break;
+          this.producerListener.handleSendReceipt(message)
+          break
         default:
-          break;
+          break
       }
     })
   }
@@ -67,11 +87,11 @@ export class Connection {
     return this.options
   }
 
-  registerProducerListener(id: number, callback: { (receipt: CommandSendReceipt): void }) {
+  registerProducerListener(id: Long, callback: { (receipt: CommandSendReceipt): void }) {
     return this.producerListener.registerProducerListener(id, callback)
   }
 
-  unregisterProducerListener(id: number) {  
+  unregisterProducerListener(id: Long) {  
     return this.producerListener.unregisterProducerListener(id)
   }
 
