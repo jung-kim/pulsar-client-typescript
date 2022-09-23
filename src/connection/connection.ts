@@ -14,7 +14,7 @@ export class Connection {
   private readonly socket: PulsarSocket
   private readonly options: ConnectionOptions
   private readonly producerListener: ProducerListener
-  private readonly pendingReqs: Record<number, BaseCommand> = {}
+  private readonly pendingReqs: Record<string, BaseCommand> = {}
 
   // https://www.npmjs.com/package/long
   // Hopefully, 2^53-1 is enough...
@@ -63,7 +63,7 @@ export class Connection {
   close() {
     this.socket.close()
     Object.keys(this.pendingReqs).forEach(key => {
-      delete this.pendingReqs[parseInt(key)]
+      delete this.pendingReqs[key]
     })
   }
 
@@ -101,7 +101,7 @@ export class Connection {
       throw Error('connection closed')
     }
 
-    this.pendingReqs[id] = cmd
+    this.pendingReqs[id.toString()] = cmd
     return this.socket.writeCommand(cmd)
   }
 }

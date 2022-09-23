@@ -1,5 +1,5 @@
 import { CommandSendReceipt, ServerError } from "proto/PulsarApi";
-import { AbstractPulsarSocket, Message } from "./AbstractPulsarSocket";
+import { AbstractPulsarSocket, Message } from "./abstractPulsarSocket";
 
 /**
  * Digest messages for producers.
