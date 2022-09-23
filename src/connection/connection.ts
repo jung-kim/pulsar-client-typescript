@@ -1,7 +1,6 @@
 import { BaseCommand, BaseCommand_Type, CommandSendReceipt } from '../proto/PulsarApi'
 import { ConnectionOptions, ConnectionOptionsRaw } from './ConnectionOptions'
 import os from 'os'
-import { PingPongSocket } from './pingPongSocket';
 import { PulsarSocket } from './pulsarSocket';
 import { ProducerListener } from './producerListener';
 import { Message } from './abstractPulsarSocket';
@@ -15,6 +14,7 @@ export class Connection {
   private readonly socket: PulsarSocket
   private readonly options: ConnectionOptions
   private readonly producerListener: ProducerListener
+  private readonly pendingReqs: Record<number, BaseCommand> = {}
 
   // https://www.npmjs.com/package/long
   // Hopefully, 2^53-1 is enough...
@@ -62,9 +62,9 @@ export class Connection {
   }
   close() {
     this.socket.close()
-  }
-  sendCommand(command: BaseCommand) {
-    return this.socket.sendCommand(command)
+    Object.keys(this.pendingReqs).forEach(key => {
+      delete this.pendingReqs[parseInt(key)]
+    })
   }
 
   getId() {
@@ -95,4 +95,13 @@ export class Connection {
     return this.producerListener.unregisterProducerListener(id)
   }
 
+  sendRequest(id: number, cmd: BaseCommand): Promise<void> {
+    if (this.socket.getState() === 'CLOSED') {
+      // warn
+      throw Error('connection closed')
+    }
+
+    this.pendingReqs[id] = cmd
+    return this.socket.writeCommand(cmd)
+  }
 }

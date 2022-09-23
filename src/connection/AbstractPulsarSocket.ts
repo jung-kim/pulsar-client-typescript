@@ -17,6 +17,6 @@ export abstract class AbstractPulsarSocket extends BaseSocket {
   protected _dataStream = new Signal<Message>()
   public dataStream = this._dataStream.readOnly()
 
-  public abstract sendCommand(command: BaseCommand): void
+  public abstract writeCommand(command: BaseCommand): void
   protected abstract _parseReceived(data: Buffer): any
 }

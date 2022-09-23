@@ -45,7 +45,7 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
   }
 
   private sendPing() {
-    return this.sendCommand(
+    return this.writeCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PING
       })
@@ -55,7 +55,7 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
   private handlePong() {}
 
   private handlePing() {
-    return this.sendCommand(
+    return this.writeCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PONG
       })

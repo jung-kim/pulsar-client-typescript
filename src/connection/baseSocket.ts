@@ -14,6 +14,7 @@ export abstract class BaseSocket {
   private initializePromise: Promise<void> | undefined = undefined
   private initializePromiseRes: (() => void) | undefined = undefined
   private initializePromiseRej: ((e: any) => void) | undefined = undefined
+  private readonly pendingRequestRejs: Record<string, (reason?: any) => void> = {}
   protected readonly parent: Connection
   protected readonly options: ConnectionOptions
   protected readonly protocolVersion = ProtocolVersion.v13
@@ -120,6 +121,10 @@ export abstract class BaseSocket {
     this.socket?.destroy()
     this.socket = undefined
     this.state = 'CLOSED'
+    Object.entries(this.pendingRequestRejs).forEach(([key, rej]) => {
+      rej()
+      delete this.pendingRequestRejs[key]
+    })
     this.initializePromise = undefined
     this.initializePromiseRes = undefined
     this.initializePromiseRej = undefined
@@ -133,8 +138,23 @@ export abstract class BaseSocket {
     return this.initializePromise
   }
 
-  protected send(buffer: Uint8Array | Buffer) {
-    this.socket?.write(buffer)
+  protected send(buffer: Uint8Array | Buffer): Promise<void> {
+    return new Promise((res, rej) => {
+      if (!this.socket || this.state !== 'READY') {
+        return rej(new Error('socket is closed'))
+      }
+
+      const hash = (Math.random() + 1).toString(36).substring(7)
+      this.pendingRequestRejs[hash] = rej
+      this.socket.write(buffer, (err) => {
+        if (err) {
+          rej(err)
+        } else {
+          res()
+        }
+        delete this.pendingRequestRejs[hash]
+      })
+    })
   }
   protected abstract handshake(socket: Socket | TLSSocket | undefined): void
   protected abstract handleData(buffer: Buffer): void

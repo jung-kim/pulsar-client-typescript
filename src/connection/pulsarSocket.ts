@@ -14,7 +14,7 @@ export class PulsarSocket extends PingPongSocket {
     super(connection)
   }
 
-  public async sendCommand(command: BaseCommand) {
+  public async writeCommand(command: BaseCommand) {
     await this.ensureReady()
 
     const marshalledCommand = BaseCommand.encode(command).finish()
@@ -28,7 +28,7 @@ export class PulsarSocket extends PingPongSocket {
       ...(new Writer()).fixed32(commandSize).finish().reverse(),
       ...marshalledCommand
     ])
-    return this.send(payload)
+    await this.send(payload)
   }
   
   public async handleAuthChallenge(_: Message) {
@@ -45,7 +45,7 @@ export class PulsarSocket extends PingPongSocket {
         }
       }
     })
-    this.sendCommand(payload)
+    this.writeCommand(payload)
   }
 
   protected handleData(data: Buffer) {
@@ -106,7 +106,7 @@ export class PulsarSocket extends PingPongSocket {
       handShakeResolve(data)
     })
 
-    await this.sendCommand(payload)
+    await this.writeCommand(payload)
     const response = await handShakePromise
     const { baseCommand } = this.parseReceived(response)
 
