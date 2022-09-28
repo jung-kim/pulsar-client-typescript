@@ -1,12 +1,13 @@
-import { CommandSendReceipt, ServerError } from "proto/PulsarApi";
+import { Signal } from "micro-signals";
+import { CommandCloseProducer, CommandSendReceipt, ServerError } from "proto/PulsarApi";
 import { AbstractPulsarSocket, Message } from "./abstractPulsarSocket";
 
 /**
  * Digest messages for producers.
  */
-export class ProducerListener {
+export class ProducerListeners {
   private pulsarSocket: AbstractPulsarSocket
-  private producerListeners: Record<string, { (receipt: CommandSendReceipt): void }> = {}
+  private producerListeners: Record<string, Signal<CommandSendReceipt | CommandCloseProducer>> = {}
 
   constructor(pulsarSocket: AbstractPulsarSocket) {
     this.pulsarSocket = pulsarSocket
@@ -16,14 +17,27 @@ export class ProducerListener {
     const producerId = message.baseCommand.sendReceipt?.producerId
     const sendReceipt = message.baseCommand.sendReceipt
     if (producerId && sendReceipt) {
-      this.producerListeners[producerId.toString()](sendReceipt)
+      const producerSignal = this.producerListeners[producerId.toString()]
+      if (producerSignal) {
+        producerSignal.dispatch(sendReceipt)
+      } else {
+        //warn
+      }
+      
     }
   }
 
   public handleCloseProducer(message: Message) {
+    const closeProducer = message.baseCommand.closeProducer
     const producerId = message.baseCommand.closeProducer?.producerId
-    if (producerId) {
-      this.unregisterProducerListener(producerId)
+    if (closeProducer && producerId) {
+      const producerSignal = this.producerListeners[producerId.toString()]
+      if (producerSignal) {
+        this.unregisterProducerListener(producerId)
+        producerSignal.dispatch(closeProducer)
+      } else {
+        //warn
+      }
     }
   }
 
@@ -55,12 +69,13 @@ export class ProducerListener {
     return true
   }
 
-  public registerProducerListener(id: Long, callback: { (receipt: CommandSendReceipt): void }) {
+  public registerProducerListener(id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>) {
     if (this.pulsarSocket.getState() !== 'READY') {
       // warn
+      return
     }
 
-    this.producerListeners[id.toString()] = callback
+    this.producerListeners[id.toString()] = signal
   }
 
   public unregisterProducerListener(id: Long) {

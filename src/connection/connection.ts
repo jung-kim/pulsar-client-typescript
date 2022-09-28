@@ -1,9 +1,12 @@
-import { BaseCommand, BaseCommand_Type, CommandSendReceipt } from '../proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type, CommandCloseConsumer, CommandCloseProducer, CommandSendReceipt } from '../proto/PulsarApi'
 import { ConnectionOptions, ConnectionOptionsRaw } from './ConnectionOptions'
 import os from 'os'
 import { PulsarSocket } from './pulsarSocket';
-import { ProducerListener } from './producerListener';
+import { ProducerListeners } from './producerListeners'
 import { Message } from './abstractPulsarSocket';
+import Long from 'long';
+import { ConsumerListeners } from './consumerListeners';
+import { Signal } from 'micro-signals';
 
 const localAddress = Object.values(os.networkInterfaces())
   .flat()
@@ -13,7 +16,8 @@ const localAddress = Object.values(os.networkInterfaces())
 export class Connection {
   private readonly socket: PulsarSocket
   private readonly options: ConnectionOptions
-  private readonly producerListener: ProducerListener
+  private readonly producerListeners: ProducerListeners
+  private readonly consumerLinsteners: ConsumerListeners
   private readonly pendingReqs: Record<string, BaseCommand> = {}
 
   // https://www.npmjs.com/package/long
@@ -25,7 +29,8 @@ export class Connection {
     this.socket = new PulsarSocket(this)
 
     // register producer listener
-    this.producerListener = new ProducerListener(this.socket)
+    this.producerListeners = new ProducerListeners(this.socket)
+    this.consumerLinsteners = new ConsumerListeners(this.socket)
     this.socket.dataStream.add((message: Message) => {
       switch (message.baseCommand.type) {
         case BaseCommand_Type.SUCCESS:
@@ -38,18 +43,21 @@ export class Connection {
         case BaseCommand_Type.GET_SCHEMA_RESPONSE:
         case BaseCommand_Type.ERROR:
         case BaseCommand_Type.SEND_ERROR:
-          if (this.producerListener.handleSendError(message)) {
+          if (this.producerListeners.handleSendError(message)) {
             this.socket.close()
           }
           break
         case BaseCommand_Type.CLOSE_PRODUCER:
-          this.producerListener.handleCloseProducer(message)
+          this.producerListeners.handleCloseProducer(message)
           break
         case BaseCommand_Type.CLOSE_CONSUMER:
+          this.consumerLinsteners.handleCloseConsumer(message)
+          break
         case BaseCommand_Type.AUTH_CHALLENGE:
           this.socket.handleAuthChallenge(message)
+          break
         case BaseCommand_Type.SEND_RECEIPT:
-          this.producerListener.handleSendReceipt(message)
+          this.producerListeners.handleSendReceipt(message)
           break
         default:
           break
@@ -87,12 +95,20 @@ export class Connection {
     return this.options
   }
 
-  registerProducerListener(id: Long, callback: { (receipt: CommandSendReceipt): void }) {
-    return this.producerListener.registerProducerListener(id, callback)
+  addConsumerHandler(id: Long, signal: Signal<Message | CommandCloseConsumer>) {
+    return this.consumerLinsteners.addConsumeHandler(id, signal)
+  }
+
+  deleteConsumerHandler(id: Long) {
+    return this.consumerLinsteners.deleteConsumeHandler(id)
+  }
+
+  registerProducerListener(id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>) {
+    return this.producerListeners.registerProducerListener(id, signal)
   }
 
   unregisterProducerListener(id: Long) {  
-    return this.producerListener.unregisterProducerListener(id)
+    return this.producerListeners.unregisterProducerListener(id)
   }
 
   sendRequest(id: number, cmd: BaseCommand): Promise<void> {
