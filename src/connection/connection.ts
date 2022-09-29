@@ -1,4 +1,4 @@
-import { BaseCommand, BaseCommand_Type, CommandCloseConsumer, CommandCloseProducer, CommandSendReceipt } from '../proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type, CommandCloseConsumer, CommandCloseProducer, CommandConsumerStatsResponse, CommandGetLastMessageIdResponse, CommandGetTopicsOfNamespaceResponse, CommandLookupTopicResponse, CommandPartitionedTopicMetadataResponse, CommandProducerSuccess, CommandSendReceipt, CommandSuccess } from '../proto/PulsarApi'
 import { ConnectionOptions, ConnectionOptionsRaw } from './ConnectionOptions'
 import os from 'os'
 import { PulsarSocket } from './pulsarSocket';
@@ -13,12 +13,20 @@ const localAddress = Object.values(os.networkInterfaces())
   .filter((item) => !item?.internal && item?.family === 'IPv4')
   .find(Boolean)?.address ?? '127.0.0.1';
 
+export interface PendingReq {
+  cmd: BaseCommand
+  res: (response: CommandTypesResponses) => void
+  rej: (e: any) => void
+}
+
+export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
+
 export class Connection {
   private readonly socket: PulsarSocket
   private readonly options: ConnectionOptions
   private readonly producerListeners: ProducerListeners
   private readonly consumerLinsteners: ConsumerListeners
-  private readonly pendingReqs: Record<string, BaseCommand> = {}
+  private readonly pendingReqs: Record<string, PendingReq> = {}
 
   // https://www.npmjs.com/package/long
   // Hopefully, 2^53-1 is enough...
@@ -34,14 +42,32 @@ export class Connection {
     this.socket.dataStream.add((message: Message) => {
       switch (message.baseCommand.type) {
         case BaseCommand_Type.SUCCESS:
+          this.handleResponse(message.baseCommand.success!)
+          break
         case BaseCommand_Type.PRODUCER_SUCCESS:
+          this.handleResponse(message.baseCommand.producerSuccess!)
+          break
         case BaseCommand_Type.PARTITIONED_METADATA_RESPONSE:
+          this.handleResponse(message.baseCommand.partitionMetadataResponse!)
+          break
         case BaseCommand_Type.LOOKUP_RESPONSE:
+          this.handleResponse(message.baseCommand.lookupTopicResponse!)
+          break
         case BaseCommand_Type.CONSUMER_STATS_RESPONSE:
+          this.handleResponse(message.baseCommand.consumerStatsResponse!)
+          break
         case BaseCommand_Type.GET_LAST_MESSAGE_ID_RESPONSE:
+          this.handleResponse(message.baseCommand.getLastMessageIdResponse!)
+          break
         case BaseCommand_Type.GET_TOPICS_OF_NAMESPACE_RESPONSE:
+          this.handleResponse(message.baseCommand.getTopicsOfNamespaceResponse!)
+          break
         case BaseCommand_Type.GET_SCHEMA_RESPONSE:
+          this.handleResponse(message.baseCommand.getSchemaResponse!)
+          break
         case BaseCommand_Type.ERROR:
+          this.handleResponseError(message)
+          break
         case BaseCommand_Type.SEND_ERROR:
           if (this.producerListeners.handleSendError(message)) {
             this.socket.close()
@@ -111,13 +137,42 @@ export class Connection {
     return this.producerListeners.unregisterProducerListener(id)
   }
 
-  sendRequest(id: number, cmd: BaseCommand): Promise<void> {
-    if (this.socket.getState() === 'CLOSED') {
+  sendRequest(id: Long, cmd: BaseCommand): Promise<CommandTypesResponses> {
+    return new Promise<CommandTypesResponses>((res, rej) => {
+      if (this.socket.getState() !== 'READY') {
+        // warn
+        rej(Error('socket is not ready'))
+        return
+      }
+
+      this.pendingReqs[id.toString()] = { cmd, res, rej }
+      this.socket.writeCommand(cmd)
+        .catch(rej)
+    })
+  }
+
+  handleResponseError(message: Message) {
+    const errorCmd = message.baseCommand.error
+    const requestId = errorCmd?.requestId
+    const pendingReq = requestId ? this.pendingReqs[requestId.toString()] : undefined
+    if (!requestId || !pendingReq) {
       // warn
-      throw Error('connection closed')
+      return
     }
 
-    this.pendingReqs[id.toString()] = cmd
-    return this.socket.writeCommand(cmd)
+    delete this.pendingReqs[requestId.toString()]
+    pendingReq.rej(errorCmd)
+  }
+
+  handleResponse(cmd: CommandTypesResponses) {
+    const requestId = cmd?.requestId
+    const pendingReq = requestId ? this.pendingReqs[requestId.toString()] : undefined
+    if (!cmd || !requestId || !pendingReq) {
+      // warn
+      return 
+    }
+
+    delete this.pendingReqs[requestId.toString()]
+    pendingReq.res(cmd)
   }
 }

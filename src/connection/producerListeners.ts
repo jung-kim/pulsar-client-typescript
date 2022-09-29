@@ -66,6 +66,8 @@ export class ProducerListeners {
         }
         return false
     }
+		// By default, for transient error, let the reconnection logic
+		// to take place and re-establish the produce again
     return true
   }
 
