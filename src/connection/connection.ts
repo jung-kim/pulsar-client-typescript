@@ -132,7 +132,7 @@ export class Connection {
     });
 
     this.socket.writeCommand(cmd)
-      .catch(e => this.requestTracker.rejectRequest(requestTrack.id, e))
+      .catch(e => requestTrack.rejectRequest(e))
     
     return requestTrack.prom
   }

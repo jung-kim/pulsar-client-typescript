@@ -3,6 +3,8 @@ import Long from 'long';
 export interface RequestTrack<T> {
   id: Long
   prom: Promise<T>
+  resolveRequest: (response: T) => void
+  rejectRequest: (e: any) => void
 }
 
 interface RequestResRej<T> {
@@ -43,7 +45,13 @@ export class RequestTracker<T> {
       }).finally(() => {
         clearTimeout(timeout)
         delete this.resRejMap[id.toString()]
-      })
+      }),
+      resolveRequest: (value: T) => {
+        this.resolveRequest(id, value)
+      },
+      rejectRequest: (e: any) => {
+        this.rejectRequest(id, e)
+      }
     }
   }
 
