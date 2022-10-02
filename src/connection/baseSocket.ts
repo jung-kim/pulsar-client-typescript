@@ -2,8 +2,9 @@ import { Socket, createConnection } from 'net'
 import { connect, TLSSocket } from 'tls'
 import AsyncRetry from 'async-retry'
 import { Connection } from './Connection'
-import { ProtocolVersion } from '../proto/PulsarApi'
+import { BaseCommand, ProtocolVersion } from '../proto/PulsarApi'
 import { ConnectionOptions } from './ConnectionOptions'
+import { RequestTracker } from './util/requestTracker'
 
 /**
  * represents raw socket conenction to a destination
@@ -14,6 +15,7 @@ export abstract class BaseSocket {
   private initializePromise: Promise<void> | undefined = undefined
   private initializePromiseRes: (() => void) | undefined = undefined
   private initializePromiseRej: ((e: any) => void) | undefined = undefined
+  private readonly requestTracker = new RequestTracker<BaseCommand>()
   protected readonly parent: Connection
   protected readonly options: ConnectionOptions
   protected readonly protocolVersion = ProtocolVersion.v13
@@ -134,16 +136,13 @@ export abstract class BaseSocket {
   }
 
   protected send(buffer: Uint8Array | Buffer): Promise<void> {
-    return new Promise((res, rej) => {
+    return new Promise((_, rej) => {
       if (!this.socket || this.state !== 'READY') {
-        return rej(new Error('socket is closed'))
+        return rej(Error('socket is closed'))
       }
-
       this.socket.write(buffer, (err) => {
         if (err) {
           rej(err)
-        } else {
-          res()
         }
       })
     })

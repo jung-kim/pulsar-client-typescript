@@ -7,17 +7,12 @@ import { Message } from './abstractPulsarSocket';
 import Long from 'long';
 import { ConsumerListeners } from './consumerListeners';
 import { Signal } from 'micro-signals';
+import { RequestTracker } from './util/requestTracker';
 
 const localAddress = Object.values(os.networkInterfaces())
   .flat()
   .filter((item) => !item?.internal && item?.family === 'IPv4')
   .find(Boolean)?.address ?? '127.0.0.1';
-
-export interface PendingReq {
-  cmd: BaseCommand
-  res: (response: CommandTypesResponses) => void
-  rej: (e: any) => void
-}
 
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
 
@@ -26,11 +21,7 @@ export class Connection {
   private readonly options: ConnectionOptions
   private readonly producerListeners: ProducerListeners
   private readonly consumerLinsteners: ConsumerListeners
-  private readonly pendingReqs: Record<string, PendingReq> = {}
-
-  // https://www.npmjs.com/package/long
-  // Hopefully, 2^53-1 is enough...
-  private requestId = -1
+  private readonly requestTracker = new RequestTracker<CommandTypesResponses>()
 
   constructor(options: ConnectionOptionsRaw) {
     this.options = new ConnectionOptions(options)
@@ -96,9 +87,7 @@ export class Connection {
   }
   close() {
     this.socket.close()
-    Object.keys(this.pendingReqs).forEach(key => {
-      delete this.pendingReqs[key]
-    })
+    this.requestTracker.clear()
   }
 
   getId() {
@@ -107,10 +96,6 @@ export class Connection {
 
   GetMaxMessageSize() {
     return this.options._maxMesageSize
-  }
-
-  getNextRequestId() {
-    return this.requestId++
   }
 
   /**
@@ -137,42 +122,26 @@ export class Connection {
     return this.producerListeners.unregisterProducerListener(id)
   }
 
-  sendRequest(id: Long, cmd: BaseCommand): Promise<CommandTypesResponses> {
-    return new Promise<CommandTypesResponses>((res, rej) => {
-      if (this.socket.getState() !== 'READY') {
-        // warn
-        rej(Error('socket is not ready'))
-        return
-      }
+  sendRequest(cmd: BaseCommand): Promise<CommandTypesResponses> {
+    const requestTrack = this.requestTracker.trackRequest();
 
-      this.pendingReqs[id.toString()] = { cmd, res, rej }
-      this.socket.writeCommand(cmd)
-        .catch(rej)
-    })
+    (Object(cmd) as Array<keyof BaseCommand>).forEach((key: keyof BaseCommand) => {
+      if (cmd[key] && 'requestId' in (cmd[key] as any)) {
+        (cmd[key] as any).requestId = requestTrack.id
+      }
+    });
+
+    this.socket.writeCommand(cmd)
+      .catch(e => this.requestTracker.rejectRequest(requestTrack.id, e))
+    
+    return requestTrack.prom
   }
 
   handleResponseError(message: Message) {
-    const errorCmd = message.baseCommand.error
-    const requestId = errorCmd?.requestId
-    const pendingReq = requestId ? this.pendingReqs[requestId.toString()] : undefined
-    if (!requestId || !pendingReq) {
-      // warn
-      return
-    }
-
-    delete this.pendingReqs[requestId.toString()]
-    pendingReq.rej(errorCmd)
+    this.requestTracker.rejectRequest(message.baseCommand.error?.requestId, message.baseCommand.error)
   }
 
   handleResponse(cmd: CommandTypesResponses) {
-    const requestId = cmd?.requestId
-    const pendingReq = requestId ? this.pendingReqs[requestId.toString()] : undefined
-    if (!cmd || !requestId || !pendingReq) {
-      // warn
-      return 
-    }
-
-    delete this.pendingReqs[requestId.toString()]
-    pendingReq.res(cmd)
+    this.requestTracker.resolveRequest(cmd?.requestId, cmd)
   }
 }

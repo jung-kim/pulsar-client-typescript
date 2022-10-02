@@ -1,6 +1,6 @@
 import Long from 'long';
 
-export interface RequestTrackResult<T> {
+export interface RequestTrack<T> {
   id: Long
   prom: Promise<T>
 }
@@ -28,7 +28,7 @@ export class RequestTracker<T> {
     return id
   }
 
-  trackRequest(timeoutMs?: number): RequestTrackResult<T> {
+  trackRequest(timeoutMs?: number): RequestTrack<T> {
     const id = this.getRequestId()
     let timeout: ReturnType<typeof setTimeout>
     return {
@@ -47,17 +47,27 @@ export class RequestTracker<T> {
     }
   }
 
-  resolveRequest(id: Long, value: T) {
+  resolveRequest(id: Long | undefined, value: T) {
+    if (!id) {
+      return
+    }
     const resRej = this.resRejMap[id.toString()]
     if (resRej) {
       resRej.res(value)
     }
   }
 
-  rejectRequest(id: Long, reason?: any) {
+  rejectRequest(id: Long | undefined, reason?: any) {
+    if (!id) {
+      return
+    }
     const resRej = this.resRejMap[id.toString()]
     if (resRej) {
       resRej.rej(reason)
     }
+  }
+
+  clear() {
+    Object.values(this.resRejMap).forEach(resRej => resRej.rej('socket is closing.'))
   }
 }

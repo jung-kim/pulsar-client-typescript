@@ -5,6 +5,7 @@ import { TLSSocket } from "tls";
 import { Message } from "./abstractPulsarSocket";
 import { Connection } from "./Connection";
 import { PingPongSocket } from "./pingPongSocket";
+import { RequestTrack } from "./util/requestTracker";
 
 const pulsarClientVersion = 'Pulsar TS 0.1'
 
@@ -14,7 +15,7 @@ export class PulsarSocket extends PingPongSocket {
     super(connection)
   }
 
-  public async writeCommand(command: BaseCommand) {
+  public async writeCommand(command: BaseCommand): Promise<void> {
     await this.ensureReady()
 
     const marshalledCommand = BaseCommand.encode(command).finish()
@@ -28,7 +29,7 @@ export class PulsarSocket extends PingPongSocket {
       ...(new Writer()).fixed32(commandSize).finish().reverse(),
       ...marshalledCommand
     ])
-    await this.send(payload)
+    return this.send(payload)
   }
   
   public async handleAuthChallenge(_: Message) {
