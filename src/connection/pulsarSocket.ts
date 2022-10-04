@@ -8,10 +8,13 @@ import { PingPongSocket } from "./pingPongSocket";
 
 const pulsarClientVersion = 'Pulsar TS 0.1'
 
-
 export class PulsarSocket extends PingPongSocket {
   constructor(connection: Connection) {
     super(connection)
+  }
+
+  getId() {
+    return this.options.connectionId
   }
 
   public async writeCommand(command: BaseCommand): Promise<void> {

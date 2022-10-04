@@ -5,6 +5,7 @@ import { Connection } from './Connection'
 import { BaseCommand, ProtocolVersion } from '../proto/PulsarApi'
 import { ConnectionOptions } from './ConnectionOptions'
 import { RequestTracker } from '../util/requestTracker'
+import { logger } from 'util/logger'
 
 /**
  * represents raw socket conenction to a destination
@@ -24,6 +25,7 @@ export abstract class BaseSocket {
     this.parent = connection
     this.options = this.parent.getOption()
     this.reconnect()
+    logger.info('base socket created', this.options)
   }
 
   /**
@@ -66,19 +68,20 @@ export abstract class BaseSocket {
             this.state = 'CLOSING'
             this.socket?.removeAllListeners()
             // close event will trigger automatically after this event so not destroying here.
-            console.log('err', err)
+            logger.error('socket error', this.options, err)
           })
 
           this.socket.on('close', () => {
             this.state = 'CLOSING'
             this.socket?.removeAllListeners()
             rej(Error('socket closing'))
-            console.log('close')
+            logger.info('socket close', this.options)
           })
 
           this.socket.once('ready', () => {
             // tcp socket is ready!
             res(undefined)
+            logger.info('socket ready', this.options)
           })
         })
 
@@ -100,6 +103,7 @@ export abstract class BaseSocket {
         maxTimeout: 20000
       }
     ).catch((e) => {
+      logger.error('socket creation error', e, this.options)
       this.parent.close()
       if (this.initializePromiseRej) {
         this.initializePromiseRej(e)
@@ -125,6 +129,7 @@ export abstract class BaseSocket {
     this.initializePromise = undefined
     this.initializePromiseRes = undefined
     this.initializePromiseRej = undefined
+    logger.info('socket closed', this.options)
   }
 
   getState() {
@@ -138,12 +143,15 @@ export abstract class BaseSocket {
   protected send(buffer: Uint8Array | Buffer): Promise<void> {
     return new Promise((_, rej) => {
       if (!this.socket || this.state !== 'READY') {
+        logger.debug('socket is closed, send is rejected', this.options)
         return rej(Error('socket is closed'))
       }
       this.socket.write(buffer, (err) => {
         if (err) {
-          rej(err)
+          logger.error('socket write error', this.options)
+          return rej(err)
         }
+        logger.debug('socket written', this.options)
       })
     })
   }

@@ -1,6 +1,7 @@
 import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
 import { Connection } from "./Connection";
 import { AbstractPulsarSocket, Message } from "./abstractPulsarSocket";
+import { logger } from "util/logger";
 
 // handles pingpong logic
 export abstract class PingPongSocket extends AbstractPulsarSocket {
@@ -21,11 +22,13 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
       }
     })
     this.reconnect()
+    logger.debug('pingpong socket is created', this.options)
   }
 
    reconnect() {
     if (!this.interval) {
       this.interval = setInterval(this.handleInterval, this.options.keepAliveIntervalMs)
+      logger.debug('pingpong interval is configured', this.options)
     }
     return super.reconnect()
   }
@@ -34,17 +37,20 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
     this.sendPing()
 
     if (this.lastDataReceived + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
+      logger.info('stale connection, closing', this.options)
       // stale connection, closing
       this.parent.close()
     }
   }
 
   close() {
+    logger.debug('pingpong socket close', this.options)
     clearInterval(this.interval)
     super.close()
   }
 
   private sendPing() {
+    logger.debug('send ping', this.options)
     return this.writeCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PING
@@ -55,6 +61,7 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
   private handlePong() {}
 
   private handlePing() {
+    logger.debug('handle ping', this.options)
     return this.writeCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PONG

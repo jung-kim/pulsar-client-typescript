@@ -1,5 +1,6 @@
 import { Signal } from "micro-signals";
 import { CommandCloseProducer, CommandSendReceipt, ServerError } from "proto/PulsarApi";
+import { logger } from "util/logger";
 import { AbstractPulsarSocket, Message } from "./abstractPulsarSocket";
 
 /**
@@ -8,36 +9,36 @@ import { AbstractPulsarSocket, Message } from "./abstractPulsarSocket";
 export class ProducerListeners {
   private pulsarSocket: AbstractPulsarSocket
   private producerListeners: Record<string, Signal<CommandSendReceipt | CommandCloseProducer>> = {}
+  private readonly loggerMetadata: any
 
   constructor(pulsarSocket: AbstractPulsarSocket) {
     this.pulsarSocket = pulsarSocket
+    this.loggerMetadata = { socketId: this.pulsarSocket.getId() }
+    logger.debug('producer listeners created', this.loggerMetadata)
   }
 
   public handleSendReceipt(message: Message) {
     const producerId = message.baseCommand.sendReceipt?.producerId
     const sendReceipt = message.baseCommand.sendReceipt
-    if (producerId && sendReceipt) {
-      const producerSignal = this.producerListeners[producerId.toString()]
-      if (producerSignal) {
-        producerSignal.dispatch(sendReceipt)
-      } else {
-        //warn
-      }
-      
+    const producerSignal = this.producerListeners[(producerId ?? '').toString()]
+    if (producerId && sendReceipt && producerSignal) {
+      logger.info('handle send receipt', { ...this.loggerMetadata, producerId })
+      producerSignal.dispatch(sendReceipt)
+    } else {
+      logger.warn('handle send receipt failed', { ...this.loggerMetadata, producerId })
     }
   }
 
   public handleCloseProducer(message: Message) {
     const closeProducer = message.baseCommand.closeProducer
     const producerId = message.baseCommand.closeProducer?.producerId
-    if (closeProducer && producerId) {
-      const producerSignal = this.producerListeners[producerId.toString()]
-      if (producerSignal) {
-        this.unregisterProducerListener(producerId)
-        producerSignal.dispatch(closeProducer)
-      } else {
-        //warn
-      }
+    const producerSignal = this.producerListeners[(producerId ?? '').toString()]
+
+    if (closeProducer && producerId && producerSignal) {
+      this.unregisterProducerListener(producerId)
+      producerSignal.dispatch(closeProducer)
+    } else {
+      logger.warn('handle close producer listener failed', { ...this.loggerMetadata, producerId })
     }
   }
 
@@ -49,19 +50,16 @@ export class ProducerListeners {
   public handleSendError(message: Message): Boolean {
     const producerId = message.baseCommand.sendError?.producerId
     const error = message.baseCommand.sendError?.error
+    logger.warn('send error, received unexpected error response for', { ...this.loggerMetadata, producerId, error })
 
     switch(error) {
       case ServerError.NotAllowedError:
         if (producerId) {
-        //   c.log.Warnf("Received unexpected error response for request %d of type %s",
-        // producerID, sendError.GetError())
           this.unregisterProducerListener(producerId)
         }
         return false
       case ServerError.TopicTerminatedError:
         if (producerId) {
-        //   c.log.Warnf("Received unexpected error response for request %d of type %s",
-        // producerID, sendError.GetError())
           this.unregisterProducerListener(producerId)
         }
         return false
@@ -73,7 +71,7 @@ export class ProducerListeners {
 
   public registerProducerListener(id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>) {
     if (this.pulsarSocket.getState() !== 'READY') {
-      // warn
+      logger.warn('producer listetner register failed, socket is not ready', { ...this.loggerMetadata, id })
       return
     }
 
@@ -81,6 +79,7 @@ export class ProducerListeners {
   }
 
   public unregisterProducerListener(id: Long) {
+    logger.info('unregistered producer listener', { ...this.loggerMetadata, id })
     delete this.producerListeners[id.toString()]
   }
 }

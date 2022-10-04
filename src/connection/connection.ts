@@ -1,6 +1,5 @@
 import { BaseCommand, BaseCommand_Type, CommandCloseConsumer, CommandCloseProducer, CommandConsumerStatsResponse, CommandGetLastMessageIdResponse, CommandGetTopicsOfNamespaceResponse, CommandLookupTopicResponse, CommandPartitionedTopicMetadataResponse, CommandProducerSuccess, CommandSendReceipt, CommandSuccess } from '../proto/PulsarApi'
 import { ConnectionOptions, ConnectionOptionsRaw } from './ConnectionOptions'
-import os from 'os'
 import { PulsarSocket } from './pulsarSocket';
 import { ProducerListeners } from './producerListeners'
 import { Message } from './abstractPulsarSocket';
@@ -8,11 +7,6 @@ import Long from 'long';
 import { ConsumerListeners } from './consumerListeners';
 import { Signal } from 'micro-signals';
 import { RequestTracker } from '../util/requestTracker';
-
-const localAddress = Object.values(os.networkInterfaces())
-  .flat()
-  .filter((item) => !item?.internal && item?.family === 'IPv4')
-  .find(Boolean)?.address ?? '127.0.0.1';
 
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
 
@@ -88,10 +82,6 @@ export class Connection {
   close() {
     this.socket.close()
     this.requestTracker.clear()
-  }
-
-  getId() {
-    return `${localAddress} -> ${this.options.url}`
   }
 
   GetMaxMessageSize() {

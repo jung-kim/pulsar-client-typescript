@@ -1,8 +1,13 @@
 import { Auth } from "auth"
+import os from 'os'
 
 const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
 const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
 const DEFAULT_MAX_MESSAGEE_SIZE = 5 * 1024 * 1024
+const localAddress = Object.values(os.networkInterfaces())
+  .flat()
+  .filter((item) => !item?.internal && item?.family === 'IPv4')
+  .find(Boolean)?.address ?? '127.0.0.1';
 
 export interface ConnectionOptionsRaw {
   url: string
@@ -16,6 +21,7 @@ export class ConnectionOptions {
   public readonly auth: Auth
   public readonly connectionTimeoutMs?: number
   public readonly keepAliveIntervalMs: number
+  public readonly connectionId: string
 
   public readonly _hostname?: string
   public readonly _port?: number
@@ -30,6 +36,7 @@ export class ConnectionOptions {
     this.auth = options.auth
     this.connectionTimeoutMs = options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS
     this.keepAliveIntervalMs = options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS
+    this.connectionId = `${localAddress} -> ${this.url}`
 
     this._hostname = url.hostname
     this._port = parseInt(url.port)
