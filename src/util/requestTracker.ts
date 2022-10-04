@@ -7,18 +7,12 @@ export interface RequestTrack<T> {
   rejectRequest: (e: any) => void
 }
 
-interface RequestResRej<T> {
-  id: Long
-  res: (response: T) => void
-  rej: (e: any) => void
-}
-
 /**
  * 
  */
 export class RequestTracker<T> {
   private currentRequestId: Long = Long.UZERO
-  private readonly resRejMap: Record<string, RequestResRej<T>> = {}
+  private readonly requestTrackMap: Record<string, RequestTrack<T>> = {}
 
   private getRequestId() {
     const id = this.currentRequestId
@@ -32,11 +26,15 @@ export class RequestTracker<T> {
 
   trackRequest(timeoutMs?: number): RequestTrack<T> {
     const id = this.getRequestId()
+    let res: (response: T) => void
+    let rej: (e: any) => void
     let timeout: ReturnType<typeof setTimeout>
-    return {
+    
+    return this.requestTrackMap[id.toString()] = {
       id,
       prom: new Promise<T>((res, rej) => {
-        this.resRejMap[id.toString()] = { id, res, rej }
+        res = res
+        rej = rej
         if (timeoutMs && timeoutMs > 0) {
           timeout = setTimeout(() => {
             rej(Error(`timeout of $timeout is triggered.`))
@@ -44,14 +42,10 @@ export class RequestTracker<T> {
         }
       }).finally(() => {
         clearTimeout(timeout)
-        delete this.resRejMap[id.toString()]
+        delete this.requestTrackMap[id.toString()]
       }),
-      resolveRequest: (value: T) => {
-        this.resolveRequest(id, value)
-      },
-      rejectRequest: (e: any) => {
-        this.rejectRequest(id, e)
-      }
+      resolveRequest: (value: T) => { res(value) },
+      rejectRequest: (e: any) => { rej(e) }
     }
   }
 
@@ -59,9 +53,9 @@ export class RequestTracker<T> {
     if (!id) {
       return
     }
-    const resRej = this.resRejMap[id.toString()]
-    if (resRej) {
-      resRej.res(value)
+    const requestTrack = this.requestTrackMap[id.toString()]
+    if (requestTrack) {
+      requestTrack.resolveRequest(value)
     }
   }
 
@@ -69,13 +63,13 @@ export class RequestTracker<T> {
     if (!id) {
       return
     }
-    const resRej = this.resRejMap[id.toString()]
-    if (resRej) {
-      resRej.rej(reason)
+    const requestTrack = this.requestTrackMap[id.toString()]
+    if (requestTrack) {
+      requestTrack.rejectRequest(reason)
     }
   }
 
   clear() {
-    Object.values(this.resRejMap).forEach(resRej => resRej.rej('socket is closing.'))
+    Object.values(this.requestTrackMap).forEach(requestTrack => requestTrack.rejectRequest('socket is closing.'))
   }
 }

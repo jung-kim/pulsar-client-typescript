@@ -7,7 +7,7 @@ import { Message } from './abstractPulsarSocket';
 import Long from 'long';
 import { ConsumerListeners } from './consumerListeners';
 import { Signal } from 'micro-signals';
-import { RequestTracker } from './util/requestTracker';
+import { RequestTracker } from '../util/requestTracker';
 
 const localAddress = Object.values(os.networkInterfaces())
   .flat()

@@ -4,7 +4,7 @@ import AsyncRetry from 'async-retry'
 import { Connection } from './Connection'
 import { BaseCommand, ProtocolVersion } from '../proto/PulsarApi'
 import { ConnectionOptions } from './ConnectionOptions'
-import { RequestTracker } from './util/requestTracker'
+import { RequestTracker } from '../util/requestTracker'
 
 /**
  * represents raw socket conenction to a destination

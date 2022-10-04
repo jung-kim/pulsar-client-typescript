@@ -5,7 +5,6 @@ import { TLSSocket } from "tls";
 import { Message } from "./abstractPulsarSocket";
 import { Connection } from "./Connection";
 import { PingPongSocket } from "./pingPongSocket";
-import { RequestTrack } from "./util/requestTracker";
 
 const pulsarClientVersion = 'Pulsar TS 0.1'
 
