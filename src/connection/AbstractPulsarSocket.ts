@@ -19,5 +19,5 @@ export abstract class AbstractPulsarSocket extends BaseSocket {
 
   public abstract getId(): string
   public abstract writeCommand(command: BaseCommand): void
-  protected abstract _parseReceived(data: Buffer): any
+  protected abstract _parseReceived(data: Buffer): Message
 }

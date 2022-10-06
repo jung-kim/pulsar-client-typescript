@@ -1,4 +1,17 @@
-import { BaseCommand, BaseCommand_Type, CommandCloseConsumer, CommandCloseProducer, CommandConsumerStatsResponse, CommandGetLastMessageIdResponse, CommandGetTopicsOfNamespaceResponse, CommandLookupTopicResponse, CommandPartitionedTopicMetadataResponse, CommandProducerSuccess, CommandSendReceipt, CommandSuccess } from '../proto/PulsarApi'
+import {
+  BaseCommand,
+  BaseCommand_Type,
+  CommandCloseConsumer,
+  CommandCloseProducer,
+  CommandConsumerStatsResponse,
+  CommandGetLastMessageIdResponse,
+  CommandGetTopicsOfNamespaceResponse,
+  CommandLookupTopicResponse,
+  CommandPartitionedTopicMetadataResponse,
+  CommandProducerSuccess,
+  CommandSendReceipt,
+  CommandSuccess
+} from '../proto/PulsarApi'
 import { ConnectionOptions, ConnectionOptionsRaw } from './ConnectionOptions'
 import { PulsarSocket } from './pulsarSocket';
 import { ProducerListeners } from './producerListeners'
@@ -7,6 +20,12 @@ import Long from 'long';
 import { ConsumerListeners } from './consumerListeners';
 import { Signal } from 'micro-signals';
 import { RequestTracker } from '../util/requestTracker';
+import os from 'os'
+
+const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
+const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
+const DEFAULT_MAX_MESSAGEE_SIZE = 5 * 1024 * 1024
+const localAddress = Object.values(os.networkInterfaces())
 
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
 
@@ -18,7 +37,18 @@ export class Connection {
   private readonly requestTracker = new RequestTracker<CommandTypesResponses>()
 
   constructor(options: ConnectionOptionsRaw) {
-    this.options = new ConnectionOptions(options)
+    const url = new URL(options.url)
+    this.options = {
+      url: options.url,
+      auth: options.auth,
+      connectionTimeoutMs: options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS,
+      keepAliveIntervalMs: options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS,
+      connectionId: `${localAddress} -> ${options.url}`,
+      _hostname: url.hostname,
+      _port: parseInt(url.port),
+      _protocol: url.protocol,
+      _isTlsEnabled: url.protocol === 'pulsar+ssl' || url.protocol === 'https'
+    }
     this.socket = new PulsarSocket(this)
 
     // register producer listener
@@ -85,7 +115,7 @@ export class Connection {
   }
 
   GetMaxMessageSize() {
-    return this.options._maxMesageSize
+    return this.options._maxMessageSize
   }
 
   /**
@@ -108,7 +138,7 @@ export class Connection {
     return this.producerListeners.registerProducerListener(id, signal)
   }
 
-  unregisterProducerListener(id: Long) {  
+  unregisterProducerListener(id: Long) {
     return this.producerListeners.unregisterProducerListener(id)
   }
 
@@ -123,7 +153,7 @@ export class Connection {
 
     this.socket.writeCommand(cmd)
       .catch(e => requestTrack.rejectRequest(e))
-    
+
     return requestTrack.prom
   }
 

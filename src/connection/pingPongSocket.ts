@@ -1,7 +1,6 @@
 import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
 import { Connection } from "./Connection";
 import { AbstractPulsarSocket, Message } from "./abstractPulsarSocket";
-import { logger } from "util/logger";
 
 // handles pingpong logic
 export abstract class PingPongSocket extends AbstractPulsarSocket {
@@ -12,7 +11,7 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
     super(connection)
 
     this.dataStream.add((message: Message) => {
-      switch(message.baseCommand.type) {
+      switch (message.baseCommand.type) {
         case BaseCommand_Type.PING:
           this.handlePing()
           break
@@ -22,13 +21,13 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
       }
     })
     this.reconnect()
-    logger.debug('pingpong socket is created', this.options)
+    this.wrappedLogger.debug('pingpong socket is created')
   }
 
-   reconnect() {
+  reconnect() {
     if (!this.interval) {
       this.interval = setInterval(this.handleInterval, this.options.keepAliveIntervalMs)
-      logger.debug('pingpong interval is configured', this.options)
+      this.wrappedLogger.debug('pingpong interval is configured')
     }
     return super.reconnect()
   }
@@ -37,20 +36,20 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
     this.sendPing()
 
     if (this.lastDataReceived + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
-      logger.info('stale connection, closing', this.options)
+      this.wrappedLogger.info('stale connection, closing')
       // stale connection, closing
       this.parent.close()
     }
   }
 
   close() {
-    logger.debug('pingpong socket close', this.options)
+    this.wrappedLogger.debug('pingpong socket close')
     clearInterval(this.interval)
     super.close()
   }
 
   private sendPing() {
-    logger.debug('send ping', this.options)
+    this.wrappedLogger.debug('send ping')
     return this.writeCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PING
@@ -58,10 +57,10 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
     )
   }
 
-  private handlePong() {}
+  private handlePong() { }
 
   private handlePing() {
-    logger.debug('handle ping', this.options)
+    this.wrappedLogger.debug('handle ping')
     return this.writeCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PONG

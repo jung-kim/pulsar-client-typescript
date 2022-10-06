@@ -5,7 +5,7 @@ import { Connection } from './Connection'
 import { BaseCommand, ProtocolVersion } from '../proto/PulsarApi'
 import { ConnectionOptions } from './ConnectionOptions'
 import { RequestTracker } from '../util/requestTracker'
-import { logger } from 'util/logger'
+import { WrappedLogger } from '../util/logger'
 
 /**
  * represents raw socket conenction to a destination
@@ -20,12 +20,14 @@ export abstract class BaseSocket {
   protected readonly parent: Connection
   protected readonly options: ConnectionOptions
   protected readonly protocolVersion = ProtocolVersion.v13
+  public readonly wrappedLogger: WrappedLogger
 
   constructor(connection: Connection) {
     this.parent = connection
     this.options = this.parent.getOption()
+    this.wrappedLogger = new WrappedLogger(this.options)
     this.reconnect()
-    logger.info('base socket created', this.options)
+    this.wrappedLogger.info('base socket created')
   }
 
   /**
@@ -68,20 +70,20 @@ export abstract class BaseSocket {
             this.state = 'CLOSING'
             this.socket?.removeAllListeners()
             // close event will trigger automatically after this event so not destroying here.
-            logger.error('socket error', this.options, err)
+            this.wrappedLogger.error('socket error', err)
           })
 
           this.socket.on('close', () => {
             this.state = 'CLOSING'
             this.socket?.removeAllListeners()
             rej(Error('socket closing'))
-            logger.info('socket close', this.options)
+            this.wrappedLogger.info('socket close')
           })
 
           this.socket.once('ready', () => {
             // tcp socket is ready!
             res(undefined)
-            logger.info('socket ready', this.options)
+            this.wrappedLogger.info('socket ready')
           })
         })
 
@@ -103,7 +105,7 @@ export abstract class BaseSocket {
         maxTimeout: 20000
       }
     ).catch((e) => {
-      logger.error('socket creation error', e, this.options)
+      this.wrappedLogger.error('socket creation error', e)
       this.parent.close()
       if (this.initializePromiseRej) {
         this.initializePromiseRej(e)
@@ -117,6 +119,7 @@ export abstract class BaseSocket {
    * closes the connection. Can be reconnected via `reconnect`
    */
   close() {
+    this.wrappedLogger.info('socket closed')
     if (this.state === 'CLOSED') {
       return
     }
@@ -129,7 +132,6 @@ export abstract class BaseSocket {
     this.initializePromise = undefined
     this.initializePromiseRes = undefined
     this.initializePromiseRej = undefined
-    logger.info('socket closed', this.options)
   }
 
   getState() {
@@ -141,17 +143,18 @@ export abstract class BaseSocket {
   }
 
   protected send(buffer: Uint8Array | Buffer): Promise<void> {
+    this.wrappedLogger.debug('sending data')
     return new Promise((_, rej) => {
       if (!this.socket || this.state !== 'READY') {
-        logger.debug('socket is closed, send is rejected', this.options)
+        this.wrappedLogger.warn('socket is closed, send is rejected')
         return rej(Error('socket is closed'))
       }
       this.socket.write(buffer, (err) => {
         if (err) {
-          logger.error('socket write error', this.options)
+          this.wrappedLogger.error('socket write error', err)
           return rej(err)
         }
-        logger.debug('socket written', this.options)
+        this.wrappedLogger.debug('written data')
       })
     })
   }

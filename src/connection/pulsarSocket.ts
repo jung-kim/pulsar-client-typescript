@@ -2,6 +2,7 @@ import { Socket } from "net"
 import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
 import { Reader, Writer } from "protobufjs";
 import { TLSSocket } from "tls";
+import { logger } from "../util/logger";
 import { Message } from "./abstractPulsarSocket";
 import { Connection } from "./Connection";
 import { PingPongSocket } from "./pingPongSocket";
@@ -33,30 +34,35 @@ export class PulsarSocket extends PingPongSocket {
     ])
     return this.send(payload)
   }
-  
+
   public async handleAuthChallenge(_: Message) {
-    const authData = await this.options.auth.getAuthData()
-    const payload = BaseCommand.fromJSON({
-      type: BaseCommand_Type.AUTH_RESPONSE,
-      connect: {
-        protocolVersion: this.protocolVersion,
-        clientVersion: pulsarClientVersion,
-        authMethodName: this.options.auth.name,
-        authData: Buffer.from(authData).toString('base64'),
-        featureFlags: {
-          supportsAuthRefresh: true
+    try {
+      const authData = await this.options.auth.getAuthData()
+      const payload = BaseCommand.fromJSON({
+        type: BaseCommand_Type.AUTH_RESPONSE,
+        connect: {
+          protocolVersion: this.protocolVersion,
+          clientVersion: pulsarClientVersion,
+          authMethodName: this.options.auth.name,
+          authData: Buffer.from(authData).toString('base64'),
+          featureFlags: {
+            supportsAuthRefresh: true
+          }
         }
-      }
-    })
-    this.writeCommand(payload)
+      })
+      this.writeCommand(payload)
+    } catch (e) {
+      this.wrappedLogger.error('auth challeng failed', e)
+    }
   }
 
   protected handleData(data: Buffer) {
     try {
+      this.wrappedLogger.debug('handling data')
       const message = this.parseReceived(data)
       this._dataStream.dispatch(message)
-    } catch(e) {
-      console.error('error received while parsing received message', e)
+    } catch (e) {
+      this.wrappedLogger.error('error received while parsing received message', e)
     }
   }
 
@@ -115,16 +121,20 @@ export class PulsarSocket extends PingPongSocket {
 
     if (!baseCommand.connected) {
       if (baseCommand.error) {
-        console.error(`error during handshake ${baseCommand.error.message}`)
+        this.wrappedLogger.error(`error during handshake`, baseCommand.error)
       } else {
-        console.error(`unkonwn base command was received: ${baseCommand.type}`)
+        this.wrappedLogger.error(
+          `unkonwn base command was received`,
+          undefined,
+          { baseCommandType: baseCommand.type }
+        )
       }
       throw Error(`Invalid response recevived`)
     }
 
-    this.options.setMaxMessageSize(baseCommand.connected?.maxMessageSize)
+    this.options._maxMessageSize = baseCommand.connected?.maxMessageSize
 
-    console.log('connected!!')
+    this.wrappedLogger.info('connected!!')
   }
 
   protected _parseReceived(data: Buffer): Message {
