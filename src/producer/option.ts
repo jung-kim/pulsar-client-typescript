@@ -16,7 +16,7 @@ export const defaultMaxMessagesPerBatch = 1000
 export const defaultPartitionsAutoDiscoveryIntervalMs = 1 * 60 * 1000 // 1 min
 
 
-export interface ProducerOption {
+export interface ProducerOptions {
   topic: string
   name: string
   properties?: Record<string, string>
@@ -40,7 +40,7 @@ export interface ProducerOption {
   // Encryption
 }
 
-export const _initializeOption = (option: ProducerOption): ProducerOption => {
+export const _initializeOption = (option: ProducerOptions): ProducerOptions => {
   if (option.topic) {
     throw new Error('Topic name is required for producer')
   }
