@@ -1,4 +1,5 @@
-import { options } from 'yargs'
+import { newDefaultRouter } from "./defaultRouter"
+import { ProducerMessage, TopicMetadata } from "./producer"
 
 // defaultSendTimeout init default timeout for ack since sent.
 export const defaultSendTimeoutMs = 30 * 1000 // 30 sec
@@ -15,38 +16,169 @@ export const defaultMaxMessagesPerBatch = 1000
 // defaultPartitionsAutoDiscoveryInterval init default time interval for partitions auto discovery
 export const defaultPartitionsAutoDiscoveryIntervalMs = 1 * 60 * 1000 // 1 min
 
+export const JAVA_STRING_HASH = 0
+export const MURMUR3_32HASH = 1
+
+export const IOTA_COMPRESSION = 0
+export const LZ4_COMPRESSION = 1
+export const ZLIB_COMPRESSION = 2
+export const ZSTD_COMPRESSION = 3
+
+export const DEFAULT_COMPRESSION_LEVEL = 0
+export const FASTER_COMPRESSION_LEVEL = 1
+export const BETTER_COMPRESSION_LEVEL = 2
 
 export interface ProducerOptions {
+  // Topic specify the topic this producer will be publishing on.
+  // This argument is required when constructing the producer.
   topic: string
+
+  // Name specify a name for the producer
+  // If not assigned, the system will generate a globally unique name which can be access with
+  // Producer.ProducerName().
+  // When specifying a name, it is up to the user to ensure that, for a given topic, the producer name is unique
+  // across all Pulsar's clusters. Brokers will enforce that only a single producer a given name can be publishing on
+  // a topic.
   name: string
-  properties?: Record<string, string>
-  sendTimeoutMs?: number
-  disableBlockIfQueueFull?: boolean
-  maxPendingMessages?: number
-  // HashingScheme
-  // CompressionType
-  // CompressionLevel
-  // MessageRouter
-  disableBatching?: boolean
-  batchingMaxPublishDelayMs?: number
-  batchingMaxMessages?: number
-  batchingMaxSize?: number
-  // Interceptors
-  // Schema
-  maxReconnectToBroker?: number
-  // BatcherBuilderType
-  partitionsAutoDiscoveryIntervalMs?: number
-  disableMultiSchema?: number
-  // Encryption
+
+  // Properties attach a set of application defined properties to the producer
+  // This properties will be visible in the topic stats
+  properties: Record<string, string>
+
+  // SendTimeout set the timeout for a message that not be acknowledged by server since sent.
+  // Send and SendAsync returns an error after timeout.
+  // Default is 30 seconds, negative such as -1 to disable.
+  sendTimeoutMs: number
+
+  // DisableBlockIfQueueFull control whether Send and SendAsync block if producer's message queue is full.
+  // Default is false, if set to true then Send and SendAsync return error when queue is full.
+  disableBlockIfQueueFull: boolean
+
+  // MaxPendingMessages set the max size of the queue holding the messages pending to receive an
+  // acknowledgment from the broker.
+  maxPendingMessages: number
+
+  // HashingScheme change the `HashingScheme` used to chose the partition on where to publish a particular message.
+  // Standard hashing functions available are:
+  //
+  //  - `JavaStringHash` : Java String.hashCode() equivalent
+  //  - `Murmur3_32Hash` : Use Murmur3 hashing function.
+  // 		https://en.wikipedia.org/wiki/MurmurHash">https://en.wikipedia.org/wiki/MurmurHash
+  //
+  // Default is `JavaStringHash`.
+  hashingScheme: 0 | 1
+
+  // CompressionType set the compression type for the producer.
+  // By default, message payloads are not compressed. Supported compression types are:
+  //  - LZ4
+  //  - ZLIB
+  //  - ZSTD
+  //
+  // Note: ZSTD is supported since Pulsar 2.3. Consumers will need to be at least at that
+  // release in order to be able to receive messages compressed with ZSTD.
+  compressionType: 0 | 1 | 2 | 3
+
+  // Define the desired compression level. Options:
+  // - Default
+  // - Faster
+  // - Better
+  compressionLevel: 0 | 1 | 2
+
+  // MessageRouter set a custom message routing policy by passing an implementation of MessageRouter
+  // The router is a function that given a particular message and the topic metadata, returns the
+  // partition index where the message should be routed to
+  messageRouter: (message: ProducerMessage, metadata: TopicMetadata) => number
+
+  // DisableBatching control whether automatic batching of messages is enabled for the producer. By default batching
+  // is enabled.
+  // When batching is enabled, multiple calls to Producer.sendAsync can result in a single batch to be sent to the
+  // broker, leading to better throughput, especially when publishing small messages. If compression is enabled,
+  // messages will be compressed at the batch level, leading to a much better compression ratio for similar headers or
+  // contents.
+  // When enabled default batch delay is set to 1 ms and default batch size is 1000 messages
+  // Setting `DisableBatching: true` will make the producer to send messages individually
+  disableBatching: boolean
+
+  // BatchingMaxPublishDelay set the time period within which the messages sent will be batched (default: 10ms)
+  // if batch messages are enabled. If set to a non zero value, messages will be queued until this time
+  // interval or until
+  batchingMaxPublishDelayMs: number
+
+  // BatchingMaxMessages set the maximum number of messages permitted in a batch. (default: 1000)
+  // If set to a value greater than 1, messages will be queued until this threshold is reached or
+  // BatchingMaxSize (see below) has been reached or the batch interval has elapsed.
+  batchingMaxMessages: number
+
+  // BatchingMaxSize sets the maximum number of bytes permitted in a batch. (default 128 KB)
+  // If set to a value greater than 1, messages will be queued until this threshold is reached or
+  // BatchingMaxMessages (see above) has been reached or the batch interval has elapsed.
+  batchingMaxSize: number
+
+  // A chain of interceptors, These interceptors will be called at some points defined in ProducerInterceptor interface
+  // Interceptors ProducerInterceptors
+  // Schema Schema
+
+  // MaxReconnectToBroker set the maximum retry number of reconnectToBroker. (default: ultimate)
+  maxReconnectToBroker: number
+
+  // BatcherBuilderType sets the batch builder type (default DefaultBatchBuilder)
+  // This will be used to create batch container when batching is enabled.
+  // Options:
+  // - DefaultBatchBuilder
+  // - KeyBasedBatchBuilder
+  batcherBuilderType: number
+
+  // PartitionsAutoDiscoveryInterval is the time interval for the background process to discover new partitions
+  // Default is 1 minute
+  partitionsAutoDiscoveryIntervalMs: number
+
+  // Encryption necessary fields to perform encryption of message
+  // Encryption *ProducerEncryptionInfo
 }
 
-export const _initializeOption = (option: ProducerOptions): ProducerOptions => {
+export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOptions => {
   if (option.topic) {
     throw new Error('Topic name is required for producer')
   }
 
+  if (!option.name) {
+
+  }
+
+  if (!option.properties) {
+    option.properties = {}
+  }
+
   if (option.sendTimeoutMs || 0 <= 0) {
     option.sendTimeoutMs = defaultSendTimeoutMs
+  }
+
+  if (option.disableBlockIfQueueFull === undefined) {
+    option.disableBlockIfQueueFull = false
+  }
+
+  if (option.maxPendingMessages === undefined) {
+    option.maxPendingMessages = 1000
+  }
+
+  if (option.hashingScheme === undefined) {
+    option.hashingScheme = JAVA_STRING_HASH
+  }
+
+  if (option.compressionType === undefined) {
+    option.compressionType = IOTA_COMPRESSION
+  }
+
+  if (option.compressionLevel === undefined) {
+    option.compressionLevel = DEFAULT_COMPRESSION_LEVEL
+  }
+
+  if (option.disableBatching === undefined) {
+    option.disableBatching = false
+  }
+
+  if (option.batchingMaxPublishDelayMs || 0 <= 0) {
+    option.batchingMaxPublishDelayMs = defaultBatchingMaxPublishDelayMs
   }
 
   if (option.batchingMaxMessages || 0 <= 0) {
@@ -57,17 +189,34 @@ export const _initializeOption = (option: ProducerOptions): ProducerOptions => {
     option.batchingMaxSize = defaultMaxBatchSize
   }
 
-  if (option.batchingMaxPublishDelayMs || 0 <= 0) {
-    option.batchingMaxPublishDelayMs = defaultBatchingMaxPublishDelayMs
+  // if (option.inteceptors) {
+
+  // }
+
+  // if (option.schema) {
+
+  // }
+
+  if (option.maxReconnectToBroker || 0 <= 0) {
+    option.maxReconnectToBroker = 0
   }
 
   if (option.partitionsAutoDiscoveryIntervalMs || 0 <= 0) {
     option.partitionsAutoDiscoveryIntervalMs = defaultPartitionsAutoDiscoveryIntervalMs
   }
 
-  if (option.maxPendingMessages || 0 <= 0) {
-    option.maxPendingMessages = 1000
+
+  if (option.messageRouter === undefined) {
+    const defaultRouter = newDefaultRouter(
+			getHashingFunction(option.hashingScheme),
+			option.batchingMaxMessages!,
+			option.batchingMaxSize!,
+			option.batchingMaxPublishDelayMs!,
+			option.disableBatching!)
+    option.messageRouter = (message: ProducerMessage, metadata: TopicMetadata) => {
+      return defaultRouter(message, metadata.numPartitions())
+    }
   }
 
-  return option
+  return option as ProducerOptions
 }
