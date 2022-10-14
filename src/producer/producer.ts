@@ -68,15 +68,18 @@ export class Producer {
   private readonly options: ProducerOptions
   private readonly partitionedProducers: Array<PartitionedProducer> = []
   private readonly wrappedLogger: WrappedLogger
-  private state: PRODUCER_STATES
+  private readonly runBackgroundPartitionDiscovery: ReturnType<typeof setInterval>
 
   constructor(option: Partial<ProducerOptions>, cnx: Connection) {
     this.cnx = cnx
     this.options = _initializeOption(_.cloneDeep(option), this.cnx.getNewProducerId())
     this.wrappedLogger = new WrappedLogger({ option: option })
 
-    this.state = PRODUCER_STATES.INIT
     this.internalCreatePartitionsProducers()
+    this.runBackgroundPartitionDiscovery = setInterval(
+      this.internalCreatePartitionsProducers,
+      this.options.partitionsAutoDiscoveryIntervalMs
+    )
   }
 
   private internalCreatePartitionsProducers = async () => {
@@ -105,8 +108,8 @@ export class Producer {
     }
   }
 
-  defaultRouter() {
-
+  close() {
+    clearInterval(this.runBackgroundPartitionDiscovery)
   }
 
   getPartitionIndex(msg: ProducerMessage): number {
