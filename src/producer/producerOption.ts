@@ -1,29 +1,33 @@
 import { newDefaultRouter } from "./defaultRouter"
 import { ProducerMessage, TopicMetadata } from "./producer"
+import murmurHash3 from 'murmurhash3js'
 
 // defaultSendTimeout init default timeout for ack since sent.
-export const defaultSendTimeoutMs = 30 * 1000 // 30 sec
+export const DEFAULT_SEND_TIMEOUT_MS = 30 * 1000 // 30 sec
 
 // defaultBatchingMaxPublishDelay init default for maximum delay to batch messages
-export const defaultBatchingMaxPublishDelayMs = 10 * 60 * 1000 // 10 min
+export const DEFAULT_BATCHING_MAX_PUBLISH_DELAY_MS = 10 * 60 * 1000 // 10 min
 
 // defaultMaxBatchSize init default for maximum number of bytes per batch
-export const defaultMaxBatchSize = 128 * 1024
+export const DEFAULT_MAX_BATCH_SIZE = 128 * 1024
 
 // defaultMaxMessagesPerBatch init default num of entries in per batch.
-export const defaultMaxMessagesPerBatch = 1000
+export const DEFAULT_MAX_MESSAGES_PER_BATCH = 1000
 
 // defaultPartitionsAutoDiscoveryInterval init default time interval for partitions auto discovery
-export const defaultPartitionsAutoDiscoveryIntervalMs = 1 * 60 * 1000 // 1 min
+export const DEFAULT_PARTITIONS_AUT_DISCOVERY_INTERVAL_MS = 1 * 60 * 1000 // 1 min
 
+// hashing types
 export const JAVA_STRING_HASH = 0
 export const MURMUR3_32HASH = 1
 
+// compression types
 export const IOTA_COMPRESSION = 0
 export const LZ4_COMPRESSION = 1
 export const ZLIB_COMPRESSION = 2
 export const ZSTD_COMPRESSION = 3
 
+// compression levels
 export const DEFAULT_COMPRESSION_LEVEL = 0
 export const FASTER_COMPRESSION_LEVEL = 1
 export const BETTER_COMPRESSION_LEVEL = 2
@@ -150,7 +154,7 @@ export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOpt
   }
 
   if (option.sendTimeoutMs || 0 <= 0) {
-    option.sendTimeoutMs = defaultSendTimeoutMs
+    option.sendTimeoutMs = DEFAULT_SEND_TIMEOUT_MS
   }
 
   if (option.disableBlockIfQueueFull === undefined) {
@@ -178,15 +182,15 @@ export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOpt
   }
 
   if (option.batchingMaxPublishDelayMs || 0 <= 0) {
-    option.batchingMaxPublishDelayMs = defaultBatchingMaxPublishDelayMs
+    option.batchingMaxPublishDelayMs = DEFAULT_BATCHING_MAX_PUBLISH_DELAY_MS
   }
 
   if (option.batchingMaxMessages || 0 <= 0) {
-    option.batchingMaxMessages = defaultMaxMessagesPerBatch
+    option.batchingMaxMessages = DEFAULT_MAX_MESSAGES_PER_BATCH
   }
 
   if (option.batchingMaxSize || 0 <= 0) {
-    option.batchingMaxSize = defaultMaxBatchSize
+    option.batchingMaxSize = DEFAULT_MAX_BATCH_SIZE
   }
 
   // if (option.inteceptors) {
@@ -202,13 +206,16 @@ export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOpt
   }
 
   if (option.partitionsAutoDiscoveryIntervalMs || 0 <= 0) {
-    option.partitionsAutoDiscoveryIntervalMs = defaultPartitionsAutoDiscoveryIntervalMs
+    option.partitionsAutoDiscoveryIntervalMs = DEFAULT_PARTITIONS_AUT_DISCOVERY_INTERVAL_MS
   }
 
-
   if (option.messageRouter === undefined) {
+    const hashFunc = option.hashingScheme === MURMUR3_32HASH
+      ? murmurHash3.x86.hash32
+      : javaHashCode
+
     const defaultRouter = newDefaultRouter(
-			getHashingFunction(option.hashingScheme),
+			hashFunc,
 			option.batchingMaxMessages!,
 			option.batchingMaxSize!,
 			option.batchingMaxPublishDelayMs!,
@@ -219,4 +226,14 @@ export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOpt
   }
 
   return option as ProducerOptions
+}
+
+const javaHashCode = (s: string): number => {
+  let h = 0, l = s.length, i = 0
+  if ( l > 0 ) {
+    while (i < l) {
+      h = (h << 5) - h + s.charCodeAt(i++) | 0
+    }
+  }
+  return h
 }
