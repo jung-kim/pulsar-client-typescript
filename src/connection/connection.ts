@@ -35,6 +35,7 @@ export class Connection {
   private readonly producerListeners: ProducerListeners
   private readonly consumerLinsteners: ConsumerListeners
   private readonly requestTracker = new RequestTracker<CommandTypesResponses>()
+  private producerId = 0
 
   constructor(options: ConnectionOptionsRaw) {
     const url = new URL(options.url)
@@ -163,5 +164,9 @@ export class Connection {
 
   handleResponse(cmd: CommandTypesResponses) {
     this.requestTracker.resolveRequest(cmd?.requestId, cmd)
+  }
+
+  getNewProducerId() {
+    return this.producerId++
   }
 }

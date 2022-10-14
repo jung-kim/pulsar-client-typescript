@@ -138,12 +138,16 @@ export interface ProducerOptions {
 
   // Encryption necessary fields to perform encryption of message
   // Encryption *ProducerEncryptionInfo
+
+  producerId: number
 }
 
-export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOptions => {
+export const _initializeOption = (option: Partial<ProducerOptions>, producerId: number): ProducerOptions => {
   if (option.topic) {
     throw new Error('Topic name is required for producer')
   }
+
+  option.producerId = producerId
 
   if (!option.name) {
 
