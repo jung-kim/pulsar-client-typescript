@@ -10,7 +10,9 @@ import {
   CommandPartitionedTopicMetadataResponse,
   CommandProducerSuccess,
   CommandSendReceipt,
-  CommandSuccess
+  CommandSuccess,
+  SingleMessageMetadata,
+  MessageMetadata
 } from '../proto/PulsarApi'
 import { ConnectionOptions, _initializeOption } from './ConnectionOptions'
 import { PulsarSocket } from './pulsarSocket';
@@ -21,6 +23,8 @@ import { ConsumerListeners } from './consumerListeners';
 import { Signal } from 'micro-signals';
 import { RequestTracker } from '../util/requestTracker';
 import _ from 'lodash';
+import { ProducerMessage } from 'producer/producer';
+import { Writer } from 'protobufjs';
 
 
 
@@ -144,12 +148,45 @@ export class Connection {
     return requestTrack.prom
   }
 
-  // send(buffer: Uint8Array | Buffer) {
-  //   return this.socket.send(buffer)
-  // }
+  sendMessages(messages: ProducerMessage[]) {
+    const smms = messages.map(msg => {
+      return SingleMessageMetadata.fromJSON({
+        payloadSize: msg.payload.byteLength,
+        eventTime: msg.eventTimeMs,
+        partitionKey: msg.key,
+        orderingKey: msg.orderingKey,
+        properties: Object.entries(msg.properties || {}).map(([key, value]) => {
+          return { key, value }
+        })
+      })
+    })
+    const payloads = smms.map(smm => {
+      const encodedSmm = SingleMessageMetadata.encode(smm).finish()
 
-  sendMessage() {
+      return new Uint8Array([
+        // This is where custom "frame" attributes comes in, which is fixed 32 bit numeric command and frame
+        // size is inserted before the command
+        ...(new Writer()).uint32(encodedSmm.length).finish(),
+        ...encodedSmm
+      ])
+    })
 
+    const requestTrack = this.requestTracker.trackRequest();
+    const messageMetadata = MessageMetadata.fromJSON({
+      sequenceId: requestTrack.id,
+      publishTime: Date.now(),
+      producerName: '',
+      replicateTo: messages[0].replicationClusters,
+      partitionKey: smms[0].partitionKey,
+      deliverAtTime: messages[0].deliverAtMs,
+      numMessagesInBatch: payloads.length,
+      uncompressedSize: payloads.reduce((pv, cv) => pv + cv.length, 0)
+    })
+
+    this.socket.send(serializeBatch(messageMetadata, payloads))
+      .catch(e => requestTrack.rejectRequest(e))
+
+    return requestTrack.prom
   }
 
   handleResponseError(message: Message) {
