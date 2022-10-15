@@ -142,7 +142,7 @@ export abstract class BaseSocket {
     return this.initializePromise
   }
 
-  protected send(buffer: Uint8Array | Buffer): Promise<void> {
+  send(buffer: Uint8Array | Buffer): Promise<void> {
     this.wrappedLogger.debug('sending data')
     return new Promise((_, rej) => {
       if (!this.socket || this.state !== 'READY') {

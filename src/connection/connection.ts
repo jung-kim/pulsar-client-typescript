@@ -12,7 +12,7 @@ import {
   CommandSendReceipt,
   CommandSuccess
 } from '../proto/PulsarApi'
-import { ConnectionOptions, ConnectionOptionsRaw } from './ConnectionOptions'
+import { ConnectionOptions, _initializeOption } from './ConnectionOptions'
 import { PulsarSocket } from './pulsarSocket';
 import { ProducerListeners } from './producerListeners'
 import { Message } from './abstractPulsarSocket';
@@ -20,12 +20,9 @@ import Long from 'long';
 import { ConsumerListeners } from './consumerListeners';
 import { Signal } from 'micro-signals';
 import { RequestTracker } from '../util/requestTracker';
-import os from 'os'
+import _ from 'lodash';
 
-const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
-const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
-const DEFAULT_MAX_MESSAGEE_SIZE = 5 * 1024 * 1024
-const localAddress = Object.values(os.networkInterfaces())
+
 
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
 
@@ -37,19 +34,8 @@ export class Connection {
   private readonly requestTracker = new RequestTracker<CommandTypesResponses>()
   private producerId = 0
 
-  constructor(options: ConnectionOptionsRaw) {
-    const url = new URL(options.url)
-    this.options = {
-      url: options.url,
-      auth: options.auth,
-      connectionTimeoutMs: options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS,
-      keepAliveIntervalMs: options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS,
-      connectionId: `${localAddress} -> ${options.url}`,
-      _hostname: url.hostname,
-      _port: parseInt(url.port),
-      _protocol: url.protocol,
-      _isTlsEnabled: url.protocol === 'pulsar+ssl' || url.protocol === 'https'
-    }
+  constructor(options: Partial<ConnectionOptions>) {
+    this.options = _initializeOption(_.cloneDeep(options))
     this.socket = new PulsarSocket(this)
 
     // register producer listener
@@ -115,8 +101,8 @@ export class Connection {
     this.requestTracker.clear()
   }
 
-  GetMaxMessageSize() {
-    return this.options._maxMessageSize
+  getMaxMessageSize() {
+    return this.options.maxMessageSize
   }
 
   /**
@@ -143,7 +129,7 @@ export class Connection {
     return this.producerListeners.unregisterProducerListener(id)
   }
 
-  sendRequest(cmd: BaseCommand): Promise<CommandTypesResponses> {
+  sendCommand(cmd: BaseCommand): Promise<CommandTypesResponses> {
     const requestTrack = this.requestTracker.trackRequest();
 
     (Object(cmd) as Array<keyof BaseCommand>).forEach((key: keyof BaseCommand) => {
@@ -156,6 +142,14 @@ export class Connection {
       .catch(e => requestTrack.rejectRequest(e))
 
     return requestTrack.prom
+  }
+
+  // send(buffer: Uint8Array | Buffer) {
+  //   return this.socket.send(buffer)
+  // }
+
+  sendMessage() {
+
   }
 
   handleResponseError(message: Message) {

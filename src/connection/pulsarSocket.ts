@@ -2,10 +2,10 @@ import { Socket } from "net"
 import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
 import { Reader, Writer } from "protobufjs";
 import { TLSSocket } from "tls";
-import { logger } from "../util/logger";
 import { Message } from "./abstractPulsarSocket";
 import { Connection } from "./Connection";
 import { PingPongSocket } from "./pingPongSocket";
+import { DEFAULT_MAX_MESSAGE_SIZE } from './ConnectionOptions'
 
 const pulsarClientVersion = 'Pulsar TS 0.1'
 
@@ -15,7 +15,7 @@ export class PulsarSocket extends PingPongSocket {
   }
 
   getId() {
-    return this.options.connectionId
+    return this.options._connectionId
   }
 
   public async writeCommand(command: BaseCommand): Promise<void> {
@@ -132,7 +132,11 @@ export class PulsarSocket extends PingPongSocket {
       throw Error(`Invalid response recevived`)
     }
 
-    this.options._maxMessageSize = baseCommand.connected?.maxMessageSize
+    if (baseCommand.connected?.maxMessageSize && baseCommand.connected?.maxMessageSize > 0) {
+      this.options.maxMessageSize = baseCommand.connected?.maxMessageSize
+    } else {
+      this.options.maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
+    }
 
     this.wrappedLogger.info('connected!!')
   }
