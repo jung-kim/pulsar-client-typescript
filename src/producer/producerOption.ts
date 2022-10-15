@@ -17,6 +17,10 @@ export const DEFAULT_MAX_MESSAGES_PER_BATCH = 1000
 // defaultPartitionsAutoDiscoveryInterval init default time interval for partitions auto discovery
 export const DEFAULT_PARTITIONS_AUT_DISCOVERY_INTERVAL_MS = 1 * 60 * 1000 // 1 min
 
+export const DEFAULT_MAX_PENDING_MESSAGES = 1000
+
+export const DEFAULT_MAX_RECONNECT_TO_BROKER = 0
+
 // hashing types
 export const JAVA_STRING_HASH = 0
 export const MURMUR3_32HASH = 1
@@ -138,16 +142,12 @@ export interface ProducerOptions {
 
   // Encryption necessary fields to perform encryption of message
   // Encryption *ProducerEncryptionInfo
-
-  producerId: number
 }
 
-export const _initializeOption = (option: Partial<ProducerOptions>, producerId: number): ProducerOptions => {
+export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOptions => {
   if (option.topic) {
     throw new Error('Topic name is required for producer')
   }
-
-  option.producerId = producerId
 
   if (!option.name) {
 
@@ -166,7 +166,7 @@ export const _initializeOption = (option: Partial<ProducerOptions>, producerId: 
   }
 
   if (option.maxPendingMessages === undefined) {
-    option.maxPendingMessages = 1000
+    option.maxPendingMessages = DEFAULT_MAX_PENDING_MESSAGES
   }
 
   if (option.hashingScheme === undefined) {
@@ -206,7 +206,7 @@ export const _initializeOption = (option: Partial<ProducerOptions>, producerId: 
   // }
 
   if (option.maxReconnectToBroker || 0 <= 0) {
-    option.maxReconnectToBroker = 0
+    option.maxReconnectToBroker = DEFAULT_MAX_RECONNECT_TO_BROKER
   }
 
   if (option.partitionsAutoDiscoveryIntervalMs || 0 <= 0) {
@@ -232,6 +232,8 @@ export const _initializeOption = (option: Partial<ProducerOptions>, producerId: 
   return option as ProducerOptions
 }
 
+// source: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0
+// no idea if this works...
 const javaHashCode = (s: string): number => {
   let h = 0, l = s.length, i = 0
   if ( l > 0 ) {

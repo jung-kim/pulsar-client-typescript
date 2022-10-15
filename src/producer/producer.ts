@@ -65,15 +65,15 @@ export interface TopicMetadata {
 
 export class Producer {
   private readonly cnx: Connection
-  private readonly options: ProducerOptions
+  readonly options: ProducerOptions
   private readonly partitionedProducers: Array<PartitionedProducer> = []
   private readonly wrappedLogger: WrappedLogger
   private readonly runBackgroundPartitionDiscovery: ReturnType<typeof setInterval>
 
   constructor(option: Partial<ProducerOptions>, cnx: Connection) {
     this.cnx = cnx
-    this.options = _initializeOption(_.cloneDeep(option), this.cnx.getNewProducerId())
-    this.wrappedLogger = new WrappedLogger({ option: option })
+    this.options = _initializeOption(_.cloneDeep(option))
+    this.wrappedLogger = new WrappedLogger({ topic: this.options.topic })
 
     this.internalCreatePartitionsProducers()
     this.runBackgroundPartitionDiscovery = setInterval(
