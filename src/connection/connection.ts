@@ -12,7 +12,9 @@ import {
   CommandSendReceipt,
   CommandSuccess,
   SingleMessageMetadata,
-  MessageMetadata
+  MessageMetadata,
+  CommandLookupTopic,
+  CommandLookupTopicResponse_LookupType
 } from '../proto/PulsarApi'
 import { ConnectionOptions, _initializeOption } from './ConnectionOptions'
 import { PulsarSocket } from './pulsarSocket';
@@ -26,9 +28,8 @@ import _ from 'lodash';
 import { ProducerMessage } from 'producer/producer';
 import { Writer } from 'protobufjs';
 
-
-
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
+const lookupResultMaxRedirect = 20
 
 export class Connection {
   private readonly socket: PulsarSocket
@@ -38,9 +39,9 @@ export class Connection {
   private readonly requestTracker = new RequestTracker<CommandTypesResponses>()
   private producerId = 0
 
-  constructor(options: Partial<ConnectionOptions>) {
-    this.options = _initializeOption(_.cloneDeep(options))
-    this.socket = new PulsarSocket(this)
+  constructor(options: ConnectionOptions, logicalAddress: URL) {
+    this.options = options
+    this.socket = new PulsarSocket(this, logicalAddress)
 
     // register producer listener
     this.producerListeners = new ProducerListeners(this.socket)
@@ -100,6 +101,7 @@ export class Connection {
   reconnect() {
     this.socket.reconnect()
   }
+
   close() {
     this.socket.close()
     this.requestTracker.clear()
@@ -199,5 +201,9 @@ export class Connection {
 
   getNewProducerId() {
     return this.producerId++
+  }
+
+  isReady() {
+    return this.socket.getState() === 'READY'
   }
 }

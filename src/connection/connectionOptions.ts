@@ -12,29 +12,26 @@ export interface ConnectionOptions {
   auth: Auth
   connectionTimeoutMs: number
   keepAliveIntervalMs: number
-  _connectionId: string
-  _hostname: string
-  _port: number
-  _protocol: string
-  _isTlsEnabled: boolean
   maxMessageSize: number
+
+  _url: URL
+  _connectionId: string
+  _isTlsEnabled: boolean
 }
 
 export const _initializeOption = (options: Partial<ConnectionOptions>) =>{
   if (!options.url) {
     throw Error('invalid url')
   }
-  const url = new URL(options.url)
+  options._url = new URL(options.url)
   if (!options.auth) {
     options.auth = new NoAuth()
   }
   options.connectionTimeoutMs = options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS
   options.keepAliveIntervalMs = options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS
   options._connectionId = `${localAddress} -> ${options.url}`
-  options._hostname = url.hostname,
-  options._port = parseInt(url.port),
-  options._protocol = url.protocol,
-  options._isTlsEnabled = url.protocol === 'pulsar+ssl' || url.protocol === 'https'
+
+  options._isTlsEnabled = options._url.protocol === 'pulsar+ssl' || options._url.protocol === 'https'
 
   return options as ConnectionOptions
 }

@@ -10,8 +10,10 @@ import { DEFAULT_MAX_MESSAGE_SIZE } from './ConnectionOptions'
 const pulsarClientVersion = 'Pulsar TS 0.1'
 
 export class PulsarSocket extends PingPongSocket {
-  constructor(connection: Connection) {
+  private readonly logicalAddress: URL
+  constructor(connection: Connection, logicalAddress: URL) {
     super(connection)
+    this.logicalAddress = logicalAddress
   }
 
   getId() {
@@ -103,7 +105,8 @@ export class PulsarSocket extends PingPongSocket {
         authData: Buffer.from(authData).toString('base64'),
         featureFlags: {
           supportsAuthRefresh: true
-        }
+        },
+        proxyToBrokerUrl: this.logicalAddress.href === this.options._url.href ? undefined : this.logicalAddress.host
       }
     })
 

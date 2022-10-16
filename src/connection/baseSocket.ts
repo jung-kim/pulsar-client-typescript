@@ -2,9 +2,8 @@ import { Socket, createConnection } from 'net'
 import { connect, TLSSocket } from 'tls'
 import AsyncRetry from 'async-retry'
 import { Connection } from './Connection'
-import { BaseCommand, ProtocolVersion } from '../proto/PulsarApi'
+import { ProtocolVersion } from '../proto/PulsarApi'
 import { ConnectionOptions } from './ConnectionOptions'
-import { RequestTracker } from '../util/requestTracker'
 import { WrappedLogger } from '../util/logger'
 
 /**
@@ -16,7 +15,6 @@ export abstract class BaseSocket {
   private initializePromise: Promise<void> | undefined = undefined
   private initializePromiseRes: (() => void) | undefined = undefined
   private initializePromiseRej: ((e: any) => void) | undefined = undefined
-  private readonly requestTracker = new RequestTracker<BaseCommand>()
   protected readonly parent: Connection
   protected readonly options: ConnectionOptions
   protected readonly protocolVersion = ProtocolVersion.v13
