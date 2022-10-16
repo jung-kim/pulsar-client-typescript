@@ -15,6 +15,8 @@ export interface ConnectionOptions {
   keepAliveIntervalMs: number
   maxMessageSize: number
 
+  listenerName: string
+
   _url: URL
   _connectionId: string
   _isTlsEnabled: boolean
@@ -31,6 +33,7 @@ export const _initializeOption = (options: Partial<ConnectionOptions>) =>{
   }
   options.connectionTimeoutMs = options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS
   options.keepAliveIntervalMs = options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS
+  options.listenerName = options.listenerName ?? ''
   options._connectionId = `${localAddress} -> ${options.url}`
   options._isTlsEnabled = options._url.protocol === 'pulsar+ssl' || options._url.protocol === 'https'
   options._uuid = v4()

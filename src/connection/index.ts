@@ -1,3 +1,4 @@
 
 export { Connection } from './Connection'
-export { ConnectionOptionsRaw } from './ConnectionOptions'
+export { ConnectionPool } from './ConnectionPool'
+export { ConnectionOptions } from './ConnectionOptions'

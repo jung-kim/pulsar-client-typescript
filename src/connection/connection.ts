@@ -12,9 +12,7 @@ import {
   CommandSendReceipt,
   CommandSuccess,
   SingleMessageMetadata,
-  MessageMetadata,
-  CommandLookupTopic,
-  CommandLookupTopicResponse_LookupType
+  MessageMetadata
 } from '../proto/PulsarApi'
 import { ConnectionOptions, _initializeOption } from './ConnectionOptions'
 import { PulsarSocket } from './pulsarSocket';
@@ -37,7 +35,6 @@ export class Connection {
   private readonly producerListeners: ProducerListeners
   private readonly consumerLinsteners: ConsumerListeners
   private readonly requestTracker = new RequestTracker<CommandTypesResponses>()
-  private producerId = 0
 
   constructor(options: ConnectionOptions, logicalAddress: URL) {
     this.options = options
@@ -197,10 +194,6 @@ export class Connection {
 
   handleResponse(cmd: CommandTypesResponses) {
     this.requestTracker.resolveRequest(cmd?.requestId, cmd)
-  }
-
-  getNewProducerId() {
-    return this.producerId++
   }
 
   isReady() {
