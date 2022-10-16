@@ -22,12 +22,14 @@
     "oauth": "^0.9.15",
     "p-queue": "^7.2.0",
     "protobufjs": "^7.0.0",
-    "ts-proto": "^1.120.0"
+    "ts-proto": "^1.120.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/async-retry": "^1.4.5",
     "@types/murmurhash3js": "^3.0.3",
     "@types/node": "^18.0.0",
+    "@types/uuid": "^8.3.4",
     "@types/yargs": "^17.0.13",
     "mocha": "^10.0.0",
     "protoc-gen-ts": "^0.8.5",

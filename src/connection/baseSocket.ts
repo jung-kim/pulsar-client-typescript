@@ -23,7 +23,11 @@ export abstract class BaseSocket {
   constructor(connection: Connection) {
     this.parent = connection
     this.options = this.parent.getOption()
-    this.wrappedLogger = new WrappedLogger(this.options)
+    this.wrappedLogger = new WrappedLogger({
+      name: `BaseSocket`,
+      url: this.options.url,
+      uuid: this.options._uuid
+    })
     this.reconnect()
     this.wrappedLogger.info('base socket created')
   }
@@ -51,15 +55,15 @@ export abstract class BaseSocket {
           // initialize socket
           if (this.options._isTlsEnabled) {
             this.socket = connect({
-              host: this.options._hostname,
-              port: this.options._port,
-              servername: this.options._hostname,
+              host: this.options._url.hostname,
+              port: parseInt(this.options._url.port),
+              servername: this.options._url.hostname,
               timeout: this.options.connectionTimeoutMs
             })
           } else {
             this.socket = createConnection({
-              host: this.options._hostname as string,
-              port: this.options._port as number,
+              host: this.options._url.hostname as string,
+              port: parseInt(this.options._url.port),
               timeout: this.options.connectionTimeoutMs
             })
           }

@@ -1,6 +1,7 @@
 import { NoAuth } from "../auth/noauth"
 import { Auth } from "../auth"
 import os from 'os'
+import { v4 } from 'uuid'
 
 export const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
 export const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
@@ -17,6 +18,7 @@ export interface ConnectionOptions {
   _url: URL
   _connectionId: string
   _isTlsEnabled: boolean
+  _uuid: string
 }
 
 export const _initializeOption = (options: Partial<ConnectionOptions>) =>{
@@ -30,8 +32,8 @@ export const _initializeOption = (options: Partial<ConnectionOptions>) =>{
   options.connectionTimeoutMs = options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS
   options.keepAliveIntervalMs = options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS
   options._connectionId = `${localAddress} -> ${options.url}`
-
   options._isTlsEnabled = options._url.protocol === 'pulsar+ssl' || options._url.protocol === 'https'
+  options._uuid = v4()
 
   return options as ConnectionOptions
 }
