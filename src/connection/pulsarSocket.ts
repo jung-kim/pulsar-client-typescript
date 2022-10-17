@@ -24,16 +24,11 @@ export class PulsarSocket extends PingPongSocket {
     await this.ensureReady()
 
     const marshalledCommand = BaseCommand.encode(command).finish()
-    const commandSize = marshalledCommand.length
-    const frameSize = commandSize + 4
+    const payload = new Uint8Array(4 + 4 + marshalledCommand.length)
+    payload.set((new Writer()).fixed32(4 + marshalledCommand.length).finish().reverse())
+    payload.set((new Writer()).fixed32(marshalledCommand.length).finish().reverse())
+    payload.set(marshalledCommand)
 
-    const payload = new Uint8Array([
-      // This is where custom "frame" attributes comes in, which is fixed 32 bit numeric command and frame
-      // size is inserted before the command
-      ...(new Writer()).fixed32(frameSize).finish().reverse(),
-      ...(new Writer()).fixed32(commandSize).finish().reverse(),
-      ...marshalledCommand
-    ])
     return this.send(payload)
   }
 

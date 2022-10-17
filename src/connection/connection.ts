@@ -29,7 +29,6 @@ import { Writer } from 'protobufjs'
 import { serializeBatch } from './Commands'
 
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
-const lookupResultMaxRedirect = 20
 
 export class Connection {
   private readonly socket: PulsarSocket
