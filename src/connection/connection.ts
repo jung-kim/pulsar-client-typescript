@@ -12,19 +12,21 @@ import {
   CommandSendReceipt,
   CommandSuccess,
   SingleMessageMetadata,
-  MessageMetadata
+  MessageMetadata,
+  CommandSend
 } from '../proto/PulsarApi'
 import { ConnectionOptions, _initializeOption } from './ConnectionOptions'
-import { PulsarSocket } from './pulsarSocket';
+import { PulsarSocket } from './pulsarSocket'
 import { ProducerListeners } from './producerListeners'
-import { Message } from './abstractPulsarSocket';
-import Long from 'long';
-import { ConsumerListeners } from './consumerListeners';
-import { Signal } from 'micro-signals';
-import { RequestTracker } from '../util/requestTracker';
-import _ from 'lodash';
-import { ProducerMessage } from 'producer/producer';
-import { Writer } from 'protobufjs';
+import { Message } from './abstractPulsarSocket'
+import Long from 'long'
+import { ConsumerListeners } from './consumerListeners'
+import { Signal } from 'micro-signals'
+import { RequestTracker } from '../util/requestTracker'
+import _ from 'lodash'
+import { ProducerMessage } from 'producer/producer'
+import { Writer } from 'protobufjs'
+import { serializeBatch } from './Commands'
 
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
 const lookupResultMaxRedirect = 20
@@ -147,9 +149,9 @@ export class Connection {
     return requestTrack.prom
   }
 
-  sendMessages(messages: ProducerMessage[]) {
-    const smms = messages.map(msg => {
-      return SingleMessageMetadata.fromJSON({
+  sendMessages(messages: ProducerMessage[], producerId: number) {
+    const msgPayloads = messages.map(msg => {
+      const smm = SingleMessageMetadata.fromJSON({
         payloadSize: msg.payload.byteLength,
         eventTime: msg.eventTimeMs,
         partitionKey: msg.key,
@@ -158,16 +160,15 @@ export class Connection {
           return { key, value }
         })
       })
-    })
-    const payloads = smms.map(smm => {
-      const encodedSmm = SingleMessageMetadata.encode(smm).finish()
 
-      return new Uint8Array([
-        // This is where custom "frame" attributes comes in, which is fixed 32 bit numeric command and frame
-        // size is inserted before the command
-        ...(new Writer()).uint32(encodedSmm.length).finish(),
-        ...encodedSmm
-      ])
+      return SingleMessageMetadata.encode(smm).finish()
+    })
+
+    const uncompressedPayloadSize = msgPayloads.reduce((pv, msgPayload) => pv + msgPayload.length + 4, 0)
+    const uncompressedPayload = new Uint8Array(uncompressedPayloadSize)
+    msgPayloads.forEach(msgPayload => {
+      uncompressedPayload.set((new Writer()).uint32(msgPayload.length).finish())
+      uncompressedPayload.set(msgPayload)
     })
 
     const requestTrack = this.requestTracker.trackRequest();
@@ -176,13 +177,18 @@ export class Connection {
       publishTime: Date.now(),
       producerName: '',
       replicateTo: messages[0].replicationClusters,
-      partitionKey: smms[0].partitionKey,
+      partitionKey: messages[0].orderingKey,
       deliverAtTime: messages[0].deliverAtMs,
-      numMessagesInBatch: payloads.length,
-      uncompressedSize: payloads.reduce((pv, cv) => pv + cv.length, 0)
+      numMessagesInBatch: msgPayloads.length,
+      uncompressedSize: uncompressedPayloadSize
     })
 
-    this.socket.send(serializeBatch(messageMetadata, payloads))
+    const sendCommand = CommandSend.fromJSON({
+      producerId,
+      sequenceId: requestTrack.id
+    })
+
+    this.socket.send(serializeBatch(sendCommand, messageMetadata, uncompressedPayload))
       .catch(e => requestTrack.rejectRequest(e))
 
     return requestTrack.prom
