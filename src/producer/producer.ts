@@ -1,4 +1,4 @@
-import { Connection } from "connection"
+import { ConnectionPool } from "../connection"
 import _ from "lodash"
 import { WrappedLogger } from "util/logger"
 import { ProducerOptions, _initializeOption } from "./producerOption"
@@ -64,14 +64,14 @@ export interface TopicMetadata {
 }
 
 export class Producer {
-  private readonly cnx: Connection
+  private readonly cnxPool: ConnectionPool
   readonly options: ProducerOptions
   private readonly partitionedProducers: Array<PartitionedProducer> = []
   private readonly wrappedLogger: WrappedLogger
   private readonly runBackgroundPartitionDiscovery: ReturnType<typeof setInterval>
 
-  constructor(option: Partial<ProducerOptions>, cnx: Connection) {
-    this.cnx = cnx
+  constructor(option: Partial<ProducerOptions>, cnxPool: ConnectionPool) {
+    this.cnxPool = cnxPool
     this.options = _initializeOption(_.cloneDeep(option))
     this.wrappedLogger = new WrappedLogger({ topic: this.options.topic })
 

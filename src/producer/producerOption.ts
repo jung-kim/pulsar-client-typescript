@@ -1,6 +1,7 @@
 import { newDefaultRouter } from "./defaultRouter"
 import { ProducerMessage, TopicMetadata } from "./producer"
 import murmurHash3 from 'murmurhash3js'
+import { KeyValue } from "proto/PulsarApi"
 
 // defaultSendTimeout init default timeout for ack since sent.
 export const DEFAULT_SEND_TIMEOUT_MS = 30 * 1000 // 30 sec
@@ -142,6 +143,8 @@ export interface ProducerOptions {
 
   // Encryption necessary fields to perform encryption of message
   // Encryption *ProducerEncryptionInfo
+
+  _properties: KeyValue[]
 }
 
 export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOptions => {
@@ -153,8 +156,12 @@ export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOpt
 
   }
 
-  if (!option.properties) {
-    option.properties = {}
+  if (option.properties) {
+    option._properties = Object.entries(option.properties).map(([key, value]) => {
+      return { key, value }
+    })
+  } else {
+    option._properties = []
   }
 
   if (option.sendTimeoutMs || 0 <= 0) {

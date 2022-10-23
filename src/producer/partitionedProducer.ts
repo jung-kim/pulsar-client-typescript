@@ -1,30 +1,38 @@
-import { Producer, ProducerMessage, PRODUCER_STATES } from "./producer";
-import { getSingleMessageMetadata } from "./helper";
+import { Producer } from "./producer";
 import { WrappedLogger } from "../util/logger";
-import { Connection } from "../connection";
-import { ProducerOptions } from "./producerOption";
+import { Connection, ConnectionPool } from "../connection";
+import { SendRequest } from "./sendRequest";
+import { BaseCommand, CommandCloseProducer, CommandSendReceipt } from "proto/PulsarApi";
+import { getSingleMessageMetadata } from "./messageBatcher";
+import { Signal } from "micro-signals";
+import Long from 'long'
 
 export class PartitionedProducer {
   readonly parent: Producer
   readonly partitionId: number
-  readonly producerId: number
-  private readonly cnx: Connection
+  readonly topicName: string
+  readonly producerId: Long
+  private cnxPool: ConnectionPool
+  private cnx: Connection | undefined
   private readonly wrappedLogger: WrappedLogger
   private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
+  private epoch: number = 0
+  private sequenceId: Long | undefined = undefined
 
+  private producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
   private readonly pendingQueues: { sentAt: number }[] = []
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
 
-
-  constructor(producer: Producer, cnx: Connection, partitionId: number) {
+  constructor(producer: Producer, cnxPool: ConnectionPool, partitionId: number) {
     this.parent = producer
     this.partitionId = partitionId
-    this.producerId = cnx.getNewProducerId()
-    this.cnx = cnx
+    this.cnxPool = cnxPool
+    this.topicName = `${this.parent.options.topic}-partition-${this.partitionId}`
+    this.producerId = this.cnxPool.getProducerId()
     this.wrappedLogger = new WrappedLogger({
       producerName: this.parent.options.name,
       producerId: this.producerId,
-      topic: this.parent.options.topic,
+      topicName: this.parent.options.topic,
       partitionId: partitionId
     })
     this.state = 'PRODUCER_INIT'
@@ -60,51 +68,151 @@ export class PartitionedProducer {
     //   }
     // }
 
-    // // @todo connection pooling is not implemented
-    // err := p.grabCnx()
-    // if err != nil {
-    //   logger.WithError(err).Error("Failed to create producer")
-    //   return nil, err
-    // }
-
-    this.wrappedLogger.info('Created producer')
-    this.state = 'PRODUCER_READY'
+    this.grabCnx()
 
     // // Not sure if this is needed
     // if p.options.SendTimeout > 0 {
     //   go p.failTimeoutMessages()
     // }
-  
+
     // // event loop probably is not needed
     // go p.runEventsLoop()
   }
-  
+
   isReady() {
     return this.state === "PRODUCER_READY"
   }
 
-  async send(msg: ProducerMessage) {
-    if (!this.isReady()) {
-      throw Error('Producer is not ready.')
+  async grabCnx() {
+    const { cnx, commandProducerSuccess } = await this.cnxPool.getProducerConnection(
+      this.producerId,
+      this.topicName,
+      this.producerSignal, 
+      this.epoch,
+      this.parent.options._properties)
+    if (this.sequenceId === undefined) {
+      this.sequenceId = commandProducerSuccess.requestId.add(1)
     }
+    this.cnx = cnx
 
-    // internal send
-    if (msg.value && msg.key) {
-      throw Error('Can not set Value and Payload both')
+    if (this.state === 'PRODUCER_INIT') {
+      this.state = 'PRODUCER_READY'
     }
+    this.wrappedLogger.info('producer cnx created', {
+      // cnx: this.cnx.id,
+      epoch: this.epoch,
+      sequenceId: this.sequenceId,
+      state: this.state
+    })
 
-    const deliverAt = Date.now() + (msg.deliverAfterMs || 0)
-    // const sendAsBatch = this.producer.option.
-
-    const smm = getSingleMessageMetadata(msg)
-
-    // @todo
-    //  p.options.DisableMultiSchema
-    //  sendAsBatch
-    //  msg.DisableReplication
+    // pendingItems := p.pendingQueue.ReadableSlice()
+    // viewSize := len(pendingItems)
+    // if viewSize > 0 {
+    //   p.log.Infof("Resending %d pending batches", viewSize)
+    //   lastViewItem := pendingItems[viewSize-1].(*pendingItem)
+  
+    //   // iterate at most pending items
+    //   for i := 0; i < viewSize; i++ {
+    //     item := p.pendingQueue.Poll()
+    //     if item == nil {
+    //       continue
+    //     }
+    //     pi := item.(*pendingItem)
+    //     // when resending pending batches, we update the sendAt timestamp and put to the back of queue
+    //     // to avoid pending item been removed by failTimeoutMessages and cause race condition
+    //     pi.Lock()
+    //     pi.sentAt = time.Now()
+    //     pi.Unlock()
+    //     p.pendingQueue.Put(pi)
+    //     p.cnx.WriteData(pi.batchData)
+  
+    //     if pi == lastViewItem {
+    //       break
+    //     }
+    //   }
+    // }
   }
 
-  setFailTimeoutFunc () {
+  async internalSend(sendRequest: SendRequest) {
+    if (!this.cnx || this.state !== 'PRODUCER_READY') {
+      throw Error('producer connection is not ready')
+    }
+
+    this.wrappedLogger.debug('Received send request')
+  
+    const msg = sendRequest.msg
+  
+    
+    // const schemaPayload: ArrayBuffer = 
+    // var err error
+    // if p.options.Schema != nil {
+    //   schemaPayload, err = p.options.Schema.Encode(msg.Value)
+    //   if err != nil {
+    //     p.log.WithError(err).Errorf("Schema encode message failed %s", msg.Value)
+    //     return
+    //   }
+    // }
+  
+    const payload = msg.payload // ?? schemaPaylod
+  
+    // this should be done at connection side
+    // // if msg is too large
+    // if len(payload) > int(p.cnx.GetMaxMessageSize()) {
+    //   p.publishSemaphore.Release()
+    //   request.callback(nil, request.msg, errMessageTooLarge)
+    //   p.log.WithError(errMessageTooLarge).
+    //     WithField("size", len(payload)).
+    //     WithField("properties", msg.Properties).
+    //     Errorf("MaxMessageSize %d", int(p.cnx.GetMaxMessageSize()))
+    //   p.metrics.PublishErrorsMsgTooLarge.Inc()
+    //   return
+    // }
+  
+    const deliverAt = (msg.deliverAfterMs || 0)>  0 ? Date.now() + (msg.deliverAfterMs || 0) : msg.deliverAtMs
+    const sendAsBatch = this.parent.options.disableBatching && !msg.replicationClusters && (deliverAt || 0) < 0
+
+    // if !sendAsBatch {
+    //   p.internalFlushCurrentBatch()
+    // }
+  
+    // if msg.DisableReplication {
+    //   msg.ReplicationClusters = []string{"__local__"}
+    // }
+  
+    // added := p.batchBuilder.Add(smm, p.sequenceIDGenerator, payload, request,
+    //   msg.ReplicationClusters, deliverAt)
+    // if !added {
+    //   // The current batch is full.. flush it and retry
+    //   if p.batchBuilder.IsMultiBatches() {
+    //     p.internalFlushCurrentBatches()
+    //   } else {
+    //     p.internalFlushCurrentBatch()
+    //   }
+  
+    //   // after flushing try again to add the current payload
+    //   if ok := p.batchBuilder.Add(smm, p.sequenceIDGenerator, payload, request,
+    //     msg.ReplicationClusters, deliverAt); !ok {
+    //     p.publishSemaphore.Release()
+    //     request.callback(nil, request.msg, errFailAddToBatch)
+    //     p.log.WithField("size", len(payload)).
+    //       WithField("properties", msg.Properties).
+    //       Error("unable to add message to batch")
+    //     return
+    //   }
+    // }
+  
+    // if !sendAsBatch || request.flushImmediately {
+    //   if p.batchBuilder.IsMultiBatches() {
+    //     p.internalFlushCurrentBatches()
+    //   } else {
+    //     p.internalFlushCurrentBatch()
+    //   }
+    // }
+
+    this.cnx.sendMessages([sendRequest.msg], this.producerId)
+  }
+
+  private setFailTimeoutFunc() {
     if (this.failTimeoutFunc || this.pendingQueues.length === 0) {
       return
     }

@@ -148,10 +148,26 @@ export class Connection {
     return requestTrack.prom
   }
 
-  sendMessages(messages: ProducerMessage[], producerId: number) {
+  sendMessages(messages: ProducerMessage[], producerId: Long) {
     const msgPayloads = messages.map(msg => {
+
+      // const schemaPayload: ArrayBuffer = 
+      // var err error
+      // if p.options.Schema != nil {
+      //   schemaPayload, err = p.options.Schema.Encode(msg.Value)
+      //   if err != nil {
+      //     p.log.WithError(err).Errorf("Schema encode message failed %s", msg.Value)
+      //     return
+      //   }
+      // }
+      const payload = msg.payload
+
+      if (payload.byteLength > this.options.maxMessageSize) {
+        throw Error(`maxMessageSize payloadSize: ${payload.byteLength}, maxMessageSize: ${this.options.maxMessageSize}`)
+      }
+
       const smm = SingleMessageMetadata.fromJSON({
-        payloadSize: msg.payload.byteLength,
+        payloadSize: payload.byteLength,
         eventTime: msg.eventTimeMs,
         partitionKey: msg.key,
         orderingKey: msg.orderingKey,

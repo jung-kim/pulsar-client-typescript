@@ -1,8 +1,10 @@
 import _ from "lodash"
 import { WrappedLogger } from "../util/logger"
-import { BaseCommand, BaseCommand_Type, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, KeyValue } from "../proto/PulsarApi"
+import { BaseCommand, BaseCommand_Type, CommandCloseProducer, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, CommandSendReceipt, KeyValue } from "../proto/PulsarApi"
 import { Connection } from "./Connection"
 import { ConnectionOptions, _initializeOption } from "./ConnectionOptions"
+import { Signal } from "micro-signals"
+import Long from 'long'
 
 const lookupResultMaxRedirect = 20
 
@@ -12,7 +14,7 @@ export class ConnectionPool {
   private readonly connections: Record<string, Connection> = {}
   private readonly options: ConnectionOptions
   private readonly wrappedLogger: WrappedLogger
-  private producerId = 0
+  private producerId = new Long(0, undefined, true)
 
   constructor(options: Partial<ConnectionOptions>) {
     this.options = _initializeOption(_.cloneDeep(options))
@@ -28,10 +30,10 @@ export class ConnectionPool {
     if (cnx) {
       return cnx
     }
-    return this.getAdminConnection(this.options._url)
+    return this.getConnection(this.options._url)
   }
 
-  getAdminConnection(logicalAddress: URL) {
+  getConnection(logicalAddress: URL) {
     const cnx = this.connections[logicalAddress.href]
     if (cnx) {
       if (cnx.isReady()) {
@@ -66,7 +68,7 @@ export class ConnectionPool {
         ? res.brokerServiceUrlTls
         : res.brokerServiceUrl
       const logicalAddrUrl = new URL(logicalAddress)
-      const cnx = this.getAdminConnection(logicalAddrUrl)
+      const cnx = this.getConnection(logicalAddrUrl)
       switch (res.response) {
         case CommandLookupTopicResponse_LookupType.Redirect:
           this.wrappedLogger.debug('lookup is redirected', { topic, listenerName })
@@ -85,6 +87,12 @@ export class ConnectionPool {
     throw Error(`Failed to lookup.  topic: [${topic}] listenerName [${listenerName}]`)
   }
 
+  getProducerId() {
+    const producerId = this.producerId
+    this.producerId = this.producerId.add(1)
+    return producerId
+  }
+
   /**
    * 
    * @param topicName 
@@ -93,7 +101,7 @@ export class ConnectionPool {
    * @returns newly created connection for a partitioned producer.  A partitoned producer may
    *   want to close and discard old producer connection.
    */
-  async getProducerConnection(topicName: string, epoch: number, metadata: KeyValue[]) {
+  async getProducerConnection(producerId: Long, topicName: string, producerSignal: Signal<CommandSendReceipt | CommandCloseProducer>, epoch: number, metadata: KeyValue[]) {
     // PartitionedProducer.grabCnx()
 
     // pbSchema := new(pb.Schema)
@@ -112,9 +120,8 @@ export class ConnectionPool {
     // }
 
     const logicalAddr = await this.lookup(topicName)
-    const cnx = this.getAdminConnection(logicalAddr)
+    const cnx = this.getConnection(logicalAddr)
 
-    const producerId = this.producerId++
     const cmdProducer = BaseCommand.fromJSON({
       type: BaseCommand_Type.PRODUCER,
       producer: CommandProducer.fromJSON({
@@ -144,6 +151,8 @@ export class ConnectionPool {
     // }
 
     const commandProducerSuccess = await cnx.sendCommand(cmdProducer)
+    cnx.registerProducerListener(producerId, producerSignal)
+
     return {
       cnx: new Connection(this.options, logicalAddr),
       commandProducerSuccess
