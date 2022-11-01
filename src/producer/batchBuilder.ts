@@ -29,7 +29,7 @@ export class BatchBuilder {
     this.sendRequestBuffer = new Array(maxBatchCount)
   }
 
-  add(msg: ProducerMessage) {
+  add(msg: ProducerMessage, deliverAt: number) {
     // const schemaPayload: ArrayBuffer = 
     // var err error
     // if p.options.Schema != nil {
@@ -61,7 +61,7 @@ export class BatchBuilder {
         replicateTo: msg.replicationClusters,
         partitionKey: msg.key,
         orderingKey: msg.orderingKey,
-        deliverAtTime: Date.now(),
+        deliverAtTime: deliverAt,
       })
     }
 

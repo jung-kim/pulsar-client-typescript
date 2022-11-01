@@ -172,16 +172,16 @@ export class PartitionedProducer {
     //   p.metrics.PublishErrorsMsgTooLarge.Inc()
     //   return
     // }
+
+    if (msg.disableReplication) {
+      msg.replicationClusters = ["__local__"]
+    }
   
-    const deliverAt = (msg.deliverAfterMs || 0)>  0 ? Date.now() + (msg.deliverAfterMs || 0) : msg.deliverAtMs
-    const sendAsBatch = this.parent.options.disableBatching && !msg.replicationClusters && (deliverAt || 0) < 0
+    const deliverAt = msg.deliverAtMs ? msg.deliverAtMs : Date.now() + (msg.deliverAfterMs || 0)
+    const sendAsBatch = !this.parent.options.disableBatching && !msg.replicationClusters && deliverAt < 0
 
     // if !sendAsBatch {
     //   p.internalFlushCurrentBatch()
-    // }
-  
-    // if msg.DisableReplication {
-    //   msg.ReplicationClusters = []string{"__local__"}
     // }
   
     // added := p.batchBuilder.Add(smm, p.sequenceIDGenerator, payload, request,
@@ -213,19 +213,21 @@ export class PartitionedProducer {
     //     p.internalFlushCurrentBatch()
     //   }
     // }
-    this.batchBuilder.add(sendRequest)
+    this.batchBuilder.add(msg, deliverAt)
 
     if (sendRequest.flushImmediately || (sendAsBatch && !this.batchBuilder.isFull())) {
       // sending as batch and nothing to flush return prom
       const { id, prom } = this.cnx.getRequestTrack(this.requestId)
-      this.requestId = id
+      if (!this.requestId) {
+        this.requestId = id
+      }
       return prom
     } else {
-      // flush!
       const { messageMetadata, uncompressedPayload, numMessagesInBatch } = this.batchBuilder.flush()
       messageMetadata.producerName = this.parent.options.name
       messageMetadata.uncompressedSize = uncompressedPayload.length
       messageMetadata.numMessagesInBatch = numMessagesInBatch
+      this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })
       try {
         return this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload, this.requestId).prom
       } catch {
