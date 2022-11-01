@@ -3,9 +3,9 @@ import { WrappedLogger } from "../util/logger";
 import { Connection, ConnectionPool } from "../connection";
 import { SendRequest } from "./sendRequest";
 import { BaseCommand, CommandCloseProducer, CommandSendReceipt } from "proto/PulsarApi";
-import { getSingleMessageMetadata } from "./messageBatcher";
 import { Signal } from "micro-signals";
 import Long from 'long'
+import { BatchBuilder } from "./batchBuilder";
 
 export class PartitionedProducer {
   readonly parent: Producer
@@ -23,6 +23,9 @@ export class PartitionedProducer {
   private readonly pendingQueues: { sentAt: number }[] = []
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
 
+  private batchBuilder: BatchBuilder
+  private requestId: Long | undefined
+
   constructor(producer: Producer, cnxPool: ConnectionPool, partitionId: number) {
     this.parent = producer
     this.partitionId = partitionId
@@ -35,6 +38,11 @@ export class PartitionedProducer {
       topicName: this.parent.options.topic,
       partitionId: partitionId
     })
+    this.batchBuilder = new BatchBuilder(
+      this.parent.options.batchingMaxMessages,
+      this.parent.options.batchingMaxSize,
+      this.parent.options.maxMessageSize
+    )
     this.state = 'PRODUCER_INIT'
 
     // if options.Schema != nil && options.Schema.GetSchemaInfo() != nil {
@@ -141,8 +149,6 @@ export class PartitionedProducer {
     this.wrappedLogger.debug('Received send request')
   
     const msg = sendRequest.msg
-  
-    
     // const schemaPayload: ArrayBuffer = 
     // var err error
     // if p.options.Schema != nil {
@@ -154,7 +160,6 @@ export class PartitionedProducer {
     // }
   
     const payload = msg.payload // ?? schemaPaylod
-  
     // this should be done at connection side
     // // if msg is too large
     // if len(payload) > int(p.cnx.GetMaxMessageSize()) {
@@ -208,8 +213,25 @@ export class PartitionedProducer {
     //     p.internalFlushCurrentBatch()
     //   }
     // }
+    this.batchBuilder.add(sendRequest)
 
-    this.cnx.sendMessages([sendRequest.msg], this.producerId)
+    if (sendRequest.flushImmediately || (sendAsBatch && !this.batchBuilder.isFull())) {
+      // sending as batch and nothing to flush return prom
+      const { id, prom } = this.cnx.getRequestTrack(this.requestId)
+      this.requestId = id
+      return prom
+    } else {
+      // flush!
+      const { messageMetadata, uncompressedPayload, numMessagesInBatch } = this.batchBuilder.flush()
+      messageMetadata.producerName = this.parent.options.name
+      messageMetadata.uncompressedSize = uncompressedPayload.length
+      messageMetadata.numMessagesInBatch = numMessagesInBatch
+      try {
+        return this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload, this.requestId).prom
+      } catch {
+        this.requestId = undefined
+      }
+    }
   }
 
   private setFailTimeoutFunc() {

@@ -2,6 +2,7 @@ import { newDefaultRouter } from "./defaultRouter"
 import { ProducerMessage, TopicMetadata } from "./producer"
 import murmurHash3 from 'murmurhash3js'
 import { KeyValue } from "proto/PulsarApi"
+import { DEFAULT_MAX_MESSAGE_SIZE } from "connection/ConnectionOptions"
 
 // defaultSendTimeout init default timeout for ack since sent.
 export const DEFAULT_SEND_TIMEOUT_MS = 30 * 1000 // 30 sec
@@ -144,6 +145,8 @@ export interface ProducerOptions {
   // Encryption necessary fields to perform encryption of message
   // Encryption *ProducerEncryptionInfo
 
+  maxMessageSize: number
+
   _properties: KeyValue[]
 }
 
@@ -218,6 +221,10 @@ export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOpt
 
   if (option.partitionsAutoDiscoveryIntervalMs || 0 <= 0) {
     option.partitionsAutoDiscoveryIntervalMs = DEFAULT_PARTITIONS_AUT_DISCOVERY_INTERVAL_MS
+  }
+
+  if (option.maxMessageSize || 0 <= 0) {
+    option.maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
   }
 
   if (option.messageRouter === undefined) {

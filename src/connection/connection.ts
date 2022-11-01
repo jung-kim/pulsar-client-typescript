@@ -148,65 +148,31 @@ export class Connection {
     return requestTrack.prom
   }
 
-  sendMessages(messages: ProducerMessage[], producerId: Long) {
-    const msgPayloads = messages.map(msg => {
-
-      // const schemaPayload: ArrayBuffer = 
-      // var err error
-      // if p.options.Schema != nil {
-      //   schemaPayload, err = p.options.Schema.Encode(msg.Value)
-      //   if err != nil {
-      //     p.log.WithError(err).Errorf("Schema encode message failed %s", msg.Value)
-      //     return
-      //   }
-      // }
-      const payload = msg.payload
-
-      if (payload.byteLength > this.options.maxMessageSize) {
-        throw Error(`maxMessageSize payloadSize: ${payload.byteLength}, maxMessageSize: ${this.options.maxMessageSize}`)
-      }
-
-      const smm = SingleMessageMetadata.fromJSON({
-        payloadSize: payload.byteLength,
-        eventTime: msg.eventTimeMs,
-        partitionKey: msg.key,
-        orderingKey: msg.orderingKey,
-        properties: Object.entries(msg.properties || {}).map(([key, value]) => {
-          return { key, value }
-        })
-      })
-
-      return SingleMessageMetadata.encode(smm).finish()
-    })
-
-    const uncompressedPayloadSize = msgPayloads.reduce((pv, msgPayload) => pv + msgPayload.length + 4, 0)
-    const uncompressedPayload = new Uint8Array(uncompressedPayloadSize)
-    msgPayloads.forEach(msgPayload => {
-      uncompressedPayload.set((new Writer()).uint32(msgPayload.length).finish())
-      uncompressedPayload.set(msgPayload)
-    })
-
-    const requestTrack = this.requestTracker.trackRequest();
-    const messageMetadata = MessageMetadata.fromJSON({
-      sequenceId: requestTrack.id,
-      publishTime: Date.now(),
-      producerName: '',
-      replicateTo: messages[0].replicationClusters,
-      partitionKey: messages[0].orderingKey,
-      deliverAtTime: messages[0].deliverAtMs,
-      numMessagesInBatch: msgPayloads.length,
-      uncompressedSize: uncompressedPayloadSize
-    })
-
+  sendMessages(producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array, requestId?: Long) {
+    const requestTrack = requestId ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest();
     const sendCommand = CommandSend.fromJSON({
       producerId,
       sequenceId: requestTrack.id
     })
 
+    messageMetadata.sequenceId = requestTrack.id
+
     this.socket.send(serializeBatch(sendCommand, messageMetadata, uncompressedPayload))
       .catch(e => requestTrack.rejectRequest(e))
 
-    return requestTrack.prom
+    return {
+      id: requestTrack.id,
+      prom: requestTrack.prom
+    }
+  }
+
+  getRequestTrack(requestId?: Long) {
+    const requestTrack = requestId ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest()
+
+    return {
+      id: requestTrack.id,
+      prom: requestTrack.prom
+    }
   }
 
   handleResponseError(message: Message) {

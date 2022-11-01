@@ -49,6 +49,10 @@ export class RequestTracker<T> {
     }
   }
 
+  get(id: Long) {
+    return this.requestTrackMap[id.toString()]
+  }
+
   resolveRequest(id: Long | undefined, value: T) {
     if (!id) {
       return
