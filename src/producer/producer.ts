@@ -5,13 +5,6 @@ import { ProducerOptions, _initializeOption } from "./producerOption"
 import { PartitionedProducer } from "./partitionedProducer"
 import { BaseCommand, BaseCommand_Type, CommandPartitionedTopicMetadataResponse } from "proto/PulsarApi"
 
-export enum PRODUCER_STATES {
-  INIT = 0,
-  READY = 1,
-  CLOSING = 2,
-  CLOSED = 3,
-}
-
 export type Router = (message: ProducerMessage, metaadata: TopicMetadata) => number
 
 export interface ProducerMessage {
@@ -64,26 +57,27 @@ export interface TopicMetadata {
 }
 
 export class Producer {
-  private readonly cnxPool: ConnectionPool
+  public readonly cnxPool: ConnectionPool
   readonly options: ProducerOptions
   private readonly partitionedProducers: Array<PartitionedProducer> = []
   private readonly wrappedLogger: WrappedLogger
   private readonly runBackgroundPartitionDiscovery: ReturnType<typeof setInterval>
+  private readyPromise
 
   constructor(option: Partial<ProducerOptions>, cnxPool: ConnectionPool) {
     this.cnxPool = cnxPool
     this.options = _initializeOption(_.cloneDeep(option))
     this.wrappedLogger = new WrappedLogger({ topic: this.options.topic })
 
-    this.internalCreatePartitionsProducers()
+    this.readyPromise = this.internalCreatePartitionsProducers()
     this.runBackgroundPartitionDiscovery = setInterval(
-      this.internalCreatePartitionsProducers,
+      () => { this.readyPromise = this.internalCreatePartitionsProducers() },
       this.options.partitionsAutoDiscoveryIntervalMs
     )
   }
 
   private internalCreatePartitionsProducers = async () => {
-    const partitionResponse = (await this.cnx.sendRequest(
+    const partitionResponse = (await this.cnxPool.getAnyAdminConnection().sendCommand(
       BaseCommand.fromJSON({
         type: BaseCommand_Type.PARTITIONED_METADATA
       })
@@ -112,13 +106,14 @@ export class Producer {
     clearInterval(this.runBackgroundPartitionDiscovery)
   }
 
-  getPartitionIndex(msg: ProducerMessage): number {
+  async getPartitionIndex(msg: ProducerMessage): Promise<number> {
+    await this.readyPromise
     // @todo: implement
-    return 0
+    return this.options.messageRouter(msg, this.partitionedProducers.length)
   }
 
-  getPartitionedProducer(msg: ProducerMessage): PartitionedProducer {
-    const partitionIndex = this.getPartitionIndex(msg)
+  async getPartitionedProducer(msg: ProducerMessage): Promise<PartitionedProducer> {
+    const partitionIndex = await this.getPartitionIndex(msg)
 
     if (!this.partitionedProducers[partitionIndex]) {
       this.partitionedProducers[partitionIndex] = new PartitionedProducer(this, partitionIndex)
@@ -128,10 +123,6 @@ export class Producer {
   }
 
   async send(msg: ProducerMessage) {
-    return this.getPartitionedProducer(msg).send(msg)
-  }
-
-  isReady() {
-    return this.state === PRODUCER_STATES.READY
+    return (await this.getPartitionedProducer(msg)).send(msg)
   }
 }

@@ -97,7 +97,7 @@ export interface ProducerOptions {
   // MessageRouter set a custom message routing policy by passing an implementation of MessageRouter
   // The router is a function that given a particular message and the topic metadata, returns the
   // partition index where the message should be routed to
-  messageRouter: (message: ProducerMessage, metadata: TopicMetadata) => number
+  messageRouter: (message: ProducerMessage, numPartitions: number) => number
 
   // DisableBatching control whether automatic batching of messages is enabled for the producer. By default batching
   // is enabled.
@@ -238,8 +238,8 @@ export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOpt
 			option.batchingMaxSize!,
 			option.batchingMaxPublishDelayMs!,
 			option.disableBatching!)
-    option.messageRouter = (message: ProducerMessage, metadata: TopicMetadata) => {
-      return defaultRouter(message, metadata.numPartitions())
+    option.messageRouter = (message: ProducerMessage, numPartitions: number) => {
+      return defaultRouter(message, numPartitions)
     }
   }
 

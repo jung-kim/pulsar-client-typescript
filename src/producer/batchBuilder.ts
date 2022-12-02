@@ -83,7 +83,7 @@ export class BatchBuilder {
   flush() {
     try {
       if (!this.messageMetadata) {
-        throw Error('message metatdat is missing')
+        throw Error('message metatdata is missing')
       }
 
       this.messageMetadata.numMessagesInBatch = this.sendRequestBuffer.length

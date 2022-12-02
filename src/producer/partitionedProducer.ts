@@ -1,4 +1,4 @@
-import { Producer } from "./producer";
+import { Producer, ProducerMessage } from "./producer";
 import { WrappedLogger } from "../util/logger";
 import { Connection, ConnectionPool } from "../connection";
 import { SendRequest } from "./sendRequest";
@@ -26,10 +26,10 @@ export class PartitionedProducer {
   private batchBuilder: BatchBuilder
   private requestId: Long | undefined
 
-  constructor(producer: Producer, cnxPool: ConnectionPool, partitionId: number) {
+  constructor(producer: Producer, partitionId: number) {
     this.parent = producer
     this.partitionId = partitionId
-    this.cnxPool = cnxPool
+    this.cnxPool = producer.cnxPool
     this.topicName = `${this.parent.options.topic}-partition-${this.partitionId}`
     this.producerId = this.cnxPool.getProducerId()
     this.wrappedLogger = new WrappedLogger({
@@ -141,7 +141,16 @@ export class PartitionedProducer {
     // }
   }
 
-  async internalSend(sendRequest: SendRequest) {
+  send(msg: ProducerMessage) {
+    const sendRequest: SendRequest = {
+      msg,
+      publishTimeMs: Date.now(),
+      flushImmediately: false
+    }
+    return this.internalSend(sendRequest)
+  }
+
+  private async internalSend(sendRequest: SendRequest) {
     if (!this.cnx || this.state !== 'PRODUCER_READY') {
       throw Error('producer connection is not ready')
     }
@@ -180,59 +189,33 @@ export class PartitionedProducer {
     const deliverAt = msg.deliverAtMs ? msg.deliverAtMs : Date.now() + (msg.deliverAfterMs || 0)
     const sendAsBatch = !this.parent.options.disableBatching && !msg.replicationClusters && deliverAt < 0
 
-    // if !sendAsBatch {
-    //   p.internalFlushCurrentBatch()
-    // }
-  
-    // added := p.batchBuilder.Add(smm, p.sequenceIDGenerator, payload, request,
-    //   msg.ReplicationClusters, deliverAt)
-    // if !added {
-    //   // The current batch is full.. flush it and retry
-    //   if p.batchBuilder.IsMultiBatches() {
-    //     p.internalFlushCurrentBatches()
-    //   } else {
-    //     p.internalFlushCurrentBatch()
-    //   }
-  
-    //   // after flushing try again to add the current payload
-    //   if ok := p.batchBuilder.Add(smm, p.sequenceIDGenerator, payload, request,
-    //     msg.ReplicationClusters, deliverAt); !ok {
-    //     p.publishSemaphore.Release()
-    //     request.callback(nil, request.msg, errFailAddToBatch)
-    //     p.log.WithField("size", len(payload)).
-    //       WithField("properties", msg.Properties).
-    //       Error("unable to add message to batch")
-    //     return
-    //   }
-    // }
-  
-    // if !sendAsBatch || request.flushImmediately {
-    //   if p.batchBuilder.IsMultiBatches() {
-    //     p.internalFlushCurrentBatches()
-    //   } else {
-    //     p.internalFlushCurrentBatch()
-    //   }
-    // }
     this.batchBuilder.add(msg, deliverAt)
 
-    if (sendRequest.flushImmediately || (sendAsBatch && !this.batchBuilder.isFull())) {
+    if (sendRequest.flushImmediately || !sendAsBatch || this.batchBuilder.isFull()) {
+      return this.flush()
+    } else {
       // sending as batch and nothing to flush return prom
       const { id, prom } = this.cnx.getRequestTrack(this.requestId)
       if (!this.requestId) {
         this.requestId = id
       }
       return prom
-    } else {
-      const { messageMetadata, uncompressedPayload, numMessagesInBatch } = this.batchBuilder.flush()
-      messageMetadata.producerName = this.parent.options.name
-      messageMetadata.uncompressedSize = uncompressedPayload.length
-      messageMetadata.numMessagesInBatch = numMessagesInBatch
-      this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })
-      try {
-        return this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload, this.requestId).prom
-      } catch {
-        this.requestId = undefined
-      }
+    }
+  }
+
+  private flush() {
+    if (!this.cnx || this.state !== 'PRODUCER_READY') {
+      throw Error('producer connection is not ready')
+    }
+    const { messageMetadata, uncompressedPayload, numMessagesInBatch } = this.batchBuilder.flush()
+    messageMetadata.producerName = this.parent.options.name
+    messageMetadata.uncompressedSize = uncompressedPayload.length
+    messageMetadata.numMessagesInBatch = numMessagesInBatch
+    this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })
+    try {
+      return this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload, this.requestId).prom
+    } finally {
+      this.requestId = undefined
     }
   }
 
