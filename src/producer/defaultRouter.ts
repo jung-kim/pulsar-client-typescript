@@ -1,4 +1,4 @@
-import { ProducerMessage } from "./producer"
+import { ProducerMessage } from "./ProducerMessage"
 
 export const newDefaultRouter = (
   hashFunc: (key: string) => number,

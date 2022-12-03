@@ -1,8 +1,7 @@
 import Long from "long"
 import { Writer } from "protobufjs"
 import { MessageMetadata, SingleMessageMetadata } from "../proto/PulsarApi"
-import { ProducerMessage } from "./producer"
-import { SendRequest } from "./sendRequest"
+import { ProducerMessage } from "./ProducerMessage"
 
 export class BatchBuilder {
   private readonly sendRequestBuffer: Array<Uint8Array>

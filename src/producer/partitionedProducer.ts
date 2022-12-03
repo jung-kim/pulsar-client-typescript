@@ -1,8 +1,9 @@
-import { Producer, ProducerMessage } from "./producer";
+import { Producer } from "./Producer";
+import { ProducerMessage } from "./ProducerMessage"
 import { WrappedLogger } from "../util/logger";
 import { Connection, ConnectionPool } from "../connection";
 import { SendRequest } from "./sendRequest";
-import { BaseCommand, CommandCloseProducer, CommandSendReceipt } from "proto/PulsarApi";
+import { CommandCloseProducer, CommandSendReceipt } from "proto/PulsarApi";
 import { Signal } from "micro-signals";
 import Long from 'long'
 import { BatchBuilder } from "./batchBuilder";

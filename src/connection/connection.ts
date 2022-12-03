@@ -24,8 +24,6 @@ import { ConsumerListeners } from './consumerListeners'
 import { Signal } from 'micro-signals'
 import { RequestTracker } from '../util/requestTracker'
 import _ from 'lodash'
-import { ProducerMessage } from 'producer/producer'
-import { Writer } from 'protobufjs'
 import { serializeBatch } from './Commands'
 
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse

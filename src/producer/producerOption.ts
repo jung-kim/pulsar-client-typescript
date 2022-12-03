@@ -1,5 +1,5 @@
 import { newDefaultRouter } from "./defaultRouter"
-import { ProducerMessage, TopicMetadata } from "./producer"
+import { ProducerMessage } from "./ProducerMessage"
 import murmurHash3 from 'murmurhash3js'
 import { KeyValue } from "proto/PulsarApi"
 import { DEFAULT_MAX_MESSAGE_SIZE } from "connection/ConnectionOptions"
@@ -38,7 +38,7 @@ export const DEFAULT_COMPRESSION_LEVEL = 0
 export const FASTER_COMPRESSION_LEVEL = 1
 export const BETTER_COMPRESSION_LEVEL = 2
 
-export interface ProducerOptions {
+export interface ProducerOption {
   // Topic specify the topic this producer will be publishing on.
   // This argument is required when constructing the producer.
   topic: string
@@ -150,7 +150,7 @@ export interface ProducerOptions {
   _properties: KeyValue[]
 }
 
-export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOptions => {
+export const _initializeOption = (option: Partial<ProducerOption>): ProducerOption => {
   if (option.topic) {
     throw new Error('Topic name is required for producer')
   }
@@ -243,7 +243,7 @@ export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOpt
     }
   }
 
-  return option as ProducerOptions
+  return option as ProducerOption
 }
 
 // source: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0
