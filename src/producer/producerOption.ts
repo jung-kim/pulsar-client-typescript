@@ -1,8 +1,8 @@
-import { newDefaultRouter } from "./defaultRouter"
-import { ProducerMessage } from "./ProducerMessage"
+import { newDefaultRouter } from './defaultRouter'
+import { ProducerMessage } from './ProducerMessage'
 import murmurHash3 from 'murmurhash3js'
-import { KeyValue } from "proto/PulsarApi"
-import { DEFAULT_MAX_MESSAGE_SIZE } from "connection/ConnectionOptions"
+import { KeyValue } from 'proto/PulsarApi'
+import { DEFAULT_MAX_MESSAGE_SIZE } from 'connection/ConnectionOptions'
 
 // defaultSendTimeout init default timeout for ack since sent.
 export const DEFAULT_SEND_TIMEOUT_MS = 30 * 1000 // 30 sec
@@ -73,7 +73,7 @@ export interface ProducerOption {
   //
   //  - `JavaStringHash` : Java String.hashCode() equivalent
   //  - `Murmur3_32Hash` : Use Murmur3 hashing function.
-  // 		https://en.wikipedia.org/wiki/MurmurHash">https://en.wikipedia.org/wiki/MurmurHash
+  //     https://en.wikipedia.org/wiki/MurmurHash">https://en.wikipedia.org/wiki/MurmurHash
   //
   // Default is `JavaStringHash`.
   hashingScheme: 0 | 1
@@ -151,15 +151,15 @@ export interface ProducerOption {
 }
 
 export const _initializeOption = (option: Partial<ProducerOption>): ProducerOption => {
-  if (option.topic) {
+  if (option.topic === undefined) {
     throw new Error('Topic name is required for producer')
   }
 
-  if (!option.name) {
+  // if (option.name === undefined) {
 
-  }
+  // }
 
-  if (option.properties) {
+  if (option.properties != null) {
     option._properties = Object.entries(option.properties).map(([key, value]) => {
       return { key, value }
     })
@@ -167,7 +167,7 @@ export const _initializeOption = (option: Partial<ProducerOption>): ProducerOpti
     option._properties = []
   }
 
-  if (option.sendTimeoutMs || 0 <= 0) {
+  if ((option.sendTimeoutMs ?? 0) <= 0) {
     option.sendTimeoutMs = DEFAULT_SEND_TIMEOUT_MS
   }
 
@@ -195,15 +195,15 @@ export const _initializeOption = (option: Partial<ProducerOption>): ProducerOpti
     option.disableBatching = false
   }
 
-  if (option.batchingMaxPublishDelayMs || 0 <= 0) {
+  if ((option.batchingMaxPublishDelayMs ?? 0) <= 0) {
     option.batchingMaxPublishDelayMs = DEFAULT_BATCHING_MAX_PUBLISH_DELAY_MS
   }
 
-  if (option.batchingMaxMessages || 0 <= 0) {
+  if ((option.batchingMaxMessages ?? 0) <= 0) {
     option.batchingMaxMessages = DEFAULT_MAX_MESSAGES_PER_BATCH
   }
 
-  if (option.batchingMaxSize || 0 <= 0) {
+  if ((option.batchingMaxSize ?? 0) <= 0) {
     option.batchingMaxSize = DEFAULT_MAX_BATCH_SIZE
   }
 
@@ -215,15 +215,15 @@ export const _initializeOption = (option: Partial<ProducerOption>): ProducerOpti
 
   // }
 
-  if (option.maxReconnectToBroker || 0 <= 0) {
+  if ((option.maxReconnectToBroker ?? 0) <= 0) {
     option.maxReconnectToBroker = DEFAULT_MAX_RECONNECT_TO_BROKER
   }
 
-  if (option.partitionsAutoDiscoveryIntervalMs || 0 <= 0) {
+  if ((option.partitionsAutoDiscoveryIntervalMs ?? 0) <= 0) {
     option.partitionsAutoDiscoveryIntervalMs = DEFAULT_PARTITIONS_AUT_DISCOVERY_INTERVAL_MS
   }
 
-  if (option.maxMessageSize || 0 <= 0) {
+  if ((option.maxMessageSize ?? 0) <= 0) {
     option.maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
   }
 
@@ -233,11 +233,11 @@ export const _initializeOption = (option: Partial<ProducerOption>): ProducerOpti
       : javaHashCode
 
     const defaultRouter = newDefaultRouter(
-			hashFunc,
-			option.batchingMaxMessages!,
-			option.batchingMaxSize!,
-			option.batchingMaxPublishDelayMs!,
-			option.disableBatching!)
+      hashFunc,
+      option.batchingMaxMessages ?? DEFAULT_MAX_MESSAGES_PER_BATCH,
+      option.batchingMaxSize ?? DEFAULT_MAX_BATCH_SIZE,
+      option.batchingMaxPublishDelayMs ?? DEFAULT_BATCHING_MAX_PUBLISH_DELAY_MS,
+      option.disableBatching)
     option.messageRouter = (message: ProducerMessage, numPartitions: number) => {
       return defaultRouter(message, numPartitions)
     }
@@ -249,8 +249,8 @@ export const _initializeOption = (option: Partial<ProducerOption>): ProducerOpti
 // source: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0
 // no idea if this works...
 const javaHashCode = (s: string): number => {
-  let h = 0, l = s.length, i = 0
-  if ( l > 0 ) {
+  let h = 0; const l = s.length; let i = 0
+  if (l > 0) {
     while (i < l) {
       h = (h << 5) - h + s.charCodeAt(i++) | 0
     }

@@ -1,26 +1,26 @@
-import { Socket } from "net"
-import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
-import { Reader, Writer } from "protobufjs";
-import { TLSSocket } from "tls";
-import { Message } from "./abstractPulsarSocket";
-import { Connection } from "./Connection";
-import { PingPongSocket } from "./pingPongSocket";
+import { Socket } from 'net'
+import { BaseCommand, BaseCommand_Type } from 'proto/PulsarApi'
+import { Reader, Writer } from 'protobufjs'
+import { TLSSocket } from 'tls'
+import { Message } from './abstractPulsarSocket'
+import { Connection } from './Connection'
+import { PingPongSocket } from './pingPongSocket'
 import { DEFAULT_MAX_MESSAGE_SIZE } from './ConnectionOptions'
 
 const pulsarClientVersion = 'Pulsar TS 0.1'
 
 export class PulsarSocket extends PingPongSocket {
   private readonly logicalAddress: URL
-  constructor(connection: Connection, logicalAddress: URL) {
+  constructor (connection: Connection, logicalAddress: URL) {
     super(connection)
     this.logicalAddress = logicalAddress
   }
 
-  getId() {
+  getId (): string {
     return this.options._connectionId
   }
 
-  public async writeCommand(command: BaseCommand): Promise<void> {
+  public async writeCommand (command: BaseCommand): Promise<void> {
     await this.ensureReady()
 
     const marshalledCommand = BaseCommand.encode(command).finish()
@@ -29,10 +29,10 @@ export class PulsarSocket extends PingPongSocket {
     payload.set((new Writer()).fixed32(marshalledCommand.length).finish().reverse())
     payload.set(marshalledCommand)
 
-    return this.send(payload)
+    return await this.send(payload)
   }
 
-  public async handleAuthChallenge(_: Message) {
+  public async handleAuthChallenge (_: Message): Promise<void> {
     try {
       const authData = await this.options.auth.getAuthData()
       const payload = BaseCommand.fromJSON({
@@ -47,13 +47,13 @@ export class PulsarSocket extends PingPongSocket {
           }
         }
       })
-      this.writeCommand(payload)
+      return await this.writeCommand(payload)
     } catch (e) {
       this.wrappedLogger.error('auth challeng failed', e)
     }
   }
 
-  protected handleData(data: Buffer) {
+  protected handleData (data: Buffer): void {
     try {
       this.wrappedLogger.debug('handling data')
       const message = this.parseReceived(data)
@@ -66,10 +66,10 @@ export class PulsarSocket extends PingPongSocket {
   /**
    * Wait for existing or non existing initialization attempt to finish,
    * and throws error if state is not ready, if ready, proceeds.
-   * 
+   *
    * Await on this function before send anything to pulsar cluster.
    */
-  private async ensureReady() {
+  private async ensureReady (): Promise<void> {
     await this.getInitializePromise()
     if (this.state !== 'READY') {
       throw Error('Socket not connected')
@@ -80,13 +80,13 @@ export class PulsarSocket extends PingPongSocket {
    * Attempts handshake with pulsar server with established tcp socket.
    * Assumes tcp connection is established
    */
-  protected async handshake(socket: Socket | TLSSocket | undefined) {
+  protected async handshake (socket: Socket | TLSSocket | undefined): Promise<void> {
     if (this.state !== 'INITIALIZING') {
       throw Error(`Invalid state: ${this.state}`)
     }
 
-    if (!socket || socket.readyState !== 'open') {
-      throw Error(`socket is not defined or not ready`)
+    if ((socket === undefined) || socket.readyState !== 'open') {
+      throw Error('socket is not defined or not ready')
     }
 
     const authType = this.options.auth.name
@@ -106,8 +106,8 @@ export class PulsarSocket extends PingPongSocket {
     })
 
     let handShakeResolve: (v: Buffer) => void
-    const handShakePromise = new Promise<Buffer>((res, rej) => {
-      handShakeResolve = res
+    const handShakePromise = new Promise<Buffer>((resolve) => {
+      handShakeResolve = resolve
     })
     socket?.once('data', (data: Buffer) => {
       handShakeResolve(data)
@@ -117,20 +117,20 @@ export class PulsarSocket extends PingPongSocket {
     const response = await handShakePromise
     const { baseCommand } = this.parseReceived(response)
 
-    if (!baseCommand.connected) {
-      if (baseCommand.error) {
-        this.wrappedLogger.error(`error during handshake`, baseCommand.error)
+    if (baseCommand.connected === undefined) {
+      if (baseCommand.error !== undefined) {
+        this.wrappedLogger.error('error during handshake', baseCommand.error)
       } else {
         this.wrappedLogger.error(
-          `unkonwn base command was received`,
+          'unkonwn base command was received',
           undefined,
           { baseCommandType: baseCommand.type }
         )
       }
-      throw Error(`Invalid response recevived`)
+      throw Error('Invalid response recevived')
     }
 
-    if (baseCommand.connected?.maxMessageSize && baseCommand.connected?.maxMessageSize > 0) {
+    if ((baseCommand.connected?.maxMessageSize ?? 0) > 0 && baseCommand.connected?.maxMessageSize > 0) {
       this.options.maxMessageSize = baseCommand.connected?.maxMessageSize
     } else {
       this.options.maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
@@ -139,7 +139,7 @@ export class PulsarSocket extends PingPongSocket {
     this.wrappedLogger.info('connected!!')
   }
 
-  protected _parseReceived(data: Buffer): Message {
+  protected _parseReceived (data: Buffer): Message {
     const frameSize = (new Reader(data.subarray(0, 4))).fixed32()
     const commandSize = (new Reader(data.subarray(4, 8))).fixed32()
     const headersAndPayloadSize = frameSize - (commandSize + 4)

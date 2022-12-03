@@ -1,4 +1,4 @@
-import { ProducerMessage } from "./ProducerMessage"
+import { ProducerMessage } from './ProducerMessage'
 
 export const newDefaultRouter = (
   hashFunc: (key: string) => number,
@@ -33,7 +33,7 @@ export const newDefaultRouter = (
       return 0
     }
 
-    if (message.orderingKey && message.orderingKey !== '') {
+    if (message.orderingKey !== undefined && message.orderingKey !== '') {
       // When an OrderingKey is specified, use the hash of that key
       return hashFunc(message.orderingKey) % numPartitions
     }

@@ -1,9 +1,9 @@
-import _ from "lodash"
-import { WrappedLogger } from "../util/logger"
-import { BaseCommand, BaseCommand_Type, CommandCloseProducer, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, CommandSendReceipt, KeyValue } from "../proto/PulsarApi"
-import { Connection } from "./Connection"
-import { ConnectionOptions, _initializeOption } from "./ConnectionOptions"
-import { Signal } from "micro-signals"
+import _ from 'lodash'
+import { WrappedLogger } from '../util/logger'
+import { BaseCommand, BaseCommand_Type, CommandCloseProducer, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, CommandSendReceipt, KeyValue } from '../proto/PulsarApi'
+import { CommandTypesResponses, Connection } from './Connection'
+import { ConnectionOptions, _initializeOption } from './ConnectionOptions'
+import { Signal } from 'micro-signals'
 import Long from 'long'
 
 const lookupResultMaxRedirect = 20
@@ -11,52 +11,53 @@ const lookupResultMaxRedirect = 20
 export class ConnectionPool {
   // These connections are not used for topic message traffics.  Rather
   // they are use for look ups and other administrative tasks.
-  private readonly connections: Record<string, Connection> = {}
+  private readonly connections: Map<string, Connection> = new Map()
   private readonly options: ConnectionOptions
   private readonly wrappedLogger: WrappedLogger
   private producerId = new Long(0, undefined, true)
 
-  constructor(options: Partial<ConnectionOptions>) {
+  constructor (options: Partial<ConnectionOptions>) {
     this.options = _initializeOption(_.cloneDeep(options))
     this.wrappedLogger = new WrappedLogger({
-      name: `ConnectionPool`,
+      name: 'ConnectionPool',
       url: options.url,
       uuid: options._uuid
     })
   }
 
-  getAnyAdminConnection() {
+  getAnyAdminConnection (): Connection {
     const cnx = Object.values(this.connections).find(cnx => cnx.isReady())
-    if (cnx) {
+    if (cnx !== undefined) {
       return cnx
     }
     return this.getConnection(this.options._url)
   }
 
-  getConnection(logicalAddress: URL) {
-    const cnx = this.connections[logicalAddress.href]
-    if (cnx) {
+  getConnection (logicalAddress: URL): Connection {
+    let cnx = this.connections.get(logicalAddress.href)
+    if (cnx !== undefined) {
       if (cnx.isReady()) {
-        this.wrappedLogger.debug('connection is found in cache', { logicalAddress: logicalAddress })
-        return this.connections[logicalAddress.href]
+        this.wrappedLogger.debug('connection is found in cache', { logicalAddress })
+        return cnx
       }
 
       // ensure it's closed
-      this.wrappedLogger.debug('connection is found but not ready', { logicalAddress: logicalAddress })
+      this.wrappedLogger.debug('connection is found but not ready', { logicalAddress })
       cnx.close()
     }
 
-    this.connections[logicalAddress.href] = new Connection(this.options, logicalAddress)
-    this.wrappedLogger.debug('connection is created', { logicalAddress: logicalAddress })
-    return this.connections[logicalAddress.href]
+    cnx = new Connection(this.options, logicalAddress)
+    this.connections.set(logicalAddress.href, cnx)
+    this.wrappedLogger.debug('connection is created', { logicalAddress })
+    return cnx
   }
 
-  async lookup(topic: string, listenerName: string = this.options.listenerName) {
+  async lookup (topic: string, listenerName: string = this.options.listenerName): Promise<URL> {
     this.wrappedLogger.debug('looking up', { topic, listenerName })
     const lookupCommand = BaseCommand.fromJSON({
       type: BaseCommand_Type.LOOKUP,
       lookupTopic: CommandLookupTopic.fromJSON({
-        topic: topic,
+        topic,
         authoritative: false,
         advertisedListenerName: listenerName
       })
@@ -87,21 +88,27 @@ export class ConnectionPool {
     throw Error(`Failed to lookup.  topic: [${topic}] listenerName [${listenerName}]`)
   }
 
-  getProducerId() {
+  getProducerId (): Long {
     const producerId = this.producerId
     this.producerId = this.producerId.add(1)
     return producerId
   }
 
   /**
-   * 
-   * @param topicName 
-   * @param epoch 
-   * @param metadata 
+   *
+   * @param topicName
+   * @param epoch
+   * @param metadata
    * @returns newly created connection for a partitioned producer.  A partitoned producer may
    *   want to close and discard old producer connection.
    */
-  async getProducerConnection(producerId: Long, topicName: string, producerSignal: Signal<CommandSendReceipt | CommandCloseProducer>, epoch: number, metadata: KeyValue[]) {
+  async getProducerConnection (
+    producerId: Long,
+    topicName: string,
+    producerSignal: Signal<CommandSendReceipt | CommandCloseProducer>,
+    epoch: number,
+    metadata: KeyValue[]
+  ): Promise<{ cnx: Connection, commandProducerResponse: CommandTypesResponses }> {
     // PartitionedProducer.grabCnx()
 
     // pbSchema := new(pb.Schema)
@@ -126,13 +133,13 @@ export class ConnectionPool {
       type: BaseCommand_Type.PRODUCER,
       producer: CommandProducer.fromJSON({
         topic: topicName,
-        encrypted: null,
-        producerId: producerId,
+        encrypted: undefined,
+        producerId,
         // schema: pbSchema,
-        epoch: epoch,
+        epoch,
         userProvidedProducerName: false,
         // producerName:
-        metadata: metadata,
+        metadata
       })
     })
 
@@ -142,22 +149,22 @@ export class ConnectionPool {
 
     // var encryptor internalcrypto.Encryptor
     // if p.options.Encryption != nil {
-    // 	encryptor = internalcrypto.NewProducerEncryptor(p.options.Encryption.Keys,
-    // 		p.options.Encryption.KeyReader,
-    // 		p.options.Encryption.MessageCrypto,
-    // 		p.options.Encryption.ProducerCryptoFailureAction, p.log)
+    //   encryptor = internalcrypto.NewProducerEncryptor(p.options.Encryption.Keys,
+    //     p.options.Encryption.KeyReader,
+    //     p.options.Encryption.MessageCrypto,
+    //     p.options.Encryption.ProducerCryptoFailureAction, p.log)
     // } else {
-    // 	encryptor = internalcrypto.NewNoopEncryptor()
+    //   encryptor = internalcrypto.NewNoopEncryptor()
     // }
 
-    const commandProducerSuccess = await cnx.sendCommand(cmdProducer)
+    const commandProducerResponse = await cnx.sendCommand(cmdProducer)
     cnx.registerProducerListener(producerId, producerSignal)
 
     return {
       cnx: new Connection(this.options, logicalAddr),
-      commandProducerSuccess
+      commandProducerResponse
     }
-    
+
     // // probably don't need this as batchings are handled differently
     // if p.options.DisableBatching {
     //   provider, _ := GetBatcherBuilderProvider(DefaultBatchBuilder)
@@ -175,7 +182,7 @@ export class ConnectionPool {
     //   if err != nil {
     //     provider, _ = GetBatcherBuilderProvider(DefaultBatchBuilder)
     //   }
-  
+
     //   p.batchBuilder, err = provider(p.options.BatchingMaxMessages, p.options.BatchingMaxSize,
     //     p.producerName, p.producerID, pb.CompressionType(p.options.CompressionType),
     //     compression.Level(p.options.CompressionLevel),

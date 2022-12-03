@@ -1,33 +1,35 @@
-import { Producer } from "./Producer";
-import { ProducerMessage } from "./ProducerMessage"
-import { WrappedLogger } from "../util/logger";
-import { Connection, ConnectionPool } from "../connection";
-import { SendRequest } from "./sendRequest";
-import { CommandCloseProducer, CommandSendReceipt } from "proto/PulsarApi";
-import { Signal } from "micro-signals";
+import { Producer } from './Producer'
+import { ProducerMessage } from './ProducerMessage'
+import { WrappedLogger } from '../util/logger'
+import { Connection, ConnectionPool } from '../connection'
+import { SendRequest } from './sendRequest'
+import { CommandCloseProducer, CommandSendReceipt } from 'proto/PulsarApi'
+import { Signal } from 'micro-signals'
 import Long from 'long'
-import { BatchBuilder } from "./batchBuilder";
+import { BatchBuilder } from './batchBuilder'
+import { CommandTypesResponses } from 'connection/Connection'
 
 export class PartitionedProducer {
   readonly parent: Producer
   readonly partitionId: number
   readonly topicName: string
   readonly producerId: Long
-  private cnxPool: ConnectionPool
+  private readonly cnxPool: ConnectionPool
   private cnx: Connection | undefined
   private readonly wrappedLogger: WrappedLogger
   private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
-  private epoch: number = 0
+  private readonly epoch: number = 0
   private sequenceId: Long | undefined = undefined
 
-  private producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
-  private readonly pendingQueues: { sentAt: number }[] = []
+  private readonly producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
+  private readonly pendingQueues: Array<{ sentAt: number }> = []
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
 
-  private batchBuilder: BatchBuilder
-  private requestId: Long | undefined
+  private readonly batchBuilder: BatchBuilder
+  private requestId: Long = new Long(0)
+  readonly isReadyProm: Promise<void>
 
-  constructor(producer: Producer, partitionId: number) {
+  constructor (producer: Producer, partitionId: number) {
     this.parent = producer
     this.partitionId = partitionId
     this.cnxPool = producer.cnxPool
@@ -37,7 +39,7 @@ export class PartitionedProducer {
       producerName: this.parent.options.name,
       producerId: this.producerId,
       topicName: this.parent.options.topic,
-      partitionId: partitionId
+      partitionId
     })
     this.batchBuilder = new BatchBuilder(
       this.parent.options.batchingMaxMessages,
@@ -77,7 +79,7 @@ export class PartitionedProducer {
     //   }
     // }
 
-    this.grabCnx()
+    this.isReadyProm = this.grabCnx()
 
     // // Not sure if this is needed
     // if p.options.SendTimeout > 0 {
@@ -88,19 +90,19 @@ export class PartitionedProducer {
     // go p.runEventsLoop()
   }
 
-  isReady() {
-    return this.state === "PRODUCER_READY"
+  isReady (): boolean {
+    return this.state === 'PRODUCER_READY'
   }
 
-  async grabCnx() {
-    const { cnx, commandProducerSuccess } = await this.cnxPool.getProducerConnection(
+  async grabCnx (): Promise<void> {
+    const { cnx, commandProducerResponse } = await this.cnxPool.getProducerConnection(
       this.producerId,
       this.topicName,
-      this.producerSignal, 
+      this.producerSignal,
       this.epoch,
       this.parent.options._properties)
     if (this.sequenceId === undefined) {
-      this.sequenceId = commandProducerSuccess.requestId.add(1)
+      this.sequenceId = commandProducerResponse.requestId.add(1)
     }
     this.cnx = cnx
 
@@ -119,7 +121,7 @@ export class PartitionedProducer {
     // if viewSize > 0 {
     //   p.log.Infof("Resending %d pending batches", viewSize)
     //   lastViewItem := pendingItems[viewSize-1].(*pendingItem)
-  
+
     //   // iterate at most pending items
     //   for i := 0; i < viewSize; i++ {
     //     item := p.pendingQueue.Poll()
@@ -134,7 +136,7 @@ export class PartitionedProducer {
     //     pi.Unlock()
     //     p.pendingQueue.Put(pi)
     //     p.cnx.WriteData(pi.batchData)
-  
+
     //     if pi == lastViewItem {
     //       break
     //     }
@@ -142,24 +144,27 @@ export class PartitionedProducer {
     // }
   }
 
-  send(msg: ProducerMessage) {
+  async send (msg: ProducerMessage): Promise<CommandTypesResponses> {
     const sendRequest: SendRequest = {
       msg,
       publishTimeMs: Date.now(),
       flushImmediately: false
     }
-    return this.internalSend(sendRequest)
+    return await this.internalSend(sendRequest)
   }
 
-  private async internalSend(sendRequest: SendRequest) {
-    if (!this.cnx || this.state !== 'PRODUCER_READY') {
-      throw Error('producer connection is not ready')
+  private async internalSend (sendRequest: SendRequest): Promise<CommandTypesResponses> {
+    await this.isReadyProm
+    if (this.cnx === undefined || this.state !== 'PRODUCER_READY') {
+      const err = Error('connection is undefined')
+      this.wrappedLogger.error('failed to acquire connection', err)
+      throw err
     }
 
     this.wrappedLogger.debug('Received send request')
-  
+
     const msg = sendRequest.msg
-    // const schemaPayload: ArrayBuffer = 
+    // const schemaPayload: ArrayBuffer =
     // var err error
     // if p.options.Schema != nil {
     //   schemaPayload, err = p.options.Schema.Encode(msg.Value)
@@ -168,8 +173,8 @@ export class PartitionedProducer {
     //     return
     //   }
     // }
-  
-    const payload = msg.payload // ?? schemaPaylod
+
+    // const payload = msg.payload // ?? schemaPaylod
     // this should be done at connection side
     // // if msg is too large
     // if len(payload) > int(p.cnx.GetMaxMessageSize()) {
@@ -183,30 +188,36 @@ export class PartitionedProducer {
     //   return
     // }
 
-    if (msg.disableReplication) {
-      msg.replicationClusters = ["__local__"]
+    if (msg.disableReplication ?? false) {
+      msg.replicationClusters = ['__local__']
     }
-  
-    const deliverAt = msg.deliverAtMs ? msg.deliverAtMs : Date.now() + (msg.deliverAfterMs || 0)
-    const sendAsBatch = !this.parent.options.disableBatching && !msg.replicationClusters && deliverAt < 0
+
+    const deliverAtMs = msg.deliverAfterMs ?? 0
+    const deliverAt = deliverAtMs > 0 ? deliverAtMs : Date.now() + deliverAtMs
+    const sendAsBatch = !this.parent.options.disableBatching && (msg.replicationClusters === undefined) && deliverAt < 0
 
     this.batchBuilder.add(msg, deliverAt)
 
     if (sendRequest.flushImmediately || !sendAsBatch || this.batchBuilder.isFull()) {
-      return this.flush()
+      return await this.flush()
     } else {
       // sending as batch and nothing to flush return prom
-      const { id, prom } = this.cnx.getRequestTrack(this.requestId)
-      if (!this.requestId) {
-        this.requestId = id
+      const requestTrack = this.cnx.getRequestTrack(this.requestId)
+      if (requestTrack === undefined) {
+        const err = Error('request is not found')
+        this.wrappedLogger.error('request is not found', err, { requestId: this.requestId })
+        throw err
       }
-      return prom
+      return await requestTrack.prom
     }
   }
 
-  private flush() {
-    if (!this.cnx || this.state !== 'PRODUCER_READY') {
-      throw Error('producer connection is not ready')
+  private async flush (): Promise<CommandTypesResponses> {
+    await this.isReadyProm
+    if (this.cnx === undefined || this.state !== 'PRODUCER_READY') {
+      const err = Error('connection is undefined')
+      this.wrappedLogger.error('failed to acquire connection', err)
+      throw err
     }
     const { messageMetadata, uncompressedPayload, numMessagesInBatch } = this.batchBuilder.flush()
     messageMetadata.producerName = this.parent.options.name
@@ -214,21 +225,22 @@ export class PartitionedProducer {
     messageMetadata.numMessagesInBatch = numMessagesInBatch
     this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })
     try {
-      return this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload, this.requestId).prom
+      return await this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload, this.requestId).prom
     } finally {
-      this.requestId = undefined
+      this.requestId = this.requestId.add(1)
     }
   }
 
-  private setFailTimeoutFunc() {
-    if (this.failTimeoutFunc || this.pendingQueues.length === 0) {
+  private setFailTimeoutFunc (): void {
+    if ((this.failTimeoutFunc != null) || this.pendingQueues.length === 0) {
       return
     }
 
     this.failTimeoutFunc = setTimeout(() => {
       // if there are no messages, nothing to fail and all are processed
       if (this.pendingQueues.length === 0) {
-        return this.failTimeoutFunc = undefined
+        this.failTimeoutFunc = undefined
+        return
       }
 
       const now = Date.now()
@@ -258,6 +270,6 @@ export class PartitionedProducer {
 
       this.failTimeoutFunc = undefined
       this.setFailTimeoutFunc()
-    }, (this.parent.options.sendTimeoutMs + this.pendingQueues[0].sentAt - Date.now()) || 10)
+    }, (this.parent.options.sendTimeoutMs + this.pendingQueues[0].sentAt - Date.now()) ?? 10)
   }
 }

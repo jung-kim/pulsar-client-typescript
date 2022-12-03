@@ -1,13 +1,13 @@
-import { BaseCommand, BaseCommand_Type } from "proto/PulsarApi";
-import { Connection } from "./Connection";
-import { AbstractPulsarSocket, Message } from "./abstractPulsarSocket";
+import { BaseCommand, BaseCommand_Type } from 'proto/PulsarApi'
+import { Connection } from './Connection'
+import { AbstractPulsarSocket, Message } from './abstractPulsarSocket'
 
 // handles pingpong logic
 export abstract class PingPongSocket extends AbstractPulsarSocket {
   private interval: ReturnType<typeof setInterval> | undefined = undefined
   private lastDataReceived: number = 0
 
-  constructor(connection: Connection) {
+  constructor (connection: Connection) {
     super(connection)
 
     this.dataStream.add((message: Message) => {
@@ -20,19 +20,18 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
           break
       }
     })
-    this.reconnect()
     this.wrappedLogger.debug('pingpong socket is created')
   }
 
-  reconnect() {
-    if (!this.interval) {
+  async reconnect (): Promise<void> {
+    if (this.interval === undefined) {
       this.interval = setInterval(this.handleInterval, this.options.keepAliveIntervalMs)
       this.wrappedLogger.debug('pingpong interval is configured')
     }
-    return super.reconnect()
+    return await super.reconnect()
   }
 
-  private handleInterval() {
+  private handleInterval (): void {
     this.sendPing()
 
     if (this.lastDataReceived + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
@@ -42,13 +41,13 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
     }
   }
 
-  close() {
+  close (): void {
     this.wrappedLogger.debug('pingpong socket close')
     clearInterval(this.interval)
     super.close()
   }
 
-  private sendPing() {
+  private sendPing (): void {
     this.wrappedLogger.debug('send ping')
     return this.writeCommand(
       BaseCommand.fromJSON({
@@ -57,9 +56,9 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
     )
   }
 
-  private handlePong() { }
+  private handlePong (): void { }
 
-  private handlePing() {
+  private handlePing (): void {
     this.wrappedLogger.debug('handle ping')
     return this.writeCommand(
       BaseCommand.fromJSON({
@@ -68,7 +67,7 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
     )
   }
 
-  protected parseReceived(data: Buffer) {
+  protected parseReceived (data: Buffer): Message {
     this.lastDataReceived = (new Date()).getMilliseconds()
     return this._parseReceived(data)
   }

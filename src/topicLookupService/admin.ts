@@ -1,6 +1,6 @@
 import * as cloud from '@streamnative/pulsar-admin-client-typescript'
 import { Auth } from 'auth'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 const topicPartitionSeprator = '-partition-'
 
@@ -18,12 +18,12 @@ export interface TopicDetail {
 /**
  * takes topic string in the format of "persistent://public/default/TestGetTopicPartitions-nopartitions"
  * and return topic detail object
- * @param topicString 
- * @returns 
+ * @param topicString
+ * @returns
  */
 export const topicStringToDetail = (topicString: string): TopicDetail => {
   const tokenziedString = topicString.split('/')
-  if (tokenziedString.length != 5) {
+  if (tokenziedString.length !== 5) {
     throw Error(`Invalid topic string is passed in: ${topicString}`)
   }
   const topicName = tokenziedString[4]
@@ -39,14 +39,15 @@ export const topicStringToDetail = (topicString: string): TopicDetail => {
 }
 
 /**
- * takes topic detail object to a topic string int the format of 
+ * takes topic detail object to a topic string int the format of
  * "persistent://public/default/TestGetTopicPartitions-nopartitions"
  * @param topicDetail
- * @returns 
+ * @returns
  */
-export const topicDetailToString = (topicDetail: TopicDetail, ): string => {
+export const topicDetailToString = (topicDetail: TopicDetail): string => {
   const persistencyString = topicDetail.persistency ? 'persisten' : 'non-persistent'
-  const topicPartitionPostfix = (topicDetail.partitionNumber || -1) > -1 ? `${topicPartitionSeprator}${topicDetail.partitionNumber}` : ''
+  const partitionNumber = topicDetail.partitionNumber ?? -1
+  const topicPartitionPostfix = partitionNumber > -1 ? `${topicPartitionSeprator}${partitionNumber}` : ''
   return `${persistencyString}://${topicDetail.tenant}/${topicDetail.namespace}/${topicDetail.topicName}${topicPartitionPostfix}`
 }
 
@@ -55,18 +56,18 @@ export class TopicLookupService {
   readonly persistent: cloud.PersistentTopicApi
   readonly nonPersistent: cloud.NonPersistentTopicApi
 
-  constructor(brokerBaseUrl: string) {
+  constructor (brokerBaseUrl: string) {
     this.persistent = new cloud.PersistentTopicApi(undefined, brokerBaseUrl, this.axiosInstance)
     this.nonPersistent = new cloud.NonPersistentTopicApi(undefined, brokerBaseUrl, this.axiosInstance)
   }
 
-  lookup(auth: Auth, topic: string | TopicDetail) {
+  async lookup (auth: Auth, topic: string | TopicDetail): Promise<AxiosResponse<cloud.InlineResponse2001, any>> {
     const topicDetail = typeof topic === 'string' ? topicStringToDetail(topic) : topic
     const lookupApi = (topicDetail.persistency ? this.persistent : this.nonPersistent).getTopicBroker
 
-    return lookupApi(topicDetail.tenant, topicDetail.namespace, topicDetail.topicName, {
+    return await lookupApi(topicDetail.tenant, topicDetail.namespace, topicDetail.topicName, {
       headers: {
-        Authorization: `Bearer ${auth.getToken()}`
+        Authorization: `Bearer ${await auth.getToken()}`
       }
     })
   }

@@ -1,13 +1,13 @@
-import { Signal } from "micro-signals"
-import { BaseCommand } from "proto/PulsarApi"
-import { BaseSocket } from "./baseSocket"
+import { Signal } from 'micro-signals'
+import { BaseCommand } from 'proto/PulsarApi'
+import { BaseSocket } from './baseSocket'
 
 /**
  * Type of object we receive from the server
  */
 export interface Message {
-  baseCommand: BaseCommand,
-  headersAndPayload: Buffer,
+  baseCommand: BaseCommand
+  headersAndPayload: Buffer
 }
 
 /**
@@ -17,7 +17,7 @@ export abstract class AbstractPulsarSocket extends BaseSocket {
   protected _dataStream = new Signal<Message>()
   public dataStream = this._dataStream.readOnly()
 
-  public abstract getId(): string
-  public abstract writeCommand(command: BaseCommand): void
-  protected abstract _parseReceived(data: Buffer): Message
+  public abstract getId (): string
+  public abstract writeCommand (command: BaseCommand): void
+  protected abstract _parseReceived (data: Buffer): Message
 }

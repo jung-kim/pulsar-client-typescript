@@ -1,35 +1,35 @@
-import Long from "long"
-import { Writer } from "protobufjs"
-import { MessageMetadata, SingleMessageMetadata } from "../proto/PulsarApi"
-import { ProducerMessage } from "./ProducerMessage"
+import Long from 'long'
+import { Writer } from 'protobufjs'
+import { MessageMetadata, SingleMessageMetadata } from '../proto/PulsarApi'
+import { ProducerMessage } from './ProducerMessage'
 
 export class BatchBuilder {
-  private readonly sendRequestBuffer: Array<Uint8Array>
+  private readonly sendRequestBuffer: Uint8Array[]
 
-  private totalMessageSize: number = 0
+  private readonly totalMessageSize: number = 0
 
   // Current number of messages in the batch
-	private numMessages: number = 0
+  private numMessages: number = 0
 
-	// Max number of message allowed in the batch
-	private readonly maxBatchCount: number
+  // Max number of message allowed in the batch
+  private readonly maxBatchCount: number
 
-	// The largest size for a batch sent from this particular producer.
-	// This is used as a baseline to allocate a new buffer that can hold the entire batch
-	// without needing costly re-allocations.
-	private readonly maxBatchSize: number
+  // The largest size for a batch sent from this particular producer.
+  // This is used as a baseline to allocate a new buffer that can hold the entire batch
+  // without needing costly re-allocations.
+  private readonly maxBatchSize: number
   private readonly maxMessageSize: number
   private messageMetadata: MessageMetadata | undefined
 
-  constructor(maxBatchCount: number, maxBatchSize: number, maxMessageSize: number) {
+  constructor (maxBatchCount: number, maxBatchSize: number, maxMessageSize: number) {
     this.maxBatchCount = maxBatchCount
     this.maxBatchSize = maxBatchSize
     this.maxMessageSize = maxMessageSize
     this.sendRequestBuffer = new Array(maxBatchCount)
   }
 
-  add(msg: ProducerMessage, deliverAt: number) {
-    // const schemaPayload: ArrayBuffer = 
+  add (msg: ProducerMessage, deliverAt: number): void {
+    // const schemaPayload: ArrayBuffer =
     // var err error
     // if p.options.Schema != nil {
     //   schemaPayload, err = p.options.Schema.Encode(msg.Value)
@@ -49,7 +49,7 @@ export class BatchBuilder {
       eventTime: msg.eventTimeMs,
       partitionKey: msg.key,
       orderingKey: msg.orderingKey,
-      properties: Object.entries(msg.properties || {}).map(([key, value]) => {
+      properties: Object.entries((msg.properties != null) || {}).map(([key, value]) => {
         return { key, value }
       })
     })
@@ -60,14 +60,14 @@ export class BatchBuilder {
         replicateTo: msg.replicationClusters,
         partitionKey: msg.key,
         orderingKey: msg.orderingKey,
-        deliverAtTime: deliverAt,
+        deliverAtTime: deliverAt
       })
     }
 
     this.sendRequestBuffer[this.numMessages++] = SingleMessageMetadata.encode(smm).finish()
   }
 
-  isFull(): boolean {
+  isFull (): boolean {
     if (this.sendRequestBuffer.length >= this.maxBatchCount) {
       return true
     }
@@ -79,9 +79,13 @@ export class BatchBuilder {
     return false
   }
 
-  flush() {
+  flush (): {
+    messageMetadata: MessageMetadata
+    numMessagesInBatch: number
+    uncompressedPayload: Uint8Array
+  } {
     try {
-      if (!this.messageMetadata) {
+      if (this.messageMetadata == null) {
         throw Error('message metatdata is missing')
       }
 

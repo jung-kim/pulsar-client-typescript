@@ -11,11 +11,10 @@ import {
   CommandProducerSuccess,
   CommandSendReceipt,
   CommandSuccess,
-  SingleMessageMetadata,
   MessageMetadata,
   CommandSend
 } from '../proto/PulsarApi'
-import { ConnectionOptions, _initializeOption } from './ConnectionOptions'
+import { ConnectionOptions } from './ConnectionOptions'
 import { PulsarSocket } from './pulsarSocket'
 import { ProducerListeners } from './producerListeners'
 import { Message } from './abstractPulsarSocket'
@@ -23,7 +22,6 @@ import Long from 'long'
 import { ConsumerListeners } from './consumerListeners'
 import { Signal } from 'micro-signals'
 import { RequestTracker } from '../util/requestTracker'
-import _ from 'lodash'
 import { serializeBatch } from './Commands'
 
 export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse
@@ -35,7 +33,7 @@ export class Connection {
   private readonly consumerLinsteners: ConsumerListeners
   private readonly requestTracker = new RequestTracker<CommandTypesResponses>()
 
-  constructor(options: ConnectionOptions, logicalAddress: URL) {
+  constructor (options: ConnectionOptions, logicalAddress: URL) {
     this.options = options
     this.socket = new PulsarSocket(this, logicalAddress)
 
@@ -45,28 +43,44 @@ export class Connection {
     this.socket.dataStream.add((message: Message) => {
       switch (message.baseCommand.type) {
         case BaseCommand_Type.SUCCESS:
-          this.handleResponse(message.baseCommand.success!)
+          if (message.baseCommand.success !== undefined) {
+            this.handleResponse(message.baseCommand.success)
+          }
           break
         case BaseCommand_Type.PRODUCER_SUCCESS:
-          this.handleResponse(message.baseCommand.producerSuccess!)
+          if (message.baseCommand.producerSuccess !== undefined) {
+            this.handleResponse(message.baseCommand.producerSuccess)
+          }
           break
         case BaseCommand_Type.PARTITIONED_METADATA_RESPONSE:
-          this.handleResponse(message.baseCommand.partitionMetadataResponse!)
+          if (message.baseCommand.partitionMetadataResponse !== undefined) {
+            this.handleResponse(message.baseCommand.partitionMetadataResponse)
+          }
           break
         case BaseCommand_Type.LOOKUP_RESPONSE:
-          this.handleResponse(message.baseCommand.lookupTopicResponse!)
+          if (message.baseCommand.lookupTopicResponse !== undefined) {
+            this.handleResponse(message.baseCommand.lookupTopicResponse)
+          }
           break
         case BaseCommand_Type.CONSUMER_STATS_RESPONSE:
-          this.handleResponse(message.baseCommand.consumerStatsResponse!)
+          if (message.baseCommand.consumerStatsResponse !== undefined) {
+            this.handleResponse(message.baseCommand.consumerStatsResponse)
+          }
           break
         case BaseCommand_Type.GET_LAST_MESSAGE_ID_RESPONSE:
-          this.handleResponse(message.baseCommand.getLastMessageIdResponse!)
+          if (message.baseCommand.getLastMessageIdResponse !== undefined) {
+            this.handleResponse(message.baseCommand.getLastMessageIdResponse)
+          }
           break
         case BaseCommand_Type.GET_TOPICS_OF_NAMESPACE_RESPONSE:
-          this.handleResponse(message.baseCommand.getTopicsOfNamespaceResponse!)
+          if (message.baseCommand.getTopicsOfNamespaceResponse !== undefined) {
+            this.handleResponse(message.baseCommand.getTopicsOfNamespaceResponse)
+          }
           break
         case BaseCommand_Type.GET_SCHEMA_RESPONSE:
-          this.handleResponse(message.baseCommand.getSchemaResponse!)
+          if (message.baseCommand.getSchemaResponse !== undefined) {
+            this.handleResponse(message.baseCommand.getSchemaResponse)
+          }
           break
         case BaseCommand_Type.ERROR:
           this.handleResponseError(message)
@@ -84,6 +98,9 @@ export class Connection {
           break
         case BaseCommand_Type.AUTH_CHALLENGE:
           this.socket.handleAuthChallenge(message)
+            .catch((err) => {
+              this.socket.wrappedLogger.error('auth challenge error', err)
+            })
           break
         case BaseCommand_Type.SEND_RECEIPT:
           this.producerListeners.handleSendReceipt(message)
@@ -94,60 +111,66 @@ export class Connection {
     })
   }
 
-  reconnect() {
-    this.socket.reconnect()
+  async reconnect (): Promise<void> {
+    return await this.socket.reconnect()
   }
 
-  close() {
+  close (): void {
     this.socket.close()
     this.requestTracker.clear()
   }
 
-  getMaxMessageSize() {
+  getMaxMessageSize (): number {
     return this.options.maxMessageSize
   }
 
   /**
    * gets read only copy of the options the connection is operating with.
-   * @returns 
+   * @returns
    */
-  getOption(): Readonly<ConnectionOptions> {
+  getOption (): Readonly<ConnectionOptions> {
     return this.options
   }
 
-  addConsumerHandler(id: Long, signal: Signal<Message | CommandCloseConsumer>) {
-    return this.consumerLinsteners.addConsumeHandler(id, signal)
+  addConsumerHandler (id: Long, signal: Signal<Message | CommandCloseConsumer>): void {
+    this.consumerLinsteners.addConsumeHandler(id, signal)
   }
 
-  deleteConsumerHandler(id: Long) {
+  deleteConsumerHandler (id: Long): void {
     return this.consumerLinsteners.deleteConsumeHandler(id)
   }
 
-  registerProducerListener(id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>) {
+  registerProducerListener (id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>): void {
     return this.producerListeners.registerProducerListener(id, signal)
   }
 
-  unregisterProducerListener(id: Long) {
+  unregisterProducerListener (id: Long): void {
     return this.producerListeners.unregisterProducerListener(id)
   }
 
-  sendCommand(cmd: BaseCommand): Promise<CommandTypesResponses> {
+  async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses> {
     const requestTrack = this.requestTracker.trackRequest();
 
     (Object(cmd) as Array<keyof BaseCommand>).forEach((key: keyof BaseCommand) => {
-      if (cmd[key] && 'requestId' in (cmd[key] as any)) {
+      if (cmd[key] !== undefined && 'requestId' in (cmd[key] as any)) {
         (cmd[key] as any).requestId = requestTrack.id
       }
-    });
+    })
 
     this.socket.writeCommand(cmd)
       .catch(e => requestTrack.rejectRequest(e))
 
-    return requestTrack.prom
+    return await requestTrack.prom
   }
 
-  sendMessages(producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array, requestId?: Long) {
-    const requestTrack = requestId ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest();
+  sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array, requestId?: Long): {
+    id: Long
+    prom: Promise<CommandTypesResponses>
+  } {
+    const requestTrack = (requestId !== undefined) ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest()
+    if (requestTrack === undefined) {
+      throw Error('wtf')
+    }
     const sendCommand = CommandSend.fromJSON({
       producerId,
       sequenceId: requestTrack.id
@@ -164,24 +187,28 @@ export class Connection {
     }
   }
 
-  getRequestTrack(requestId?: Long) {
-    const requestTrack = requestId ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest()
-
-    return {
-      id: requestTrack.id,
-      prom: requestTrack.prom
+  getRequestTrack (requestId?: Long): {
+    id: Long
+    prom: Promise<CommandTypesResponses>
+  } | undefined {
+    const requestTrack = (requestId !== undefined) ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest()
+    if (requestTrack !== undefined) {
+      return {
+        id: requestTrack.id,
+        prom: requestTrack.prom
+      }
     }
   }
 
-  handleResponseError(message: Message) {
+  handleResponseError (message: Message): void {
     this.requestTracker.rejectRequest(message.baseCommand.error?.requestId, message.baseCommand.error)
   }
 
-  handleResponse(cmd: CommandTypesResponses) {
+  handleResponse (cmd: CommandTypesResponses): void {
     this.requestTracker.resolveRequest(cmd?.requestId, cmd)
   }
 
-  isReady() {
+  isReady (): boolean {
     return this.socket.getState() === 'READY'
   }
 }

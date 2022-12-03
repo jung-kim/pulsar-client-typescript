@@ -20,15 +20,16 @@ export abstract class BaseSocket {
   protected readonly protocolVersion = ProtocolVersion.v13
   public readonly wrappedLogger: WrappedLogger
 
-  constructor(connection: Connection) {
+  constructor (connection: Connection) {
     this.parent = connection
     this.options = this.parent.getOption()
     this.wrappedLogger = new WrappedLogger({
-      name: `BaseSocket`,
+      name: 'BaseSocket',
       url: this.options.url,
       uuid: this.options._uuid
     })
     this.reconnect()
+      .catch((err) => { this.wrappedLogger.error('error while connecting', err) })
     this.wrappedLogger.info('base socket created')
   }
 
@@ -38,9 +39,9 @@ export abstract class BaseSocket {
    * function.
    * @returns initializePromise
    */
-  reconnect() {
-    if (this.initializePromise) {
-      return this.initializePromise
+  async reconnect (): Promise<void> {
+    if (this.initializePromise !== undefined) {
+      return await this.initializePromise
     }
 
     this.initializePromise = new Promise((resolve, reject) => {
@@ -51,7 +52,7 @@ export abstract class BaseSocket {
     AsyncRetry(
       async () => {
         // initialize tcp socket and wait for it
-        await new Promise((res, rej) => {
+        await new Promise((resolve, reject) => {
           // initialize socket
           if (this.options._isTlsEnabled) {
             this.socket = connect({
@@ -62,7 +63,7 @@ export abstract class BaseSocket {
             })
           } else {
             this.socket = createConnection({
-              host: this.options._url.hostname as string,
+              host: this.options._url.hostname,
               port: parseInt(this.options._url.port),
               timeout: this.options.connectionTimeoutMs
             })
@@ -78,13 +79,13 @@ export abstract class BaseSocket {
           this.socket.on('close', () => {
             this.state = 'CLOSING'
             this.socket?.removeAllListeners()
-            rej(Error('socket closing'))
+            reject(Error('socket closing'))
             this.wrappedLogger.info('socket close')
           })
 
           this.socket.once('ready', () => {
             // tcp socket is ready!
-            res(undefined)
+            resolve(undefined)
             this.wrappedLogger.info('socket ready')
           })
         })
@@ -98,7 +99,7 @@ export abstract class BaseSocket {
         }
 
         this.socket?.on('data', this.handleData)
-        if (this.initializePromiseRes) {
+        if (this.initializePromiseRes !== undefined) {
           this.initializePromiseRes()
         }
       },
@@ -109,23 +110,23 @@ export abstract class BaseSocket {
     ).catch((e) => {
       this.wrappedLogger.error('socket creation error', e)
       this.parent.close()
-      if (this.initializePromiseRej) {
+      if (this.initializePromiseRej !== undefined) {
         this.initializePromiseRej(e)
       }
     })
 
-    return this.initializePromise
+    return await this.initializePromise
   }
 
   /**
    * closes the connection. Can be reconnected via `reconnect`
    */
-  close() {
+  close (): void {
     this.wrappedLogger.info('socket closed')
     if (this.state === 'CLOSED') {
       return
     }
-    if (this.initializePromiseRej) {
+    if (this.initializePromiseRej !== undefined) {
       this.initializePromiseRej(undefined)
     }
     this.socket?.destroy()
@@ -136,30 +137,30 @@ export abstract class BaseSocket {
     this.initializePromiseRej = undefined
   }
 
-  getState() {
+  getState (): string {
     return this.state
   }
 
-  protected getInitializePromise() {
+  protected getInitializePromise (): Promise<void> | undefined {
     return this.initializePromise
   }
 
-  send(buffer: Uint8Array | Buffer): Promise<void> {
+  async send (buffer: Uint8Array | Buffer): Promise<void> {
     this.wrappedLogger.debug('sending data')
-    return new Promise((_, rej) => {
-      if (!this.socket || this.state !== 'READY') {
+    return await new Promise((_resolve, reject) => {
+      if ((this.socket === undefined) || this.state !== 'READY') {
         this.wrappedLogger.warn('socket is closed, send is rejected')
-        return rej(Error('socket is closed'))
+        return reject(Error('socket is closed'))
       }
       this.socket.write(buffer, (err) => {
-        if (err) {
+        if (err !== undefined) {
           this.wrappedLogger.error('socket write error', err)
-          return rej(err)
+          return reject(err)
         }
         this.wrappedLogger.debug('written data')
       })
     })
   }
-  protected abstract handshake(socket: Socket | TLSSocket | undefined): void
-  protected abstract handleData(buffer: Buffer): void
+  protected abstract handshake (socket: Socket | TLSSocket | undefined): Promise<void>
+  protected abstract handleData (buffer: Buffer): void
 }

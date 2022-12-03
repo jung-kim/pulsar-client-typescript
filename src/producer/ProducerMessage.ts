@@ -23,7 +23,7 @@ export interface ProducerMessage {
   eventTimeMs?: number
 
   // ReplicationClusters override the replication clusters for this message.
-  replicationClusters?: Array<string>
+  replicationClusters?: string[]
 
   // DisableReplication disables the replication for this message
   disableReplication?: boolean

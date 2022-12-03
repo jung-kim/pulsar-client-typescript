@@ -1,8 +1,8 @@
-import { Auth } from "auth"
+import { Auth } from 'auth'
 
 export class NoAuth extends Auth {
   readonly name = 'noauth'
 
-  async getToken() { return '' }
-  async getAuthData() { return '' }
+  async getToken (): Promise<string> { return '' }
+  async getAuthData (): Promise<string> { return '' }
 }
