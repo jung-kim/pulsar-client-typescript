@@ -34,7 +34,7 @@ export class PulsarSocket extends PingPongSocket {
 
   public async handleAuthChallenge (_: Message): Promise<void> {
     try {
-      const authData = await this.options.auth.getAuthData()
+      const authData = await this.options.auth.getToken()
       const payload = BaseCommand.fromJSON({
         type: BaseCommand_Type.AUTH_RESPONSE,
         connect: {
@@ -90,7 +90,7 @@ export class PulsarSocket extends PingPongSocket {
     }
 
     const authType = this.options.auth.name
-    const authData = await this.options.auth.getAuthData()
+    const authData = await this.options.auth.getToken()
     const payload = BaseCommand.fromJSON({
       type: BaseCommand_Type.CONNECT,
       connect: {

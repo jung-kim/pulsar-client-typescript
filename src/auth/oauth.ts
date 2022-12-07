@@ -1,4 +1,4 @@
-import { Auth } from 'auth'
+import { Auth } from './index'
 import { OutgoingHttpHeaders } from 'http'
 import * as OAuthLib from 'oauth'
 
@@ -53,7 +53,7 @@ export class OAuth implements Auth {
       return this._accessToken
     }
 
-    if (this.isTokenExpired() && this._refreshToken !== undefined) {
+    if (this.isTokenExpired() && this._refreshToken !== '') {
       return await this.refreshToken()
     }
 
@@ -65,16 +65,12 @@ export class OAuth implements Auth {
     return await this._getAccessToken(params)
   }
 
-  async getAuthData (): Promise<string> {
-    return await this.getToken()
-  }
-
   /**
    * Refresh current token via OIDC refresh workflow
    * @returns
    */
   async refreshToken (): Promise<string> {
-    if (this._refreshToken === undefined) {
+    if (this._refreshToken === '') {
       throw Error('refresh token is not set')
     }
 
@@ -92,7 +88,7 @@ export class OAuth implements Auth {
    * @returns
    */
   isCurrentTokenValid (): boolean {
-    if (this._accessToken === undefined) {
+    if (this._accessToken === '') {
       return false
     }
 
@@ -108,10 +104,24 @@ export class OAuth implements Auth {
    * @returns
    */
   isTokenExpired (): boolean {
-    if (this._expiresAt === undefined || Date.now() < this._expiresAt) {
+    if (this._expiresAt !== undefined && Date.now() < this._expiresAt) {
       return false
     }
     return true
+  }
+
+  async _fetchAccessToken (params: Record<string, string>): Promise<{ accessToken: string, refreshToken: string, expiresIn: number }> {
+    return await new Promise<{ accessToken: string, refreshToken: string, expiresIn: number }>((resolve, reject) => {
+      this.oauth.getOAuthAccessToken('', params, (err, accessToken, refreshToken, results) => {
+        if (err !== undefined) {
+          reject(Error(`Failed to get token, statusCode: ${err.statusCode}`))
+        }
+        if (results?.expires_in === undefined) {
+          reject(Error('Failed to get token expiry'))
+        }
+        resolve({ accessToken, refreshToken, expiresIn: results.expires_in })
+      })
+    })
   }
 
   /**
@@ -120,22 +130,10 @@ export class OAuth implements Auth {
    * @returns
    */
   private async _getAccessToken (params: Record<string, string>): Promise<string> {
-    await new Promise<void>((resolve, reject) => {
-      this.oauth.getOAuthAccessToken('', params, (err, accessToken, refreshToken, results) => {
-        if (err !== undefined) {
-          reject(Error(`Failed to get token, statusCode: ${err.statusCode}`))
-        }
-
-        this._accessToken = accessToken
-        this._refreshToken = refreshToken
-        if (results?.expires_in !== undefined) {
-          // set when the token expires in and set the token expiresAt.
-          // assumes `expires_in` is in seconds, subtract 30second just to refresh preemptively
-          this._expiresAt = Date.now() + (results.expires_in * 1000) - 30000
-        }
-        resolve()
-      })
-    })
+    const tokenFetchResult = await this._fetchAccessToken(params)
+    this._accessToken = tokenFetchResult.accessToken
+    this._refreshToken = tokenFetchResult.refreshToken
+    this._expiresAt = Date.now() + (tokenFetchResult.expiresIn * 1000) - 30000
     return this._accessToken
   }
 }
