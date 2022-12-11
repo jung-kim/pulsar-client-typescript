@@ -1,5 +1,5 @@
 import { Socket } from 'net'
-import { BaseCommand, BaseCommand_Type } from 'proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type } from '../proto/PulsarApi'
 import { Reader, Writer } from 'protobufjs'
 import { TLSSocket } from 'tls'
 import { Message } from './abstractPulsarSocket'
@@ -17,7 +17,7 @@ export class PulsarSocket extends PingPongSocket {
   }
 
   getId (): string {
-    return this.options._connectionId
+    return this.options.connectionId
   }
 
   public async writeCommand (command: BaseCommand): Promise<void> {
@@ -101,7 +101,7 @@ export class PulsarSocket extends PingPongSocket {
         featureFlags: {
           supportsAuthRefresh: true
         },
-        proxyToBrokerUrl: this.logicalAddress.href === this.options._url.href ? undefined : this.logicalAddress.host
+        proxyToBrokerUrl: this.logicalAddress.href === this.options.urlObj.href ? undefined : this.logicalAddress.host
       }
     })
 

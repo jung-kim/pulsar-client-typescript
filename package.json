@@ -4,7 +4,7 @@
   "description": "Typescript client for pulsar client",
   "scripts": {
     "test:unit": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register --require tests/mochaHooks.ts './tests/unit/**/*.test.ts'",
-    "test": "npm run test:unit;",
+    "test": "nyc --reporter=text npm run test:unit;",
     "lint": "eslint .  --ext .ts",
     "build": "tsc --project tsconfig.json",
     "clean": "tsc --build --clean"
@@ -47,6 +47,7 @@
     "eslint-plugin-n": "^15.5.1",
     "eslint-plugin-promise": "^6.1.1",
     "mocha": "^10.1.0",
+    "nyc": "^15.1.0",
     "protoc-gen-ts": "^0.8.5",
     "sinon": "^15.0.0",
     "ts-node": "^10.9.1",

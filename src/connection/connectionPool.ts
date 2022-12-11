@@ -1,7 +1,7 @@
 import { WrappedLogger } from '../util/logger'
 import { BaseCommand, BaseCommand_Type, CommandCloseProducer, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, CommandSendReceipt, KeyValue } from '../proto/PulsarApi'
 import { CommandTypesResponses, Connection } from './Connection'
-import { ConnectionOptions, _initializeOption, _ConnectionOptions } from './ConnectionOptions'
+import { ConnectionOptions, _ConnectionOptions } from './ConnectionOptions'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 
@@ -16,7 +16,7 @@ export class ConnectionPool {
   private producerId = new Long(0, undefined, true)
 
   constructor (options: ConnectionOptions) {
-    this.options = _initializeOption(options)
+    this.options = new _ConnectionOptions(options)
     this.wrappedLogger = new WrappedLogger({
       name: 'ConnectionPool',
       url: this.options.url,

@@ -169,7 +169,7 @@ export class Connection {
   } {
     const requestTrack = (requestId !== undefined) ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest()
     if (requestTrack === undefined) {
-      throw Error('wtf')
+      throw Error('Failed to find requestTrack')
     }
     const sendCommand = CommandSend.fromJSON({
       producerId,

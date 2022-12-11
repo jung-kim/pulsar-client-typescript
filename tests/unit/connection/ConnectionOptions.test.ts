@@ -1,12 +1,12 @@
-import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, _initializeOption } from '../../../src/connection/ConnectionOptions'
+import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
 import { expect } from 'chai'
 import ip from 'ip'
 import { OAuth } from '../../../src/auth/oauth'
 
-describe('ConnectionOptions', () => {
+describe('connection.ConnectionOptions', () => {
   describe('_initializeOption', () => {
     it('should initialize pulsar-ssl with defaults', () => {
-      const options = _initializeOption({ url: 'pulsar+ssl://a.b' })
+      const options = new _ConnectionOptions({ url: 'pulsar+ssl://a.b' })
 
       expect(options.connectionTimeoutMs).to.eq(DEFAULT_CONNECTION_TIMEOUT_MS)
       expect(options.keepAliveIntervalMs).to.eq(DEFAULT_KEEP_ALIVE_INTERVAL_MS)
@@ -20,7 +20,7 @@ describe('ConnectionOptions', () => {
     })
 
     it('should initialize https with defaults', () => {
-      const options = _initializeOption({ url: 'https://a.b' })
+      const options = new _ConnectionOptions({ url: 'https://a.b' })
 
       expect(options.connectionTimeoutMs).to.eq(DEFAULT_CONNECTION_TIMEOUT_MS)
       expect(options.keepAliveIntervalMs).to.eq(DEFAULT_KEEP_ALIVE_INTERVAL_MS)
@@ -34,7 +34,7 @@ describe('ConnectionOptions', () => {
     })
 
     it('should initialize with options populated', () => {
-      const options = _initializeOption({
+      const options = new _ConnectionOptions({
         url: 'abc://a.b',
         connectionTimeoutMs: 1000,
         keepAliveIntervalMs: 2000,

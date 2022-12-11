@@ -1,5 +1,5 @@
-import { Socket, createConnection } from 'net'
-import { connect, TLSSocket } from 'tls'
+import { Socket } from 'net'
+import { TLSSocket } from 'tls'
 import AsyncRetry from 'async-retry'
 import { Connection } from './Connection'
 import { ProtocolVersion } from '../proto/PulsarApi'
@@ -54,20 +54,7 @@ export abstract class BaseSocket {
         // initialize tcp socket and wait for it
         await new Promise((resolve, reject) => {
           // initialize socket
-          if (this.options.isTlsEnabled) {
-            this.socket = connect({
-              host: this.options.urlObj.hostname,
-              port: parseInt(this.options.urlObj.port),
-              servername: this.options.urlObj.hostname,
-              timeout: this.options.connectionTimeoutMs
-            })
-          } else {
-            this.socket = createConnection({
-              host: this.options.urlObj.hostname,
-              port: parseInt(this.options.urlObj.port),
-              timeout: this.options.connectionTimeoutMs
-            })
-          }
+          this.socket = this.options.getSocket()
 
           this.socket.on('error', (err: Error) => {
             this.state = 'CLOSING'

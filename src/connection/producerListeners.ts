@@ -1,5 +1,5 @@
 import { Signal } from 'micro-signals'
-import { CommandCloseProducer, CommandSendReceipt, ServerError } from 'proto/PulsarApi'
+import { CommandCloseProducer, CommandSendReceipt, ServerError } from '../proto/PulsarApi'
 import { AbstractPulsarSocket, Message } from './abstractPulsarSocket'
 
 /**

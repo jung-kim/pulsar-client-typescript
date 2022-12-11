@@ -1,10 +1,10 @@
-import { BaseCommand, BaseCommand_Type } from 'proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type } from '../proto/PulsarApi'
 import { Connection } from './Connection'
 import { AbstractPulsarSocket, Message } from './abstractPulsarSocket'
 
 // handles pingpong logic
 export abstract class PingPongSocket extends AbstractPulsarSocket {
-  private interval: ReturnType<typeof setInterval> | undefined = undefined
+  private interval: ReturnType<typeof setInterval> | undefined = setInterval(this.handleInterval.bind(this), this.options.keepAliveIntervalMs)
   private lastDataReceived: number = 0
 
   constructor (connection: Connection) {
@@ -24,14 +24,17 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
   }
 
   async reconnect (): Promise<void> {
+    await super.reconnect()
     if (this.interval === undefined) {
-      this.interval = setInterval(this.handleInterval, this.options.keepAliveIntervalMs)
+      this.interval = setInterval(this.handleInterval.bind(this), this.options.keepAliveIntervalMs)
       this.wrappedLogger.debug('pingpong interval is configured')
     }
-    return await super.reconnect()
   }
 
   private handleInterval (): void {
+    if (this.state !== 'READY') {
+      return
+    }
     this.sendPing()
 
     if (this.lastDataReceived + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
@@ -44,6 +47,7 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
   close (): void {
     this.wrappedLogger.debug('pingpong socket close')
     clearInterval(this.interval)
+    this.interval = undefined
     super.close()
   }
 

@@ -1,4 +1,4 @@
-import { BaseCommand, BaseCommand_Type, CommandSend, MessageMetadata } from 'proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type, CommandSend, MessageMetadata } from '../proto/PulsarApi'
 import { Writer } from 'protobufjs'
 import crc32 from 'crc/crc32'
 
