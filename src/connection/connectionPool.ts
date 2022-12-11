@@ -1,8 +1,7 @@
-import _ from 'lodash'
 import { WrappedLogger } from '../util/logger'
 import { BaseCommand, BaseCommand_Type, CommandCloseProducer, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, CommandSendReceipt, KeyValue } from '../proto/PulsarApi'
 import { CommandTypesResponses, Connection } from './Connection'
-import { ConnectionOptions, _initializeOption } from './ConnectionOptions'
+import { ConnectionOptions, _initializeOption, _ConnectionOptions } from './ConnectionOptions'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 
@@ -12,16 +11,16 @@ export class ConnectionPool {
   // These connections are not used for topic message traffics.  Rather
   // they are use for look ups and other administrative tasks.
   private readonly connections: Map<string, Connection> = new Map()
-  private readonly options: ConnectionOptions
+  private readonly options: _ConnectionOptions
   private readonly wrappedLogger: WrappedLogger
   private producerId = new Long(0, undefined, true)
 
-  constructor (options: Partial<ConnectionOptions>) {
-    this.options = _initializeOption(_.cloneDeep(options))
+  constructor (options: ConnectionOptions) {
+    this.options = _initializeOption(options)
     this.wrappedLogger = new WrappedLogger({
       name: 'ConnectionPool',
-      url: options.url,
-      uuid: options._uuid
+      url: this.options.url,
+      uuid: this.options.uuid
     })
   }
 
@@ -30,7 +29,7 @@ export class ConnectionPool {
     if (cnx !== undefined) {
       return cnx
     }
-    return this.getConnection(this.options._url)
+    return this.getConnection(this.options.urlObj)
   }
 
   getConnection (logicalAddress: URL): Connection {
@@ -65,7 +64,7 @@ export class ConnectionPool {
     let res = (await this.getAnyAdminConnection().sendCommand(lookupCommand)) as CommandLookupTopicResponse
 
     for (let i = 0; i < lookupResultMaxRedirect; i++) {
-      const logicalAddress = this.options._isTlsEnabled
+      const logicalAddress = this.options.isTlsEnabled
         ? res.brokerServiceUrlTls
         : res.brokerServiceUrl
       const logicalAddrUrl = new URL(logicalAddress)

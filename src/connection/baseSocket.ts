@@ -3,7 +3,7 @@ import { connect, TLSSocket } from 'tls'
 import AsyncRetry from 'async-retry'
 import { Connection } from './Connection'
 import { ProtocolVersion } from '../proto/PulsarApi'
-import { ConnectionOptions } from './ConnectionOptions'
+import { _ConnectionOptions } from './ConnectionOptions'
 import { WrappedLogger } from '../util/logger'
 
 /**
@@ -16,7 +16,7 @@ export abstract class BaseSocket {
   private initializePromiseRes: (() => void) | undefined = undefined
   private initializePromiseRej: ((e: any) => void) | undefined = undefined
   protected readonly parent: Connection
-  protected readonly options: ConnectionOptions
+  protected readonly options: _ConnectionOptions
   protected readonly protocolVersion = ProtocolVersion.v13
   public readonly wrappedLogger: WrappedLogger
 
@@ -26,7 +26,7 @@ export abstract class BaseSocket {
     this.wrappedLogger = new WrappedLogger({
       name: 'BaseSocket',
       url: this.options.url,
-      uuid: this.options._uuid
+      uuid: this.options.uuid
     })
     this.reconnect()
       .catch((err) => { this.wrappedLogger.error('error while connecting', err) })
@@ -54,17 +54,17 @@ export abstract class BaseSocket {
         // initialize tcp socket and wait for it
         await new Promise((resolve, reject) => {
           // initialize socket
-          if (this.options._isTlsEnabled) {
+          if (this.options.isTlsEnabled) {
             this.socket = connect({
-              host: this.options._url.hostname,
-              port: parseInt(this.options._url.port),
-              servername: this.options._url.hostname,
+              host: this.options.urlObj.hostname,
+              port: parseInt(this.options.urlObj.port),
+              servername: this.options.urlObj.hostname,
               timeout: this.options.connectionTimeoutMs
             })
           } else {
             this.socket = createConnection({
-              host: this.options._url.hostname,
-              port: parseInt(this.options._url.port),
+              host: this.options.urlObj.hostname,
+              port: parseInt(this.options.urlObj.port),
               timeout: this.options.connectionTimeoutMs
             })
           }

@@ -1,4 +1,4 @@
-import { Auth } from 'auth'
+import { Auth } from './index'
 
 export class NoAuth extends Auth {
   readonly name = 'noauth'

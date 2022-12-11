@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "Typescript client for pulsar client",
   "scripts": {
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register --require tests/mochaHooks.ts './tests/unit/**/*.test.ts'",
+    "test:unit": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register --require tests/mochaHooks.ts './tests/unit/**/*.test.ts'",
+    "test": "npm run test:unit;",
     "lint": "eslint .  --ext .ts",
     "build": "tsc --project tsconfig.json",
     "clean": "tsc --build --clean"

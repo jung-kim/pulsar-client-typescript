@@ -11,33 +11,39 @@ export const localAddress = Object.values(os.networkInterfaces())
 
 export interface ConnectionOptions {
   url: string
+  auth?: Auth
+  connectionTimeoutMs?: number
+  keepAliveIntervalMs?: number
+  maxMessageSize?: number
+  listenerName?: string
+}
+
+export interface _ConnectionOptions {
+  url: string
   auth: Auth
   connectionTimeoutMs: number
   keepAliveIntervalMs: number
   maxMessageSize: number
-
   listenerName: string
 
-  _url: URL
-  _connectionId: string
-  _isTlsEnabled: boolean
-  _uuid: string
+  urlObj: URL
+  connectionId: string
+  isTlsEnabled: boolean
+  uuid: string
 }
 
-export const _initializeOption = (options: Partial<ConnectionOptions>): ConnectionOptions => {
-  if (options.url === undefined) {
-    throw Error('invalid url')
+export const _initializeOption = (options: ConnectionOptions): _ConnectionOptions => {
+  const urlObj = new URL(options.url)
+  return {
+    url: options.url,
+    connectionTimeoutMs: options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS,
+    keepAliveIntervalMs: options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS,
+    maxMessageSize: options.maxMessageSize ?? DEFAULT_MAX_MESSAGE_SIZE,
+    auth: options.auth ?? new NoAuth(),
+    listenerName: options.listenerName ?? '',
+    urlObj,
+    connectionId: `${ip.address()} -> ${options.url}`,
+    isTlsEnabled: urlObj.protocol === 'pulsar+ssl:' || urlObj.protocol === 'https:',
+    uuid: v4()
   }
-  options._url = new URL(options.url)
-  if (options.auth === undefined) {
-    options.auth = new NoAuth()
-  }
-  options.connectionTimeoutMs = options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS
-  options.keepAliveIntervalMs = options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS
-  options.listenerName = options.listenerName ?? ''
-  options._connectionId = `${ip.address()} -> ${options.url}`
-  options._isTlsEnabled = options._url.protocol === 'pulsar+ssl' || options._url.protocol === 'https'
-  options._uuid = v4()
-
-  return options as ConnectionOptions
 }

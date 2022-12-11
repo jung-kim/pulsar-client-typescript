@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { OAuth } from '../../../src/auth/oauth'
 import sinon from 'sinon'
 
-describe('Array', () => {
+describe('auth.Oauth', () => {
   describe('constructor', () => {
     it('should initialize correctly with only required options', () => {
       const oauth = new OAuth({

@@ -14,7 +14,7 @@ import {
   MessageMetadata,
   CommandSend
 } from '../proto/PulsarApi'
-import { ConnectionOptions } from './ConnectionOptions'
+import { _ConnectionOptions } from './ConnectionOptions'
 import { PulsarSocket } from './pulsarSocket'
 import { ProducerListeners } from './producerListeners'
 import { Message } from './abstractPulsarSocket'
@@ -28,12 +28,12 @@ export type CommandTypesResponses = CommandSuccess | CommandProducerSuccess | Co
 
 export class Connection {
   private readonly socket: PulsarSocket
-  private readonly options: ConnectionOptions
+  private readonly options: _ConnectionOptions
   private readonly producerListeners: ProducerListeners
   private readonly consumerLinsteners: ConsumerListeners
   private readonly requestTracker = new RequestTracker<CommandTypesResponses>()
 
-  constructor (options: ConnectionOptions, logicalAddress: URL) {
+  constructor (options: _ConnectionOptions, logicalAddress: URL) {
     this.options = options
     this.socket = new PulsarSocket(this, logicalAddress)
 
@@ -128,7 +128,7 @@ export class Connection {
    * gets read only copy of the options the connection is operating with.
    * @returns
    */
-  getOption (): Readonly<ConnectionOptions> {
+  getOption (): Readonly<_ConnectionOptions> {
     return this.options
   }
 
