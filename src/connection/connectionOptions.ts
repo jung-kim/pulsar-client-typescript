@@ -5,6 +5,8 @@ import { v4 } from 'uuid'
 import ip from 'ip'
 import { createConnection, Socket } from 'net'
 import { connect } from 'tls'
+import { Message } from './abstractPulsarSocket'
+import { Signal } from 'micro-signals'
 
 export const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
 export const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
@@ -60,5 +62,9 @@ export class _ConnectionOptions {
         port: parseInt(this.urlObj.port),
         timeout: this.connectionTimeoutMs
       })
+  }
+
+  getDataStream (): Signal<Message> {
+    return new Signal<Message>()
   }
 }
