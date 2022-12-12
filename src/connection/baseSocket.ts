@@ -1,10 +1,10 @@
 import { Socket } from 'net'
 import { TLSSocket } from 'tls'
 import AsyncRetry from 'async-retry'
-import { Connection } from './Connection'
 import { ProtocolVersion } from '../proto/PulsarApi'
 import { _ConnectionOptions } from './ConnectionOptions'
 import { WrappedLogger } from '../util/logger'
+import { ReadableSignal, Signal } from 'micro-signals'
 
 /**
  * represents raw socket conenction to a destination
@@ -15,19 +15,21 @@ export abstract class BaseSocket {
   private initializePromise: Promise<void> | undefined = undefined
   private initializePromiseRes: (() => void) | undefined = undefined
   private initializePromiseRej: ((e: any) => void) | undefined = undefined
-  protected readonly parent: Connection
   protected readonly options: _ConnectionOptions
   protected readonly protocolVersion = ProtocolVersion.v13
+  protected readonly _eventStream: Signal<string>
+  public readonly eventStream: ReadableSignal<string>
   public readonly wrappedLogger: WrappedLogger
 
-  constructor (connection: Connection) {
-    this.parent = connection
-    this.options = this.parent.getOption()
+  constructor (options: _ConnectionOptions) {
+    this.options = options
     this.wrappedLogger = new WrappedLogger({
       name: 'BaseSocket',
       url: this.options.url,
       uuid: this.options.uuid
     })
+    this._eventStream = options.getEventStream()
+    this.eventStream = this._eventStream.readOnly()
     this.reconnect()
       .catch((err) => { this.wrappedLogger.error('error while connecting', err) })
     this.wrappedLogger.info('base socket created')
@@ -59,6 +61,7 @@ export abstract class BaseSocket {
           this.socket.on('error', (err: Error) => {
             this.state = 'CLOSING'
             this.socket?.removeAllListeners()
+            this._eventStream.dispatch('close')
             // close event will trigger automatically after this event so not destroying here.
             this.wrappedLogger.error('socket error', err)
           })
@@ -66,6 +69,7 @@ export abstract class BaseSocket {
           this.socket.on('close', () => {
             this.state = 'CLOSING'
             this.socket?.removeAllListeners()
+            this._eventStream.dispatch('close')
             reject(Error('socket closing'))
             this.wrappedLogger.info('socket close')
           })
@@ -96,7 +100,7 @@ export abstract class BaseSocket {
       }
     ).catch((e) => {
       this.wrappedLogger.error('socket creation error', e)
-      this.parent.close()
+      this._eventStream.dispatch('close')
       if (this.initializePromiseRej !== undefined) {
         this.initializePromiseRej(e)
       }

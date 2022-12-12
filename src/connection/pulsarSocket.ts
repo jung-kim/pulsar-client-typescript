@@ -3,16 +3,15 @@ import { BaseCommand, BaseCommand_Type } from '../proto/PulsarApi'
 import { Reader, Writer } from 'protobufjs'
 import { TLSSocket } from 'tls'
 import { Message } from './abstractPulsarSocket'
-import { Connection } from './Connection'
 import { PingPongSocket } from './pingPongSocket'
-import { DEFAULT_MAX_MESSAGE_SIZE } from './ConnectionOptions'
+import { DEFAULT_MAX_MESSAGE_SIZE, _ConnectionOptions } from './ConnectionOptions'
 
 const pulsarClientVersion = 'Pulsar TS 0.1'
 
 export class PulsarSocket extends PingPongSocket {
   private readonly logicalAddress: URL
-  constructor (connection: Connection, logicalAddress: URL) {
-    super(connection)
+  constructor (options: _ConnectionOptions, logicalAddress: URL) {
+    super(options)
     this.logicalAddress = logicalAddress
   }
 

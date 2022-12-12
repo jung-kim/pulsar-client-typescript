@@ -4,26 +4,34 @@ import sinon from 'sinon'
 import { Message } from '../../../src/connection/abstractPulsarSocket'
 import { CommandTypesResponses, Connection } from '../../../src/connection/Connection'
 import { _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
+import { PulsarSocket } from '../../../src/connection/pulsarSocket'
 import { BaseCommand, BaseCommand_Type } from '../../../src/proto/PulsarApi'
 
-export const stubbedSocket = sinon.stub(Socket) as unknown as Socket
 export const getConnection = (): {
   conn: Connection
   socket: Socket
+  pulsarSocket: PulsarSocket
   signal: Signal<Message>
 } => {
   const options = new _ConnectionOptions({ url: 'pulsar://a.b' })
   const logicalAddress = new URL('pulsar://a.b')
-  const signal = new Signal<Message>()
+  const socket = new Socket({})
   sinon.stub(options, 'getSocket')
-    .callsFake(() => stubbedSocket)
+    .callsFake(() => socket)
+  const pulsarSocket = new PulsarSocket(options, logicalAddress)
+  const signal = new Signal<Message>()
+  sinon.stub(options, 'getPulsarSocket')
+    .callsFake((logicalAddress: URL) => pulsarSocket)
   sinon.stub(options, 'getDataStream')
     .callsFake(() => signal)
+  sinon.stub(pulsarSocket, 'reconnect')
+    .callsFake(async () => {})
   const conn = new Connection(options, logicalAddress)
 
   return {
     conn,
-    socket: stubbedSocket,
+    socket,
+    pulsarSocket,
     signal
   }
 }

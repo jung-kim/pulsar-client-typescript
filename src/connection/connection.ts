@@ -35,11 +35,17 @@ export class Connection {
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     this.options = options
-    this.socket = new PulsarSocket(this, logicalAddress)
+    this.socket = new PulsarSocket(options, logicalAddress)
 
     // register producer listener
     this.producerListeners = new ProducerListeners(this.socket)
     this.consumerLinsteners = new ConsumerListeners(this.socket)
+    this.socket.eventStream.add((event: string) => {
+      switch (event) {
+        case 'close':
+          this.close()
+      }
+    })
     this.socket.dataStream.add((message: Message) => {
       switch (message.baseCommand.type) {
         case BaseCommand_Type.SUCCESS:
@@ -87,7 +93,7 @@ export class Connection {
           break
         case BaseCommand_Type.SEND_ERROR:
           if (this.producerListeners.handleSendError(message)) {
-            this.socket.close()
+            this.close()
           }
           break
         case BaseCommand_Type.CLOSE_PRODUCER:

@@ -7,6 +7,7 @@ import { createConnection, Socket } from 'net'
 import { connect } from 'tls'
 import { Message } from './abstractPulsarSocket'
 import { Signal } from 'micro-signals'
+import { PulsarSocket } from './pulsarSocket'
 
 export const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
 export const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
@@ -66,5 +67,13 @@ export class _ConnectionOptions {
 
   getDataStream (): Signal<Message> {
     return new Signal<Message>()
+  }
+
+  getEventStream (): Signal<string> {
+    return new Signal<string>()
+  }
+
+  getPulsarSocket (logicalAddress: URL): PulsarSocket {
+    return new PulsarSocket(this, logicalAddress)
   }
 }

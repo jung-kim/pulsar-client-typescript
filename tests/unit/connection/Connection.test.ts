@@ -5,6 +5,7 @@ import { Signal } from 'micro-signals'
 import { BaseCommand_Type } from '../../../src/proto/PulsarApi'
 import { createDummyBaseCommand, getConnection, getDefaultHandleResponseStubs } from './utils'
 import Long from 'long'
+import sinon from 'sinon'
 
 describe('connection.Connection', () => {
   describe('constructor', () => {
@@ -210,6 +211,29 @@ describe('connection.Connection', () => {
 
         expect(responseStub.calledOnceWith(baseCommand.getSchemaResponse)).to.eq(true)
         expect(errorResponseStub.notCalled).to.eq(true)
+      })
+
+      it('should be able to handle ERROR message', async () => {
+        const baseCommand = createDummyBaseCommand(BaseCommand_Type.ERROR)
+        let res: () => void
+        const prom = new Promise<void>(resolve => { res = resolve })
+        const originalhandleResponseError = conn.handleResponseError.bind(conn)
+        const responseStub = sinon.stub(conn, 'handleResponse')
+        const errorResponseStub = sinon.stub(conn, 'handleResponseError').callsFake((message: Message) => {
+          originalhandleResponseError(message)
+          res()
+        })
+
+        const message = {
+          baseCommand,
+          headersAndPayload: Buffer.from('error')
+        }
+        signal.dispatch(message)
+
+        await prom
+
+        expect(responseStub.notCalled).to.eq(true)
+        expect(errorResponseStub.calledOnceWith(message)).to.eq(true)
       })
     })
   })

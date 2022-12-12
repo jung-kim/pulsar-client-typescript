@@ -1,7 +1,7 @@
 import { ReadableSignal, Signal } from 'micro-signals'
 import { BaseCommand } from 'proto/PulsarApi'
 import { BaseSocket } from './baseSocket'
-import { Connection } from './Connection'
+import { _ConnectionOptions } from './ConnectionOptions'
 
 /**
  * Type of object we receive from the server
@@ -18,9 +18,9 @@ export abstract class AbstractPulsarSocket extends BaseSocket {
   protected readonly _dataStream: Signal<Message>
   public readonly dataStream: ReadableSignal<Message>
 
-  constructor (connection: Connection) {
-    super(connection)
-    this._dataStream = connection.getOption().getDataStream()
+  constructor (options: _ConnectionOptions) {
+    super(options)
+    this._dataStream = options.getDataStream()
     this.dataStream = this._dataStream.readOnly()
   }
 

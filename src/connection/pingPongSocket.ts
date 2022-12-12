@@ -1,14 +1,14 @@
 import { BaseCommand, BaseCommand_Type } from '../proto/PulsarApi'
-import { Connection } from './Connection'
 import { AbstractPulsarSocket, Message } from './abstractPulsarSocket'
+import { _ConnectionOptions } from './ConnectionOptions'
 
 // handles pingpong logic
 export abstract class PingPongSocket extends AbstractPulsarSocket {
   private interval: ReturnType<typeof setInterval> | undefined = setInterval(this.handleInterval.bind(this), this.options.keepAliveIntervalMs)
   private lastDataReceived: number = 0
 
-  constructor (connection: Connection) {
-    super(connection)
+  constructor (options: _ConnectionOptions) {
+    super(options)
 
     this.dataStream.add((message: Message) => {
       switch (message.baseCommand.type) {
@@ -40,12 +40,13 @@ export abstract class PingPongSocket extends AbstractPulsarSocket {
     if (this.lastDataReceived + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
       this.wrappedLogger.info('stale connection, closing')
       // stale connection, closing
-      this.parent.close()
+      this._eventStream.dispatch('close')
     }
   }
 
   close (): void {
     this.wrappedLogger.debug('pingpong socket close')
+    console.log(283842, this.interval)
     clearInterval(this.interval)
     this.interval = undefined
     super.close()
