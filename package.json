@@ -25,6 +25,7 @@
     "murmurhash3js": "^3.0.1",
     "oauth": "^0.9.15",
     "p-queue": "^7.2.0",
+    "p-retry": "^5.1.2",
     "protobufjs": "^7.0.0",
     "ts-proto": "^1.120.0",
     "uuid": "^9.0.0"
