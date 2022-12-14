@@ -1,42 +1,41 @@
 import { BaseCommand, BaseCommand_Type } from '../proto/PulsarApi'
-import { Reader, Writer } from 'protobufjs'
-import { Message } from './index'
+import { Writer } from 'protobufjs'
 import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION, _ConnectionOptions } from './ConnectionOptions'
 import { BaseSocket } from './baseSocket'
-import { ReadableSignal, Signal } from 'micro-signals'
-import { WrappedLogger } from 'util/logger'
 import { Initializable } from './initializable'
 
 export class PulsarSocket extends Initializable<void> {
+  private interval: ReturnType<typeof setInterval> | undefined = undefined
   private readonly logicalAddress: URL
-  private readonly options: _ConnectionOptions
-  protected lastDataReceived: number = 0
-  protected readonly _dataStream: Signal<Message>
-  public readonly dataStream: ReadableSignal<Message>
   public readonly baseSocket: BaseSocket
-  public readonly wrappedLogger: WrappedLogger
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    super(options)
-    this.options = options
+    super('PulsarSocket', options)
     this.baseSocket = new BaseSocket(options)
     this.logicalAddress = logicalAddress
-    this._dataStream = options.getDataStream()
-    this.dataStream = this._dataStream.readOnly()
-    this.wrappedLogger = new WrappedLogger({
-      name: 'PulsarSocket',
-      url: this.options.url,
-      uuid: this.options.uuid
-    })
 
-    this.options.eventStream.add(event => {
+    this.eventSignal.add(event => {
       switch (event) {
-        case 'close':
-          this.onClose()
-          break
         case 'base_socket_ready':
           this.initialize()
           break
+      }
+    })
+
+    this.dataSignal.add(message => {
+      if (this.state === 'INITIALIZING') {
+        // message received during "initializing" is assumed to be from handshake effort.
+        this.receiveHandshake(message.baseCommand)
+      } else {
+        // when ready, handle normal data stream for pingpongs
+        switch (message.baseCommand.type) {
+          case BaseCommand_Type.PING:
+            this.handlePing()
+            break
+          case BaseCommand_Type.PONG:
+            this.handlePong()
+            break
+        }
       }
     })
   }
@@ -53,50 +52,26 @@ export class PulsarSocket extends Initializable<void> {
     return await this.baseSocket.send(payload)
   }
 
-  public async handleAuthChallenge (_: Message): Promise<void> {
-    try {
-      const authData = await this.options.auth.getToken()
-      const payload = BaseCommand.fromJSON({
-        type: BaseCommand_Type.AUTH_RESPONSE,
-        connect: {
-          protocolVersion: PROTOCOL_VERSION,
-          clientVersion: PULSAR_CLIENT_VERSION,
-          authMethodName: this.options.auth.name,
-          authData: Buffer.from(authData).toString('base64'),
-          featureFlags: {
-            supportsAuthRefresh: true
-          }
-        }
-      })
-      return await this.writeCommand(payload)
-    } catch (e) {
-      this.wrappedLogger.error('auth challeng failed', e)
-    }
-  }
-
-  protected handleData (data: Buffer): void {
-    try {
-      const message = this.parseReceived(data)
-      this._dataStream.dispatch(message)
-    } catch (e) {
-      this.wrappedLogger.error('error received while parsing received message', e)
-    }
-  }
-
   protected async _initialize (): Promise<void> {
-    return await this.handshake()
+    await this.sendHandshake()
+
+    const res = await Promise.any([
+      this.eventSignal.filter(s => s === 'pulsar_socket_ready').promisify(),
+      this.eventSignal.filter(s => s === 'pulsar_socket_error').promisify()
+    ])
+
+    if (res === 'pulsar_socket_error') {
+      throw Error('pulsarSocket initfailed')
+    }
   }
 
-  /**
-   * Attempts handshake with pulsar server with established tcp socket.
-   * Assumes tcp connection is established
-   */
-  protected async handshake (): Promise<void> {
-    await this.ensureReady()
-    const socket = this.baseSocket.getSocket()
-    if ((socket === undefined) || socket.readyState !== 'open') {
-      throw Error('socket is not defined or not ready')
-    }
+  protected _onClose (): void {
+    clearInterval(this.interval)
+    this.interval = undefined
+  }
+
+  protected async sendHandshake (): Promise<void> {
+    await this.baseSocket.ensureReady()
 
     const authData = await this.options.auth.getToken()
     const payload = BaseCommand.fromJSON({
@@ -112,19 +87,10 @@ export class PulsarSocket extends Initializable<void> {
         proxyToBrokerUrl: this.logicalAddress.href === this.options.urlObj.href ? undefined : this.logicalAddress.host
       }
     })
-
-    let handShakeResolve: (v: Buffer) => void
-    const handShakePromise = new Promise<Buffer>((resolve) => {
-      handShakeResolve = resolve
-    })
-    socket?.once('data', (data: Buffer) => {
-      handShakeResolve(data)
-    })
-
     await this.writeCommand(payload)
-    const response = await handShakePromise
-    const { baseCommand } = this.parseReceived(response)
+  }
 
+  protected receiveHandshake (baseCommand: BaseCommand): void {
     if (baseCommand.connected === undefined) {
       if (baseCommand.error !== undefined) {
         this.wrappedLogger.error('error during handshake', baseCommand.error)
@@ -135,7 +101,8 @@ export class PulsarSocket extends Initializable<void> {
           { baseCommandType: baseCommand.type }
         )
       }
-      throw Error('Invalid response recevived')
+      this._eventSignal.dispatch('pulsar_socket_error')
+      return
     }
 
     if ((baseCommand.connected?.maxMessageSize ?? 0) > 0 && baseCommand.connected?.maxMessageSize > 0) {
@@ -145,19 +112,37 @@ export class PulsarSocket extends Initializable<void> {
     }
 
     this.wrappedLogger.info('connected!!')
+    this.interval = setInterval((this.handleInterval.bind(this)), this.options.keepAliveIntervalMs)
+    this._eventSignal.dispatch('pulsar_socket_ready')
   }
 
-  protected parseReceived (data: Buffer): Message {
-    this.lastDataReceived = (new Date()).getMilliseconds()
-    const frameSize = (new Reader(data.subarray(0, 4))).fixed32()
-    const commandSize = (new Reader(data.subarray(4, 8))).fixed32()
-    const headersAndPayloadSize = frameSize - (commandSize + 4)
+  private handleInterval (): void {
+    this.sendPing()
 
-    const command = data.subarray(8, commandSize + 8)
-    const headersAndPayload = data.subarray(commandSize + 8, commandSize + headersAndPayloadSize + 8)
-    return {
-      baseCommand: BaseCommand.decode(command),
-      headersAndPayload
+    if (this.baseSocket.getLastDataReceived() + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
+      // stale connection, closing
+      this.wrappedLogger.info('stale connection, closing')
+      this._eventSignal.dispatch('close')
     }
+  }
+
+  private sendPing (): void {
+    this.wrappedLogger.debug('send ping')
+    this.writeCommand(
+      BaseCommand.fromJSON({
+        type: BaseCommand_Type.PING
+      })
+    ).catch((err) => this.wrappedLogger.error('send ping error', err))
+  }
+
+  private handlePong (): void { }
+
+  private handlePing (): void {
+    this.wrappedLogger.debug('handle ping')
+    this.writeCommand(
+      BaseCommand.fromJSON({
+        type: BaseCommand_Type.PONG
+      })
+    ).catch((err) => this.wrappedLogger.error('handle ping error', err))
   }
 }

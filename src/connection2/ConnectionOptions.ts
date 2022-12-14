@@ -16,7 +16,7 @@ export const DEFAULT_MAX_MESSAGE_SIZE = 5 * 1024 * 1024
 export const PROTOCOL_VERSION = ProtocolVersion.v13
 export const PULSAR_CLIENT_VERSION = 'Pulsar TS 0.1'
 export const localAddress = Object.values(os.networkInterfaces())
-export type EVENT_SIGNALS = 'close' | 'base_socket_ready' | 'pulsar_socket_ready' | 'pingpon_socket_ready' | 'reconnect'
+export type EVENT_SIGNALS = 'close' | 'base_socket_ready' | 'pulsar_socket_ready' | 'pingpon_socket_ready' | 'reconnect' | 'pulsar_socket_error'
 
 export interface ConnectionOptions {
   url: string
@@ -38,7 +38,8 @@ export class _ConnectionOptions {
   readonly connectionId: string
   readonly isTlsEnabled: boolean
   readonly uuid: string
-  readonly eventStream = new Signal<EVENT_SIGNALS>()
+  readonly eventSignal = new Signal<EVENT_SIGNALS>()
+  readonly dataSiganl = new Signal<Message>()
 
   constructor (options: ConnectionOptions) {
     const urlObj = new URL(options.url)
@@ -70,11 +71,15 @@ export class _ConnectionOptions {
       })
   }
 
-  getDataStream (): Signal<Message> {
-    return new Signal<Message>()
+  getEventSignal (): Signal<EVENT_SIGNALS> {
+    return this.eventSignal
   }
 
-  getPulsarSocket (logicalAddress: URL): PulsarSocket {
+  getDataSignal (): Signal<Message> {
+    return this.dataSiganl
+  }
+
+  getNewPulsarSocket (logicalAddress: URL): PulsarSocket {
     return new PulsarSocket(this, logicalAddress)
   }
 }

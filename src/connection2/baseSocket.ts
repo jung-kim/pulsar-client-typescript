@@ -1,7 +1,9 @@
+import { Message } from 'connection2'
 import { Socket } from 'net'
+import { BaseCommand } from 'proto/PulsarApi'
+import { Reader } from 'protobufjs'
 import { TLSSocket } from 'tls'
 import { _ConnectionOptions } from './ConnectionOptions'
-import { WrappedLogger } from '../util/logger'
 import { Initializable } from './initializable'
 
 /**
@@ -9,20 +11,12 @@ import { Initializable } from './initializable'
  */
 export class BaseSocket extends Initializable<void> {
   private socket: Socket | TLSSocket | undefined = undefined
-  protected readonly options: _ConnectionOptions
-  public readonly wrappedLogger: WrappedLogger
+  private lastDataReceived: number = 0
 
   constructor (options: _ConnectionOptions) {
-    super(options)
-    this.options = options
-    this.wrappedLogger = new WrappedLogger({
-      name: 'BaseSocket',
-      url: this.options.url,
-      uuid: this.options.uuid
-    })
+    super('BaseSocket', options)
     this.wrappedLogger.info('base socket created')
-
-    this.eventStream.add(event => {
+    this.eventSignal.add(event => {
       switch (event) {
         case 'close':
           this.onClose()
@@ -32,7 +26,7 @@ export class BaseSocket extends Initializable<void> {
           break
       }
     })
-    this._eventStream.dispatch('reconnect')
+    this._eventSignal.dispatch('reconnect')
   }
 
   async _initialize (): Promise<void> {
@@ -42,52 +36,73 @@ export class BaseSocket extends Initializable<void> {
     this.socket.on('error', (err: Error) => {
       // close event will trigger automatically after this event so not destroying here.
       this.wrappedLogger.error('socket error', err)
-      this._eventStream.dispatch('close')
+      this._eventSignal.dispatch('close')
     })
 
     this.socket.on('close', () => {
       this.wrappedLogger.info('socket close requested by server')
-      this._eventStream.dispatch('close')
+      this._eventSignal.dispatch('close')
     })
 
     this.socket.once('ready', () => {
       this.wrappedLogger.info('socket ready')
-      this._eventStream.dispatch('base_socket_ready')
+      this._eventSignal.dispatch('base_socket_ready')
+    })
+
+    this.socket.on('data', (data: Buffer) => {
+      this._dataSignal.dispatch(this.parseReceived(data))
     })
 
     // ready for a promise that is looking for 'socket_ready', treat all other events are failures
-    await this.eventStream.filter(signal => signal === 'base_socket_ready')
-      .promisify(this.eventStream)
+    await this.eventSignal.filter(signal => signal === 'base_socket_ready')
+      .promisify(this.eventSignal)
   }
 
   /**
    * closes the connection. Can be reconnected via `reconnect`
    */
-  onClose (): void {
-    this.wrappedLogger.info('socket closed')
+  _onClose (): void {
     this.socket?.destroy()
     this.socket = undefined
-    super.onClose()
   }
 
   async send (buffer: Uint8Array | Buffer): Promise<void> {
+    await this.ensureReady()
     this.wrappedLogger.debug('sending data')
     return await new Promise((_resolve, reject) => {
-      if ((this.socket === undefined) || this.state !== 'READY') {
-        this.wrappedLogger.warn('socket is closed, send is rejected')
-        return reject(Error('socket is closed'))
-      }
-      this.socket.write(buffer, (err) => {
+      this.socket?.write(buffer, (err) => {
         if (err !== undefined) {
           this.wrappedLogger.error('socket write error', err)
           return reject(err)
         }
         this.wrappedLogger.debug('written data')
+        _resolve()
       })
     })
   }
 
-  getSocket (): Socket | undefined {
-    return this.socket
+  async ensureReady (): Promise<void> {
+    await super.ensureReady()
+    if (this.socket === undefined) {
+      throw Error('socket is not defined')
+    }
+  }
+
+  parseReceived (data: Buffer): Message {
+    this.lastDataReceived = (new Date()).getMilliseconds()
+    const frameSize = (new Reader(data.subarray(0, 4))).fixed32()
+    const commandSize = (new Reader(data.subarray(4, 8))).fixed32()
+    const headersAndPayloadSize = frameSize - (commandSize + 4)
+
+    const command = data.subarray(8, commandSize + 8)
+    const headersAndPayload = data.subarray(commandSize + 8, commandSize + headersAndPayloadSize + 8)
+    return {
+      baseCommand: BaseCommand.decode(command),
+      headersAndPayload
+    }
+  }
+
+  getLastDataReceived (): number {
+    return this.lastDataReceived
   }
 }
