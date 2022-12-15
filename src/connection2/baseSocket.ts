@@ -13,14 +13,11 @@ export class BaseSocket extends Initializable<void> {
   private socket: Socket | TLSSocket | undefined = undefined
   private lastDataReceived: number = 0
 
-  constructor (options: _ConnectionOptions) {
-    super('BaseSocket', options)
+  constructor (options: _ConnectionOptions, logicalAddress: URL) {
+    super('BaseSocket', options, logicalAddress)
     this.wrappedLogger.info('base socket created')
     this.eventSignal.add(event => {
       switch (event) {
-        case 'close':
-          this.onClose()
-          break
         case 'reconnect':
           this.initialize()
           break

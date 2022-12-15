@@ -9,6 +9,7 @@ import { Message } from './index'
 import { Signal } from 'micro-signals'
 import { PulsarSocket } from './pulsarSocket'
 import { ProtocolVersion } from 'proto/PulsarApi'
+import { WrappedLogger } from 'util/logger'
 
 export const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
 export const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
@@ -81,5 +82,13 @@ export class _ConnectionOptions {
 
   getNewPulsarSocket (logicalAddress: URL): PulsarSocket {
     return new PulsarSocket(this, logicalAddress)
+  }
+
+  getWrappedLogger (name: string, logicalAddress: URL): WrappedLogger {
+    return new WrappedLogger({
+      name,
+      uuid: this.uuid,
+      id: `${this.connectionId}-${logicalAddress.host}`
+    })
   }
 }

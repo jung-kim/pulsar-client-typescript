@@ -5,7 +5,7 @@ import { WrappedLogger } from '../util/logger'
 import { EVENT_SIGNALS, _ConnectionOptions } from './ConnectionOptions'
 
 export abstract class Initializable<T> {
-  public state: 'INITIALIZING' | 'READY' | 'CLOSED' = 'INITIALIZING'
+  private state: 'INITIALIZING' | 'READY' | 'CLOSED' = 'INITIALIZING'
   protected initializePromise: Promise<T> | undefined = undefined
   protected readonly wrappedLogger: WrappedLogger
 
@@ -15,17 +15,13 @@ export abstract class Initializable<T> {
   public readonly dataSignal: ReadableSignal<Message>
   public readonly options: _ConnectionOptions
 
-  constructor (name: string, options: _ConnectionOptions) {
+  constructor (name: string, options: _ConnectionOptions, logicalAddress: URL) {
     this._eventSignal = options.getEventSignal()
     this.eventSignal = this._eventSignal.readOnly()
     this._dataSignal = options.getDataSignal()
     this.dataSignal = this._dataSignal.readOnly()
     this.options = options
-    this.wrappedLogger = new WrappedLogger({
-      name,
-      url: this.options.url,
-      uuid: this.options.uuid
-    })
+    this.wrappedLogger = options.getWrappedLogger(name, logicalAddress)
 
     this.eventSignal.add(event => {
       switch (event) {
@@ -49,7 +45,7 @@ export abstract class Initializable<T> {
       .catch(() => { this._eventSignal.dispatch('close') })
   }
 
-  onClose (): void {
+  private onClose (): void {
     this._onClose()
     this.wrappedLogger.info('close requested')
     this.initializePromise = undefined
@@ -64,5 +60,9 @@ export abstract class Initializable<T> {
     if (this.state !== 'READY') {
       throw Error('Not initialized')
     }
+  }
+
+  getState (): 'INITIALIZING' | 'READY' | 'CLOSED' {
+    return this.state
   }
 }

@@ -7,12 +7,14 @@ import { Initializable } from './initializable'
 export class PulsarSocket extends Initializable<void> {
   private interval: ReturnType<typeof setInterval> | undefined = undefined
   private readonly logicalAddress: URL
+  private readonly id: string
   public readonly baseSocket: BaseSocket
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    super('PulsarSocket', options)
-    this.baseSocket = new BaseSocket(options)
+    super('PulsarSocket', options, logicalAddress)
+    this.baseSocket = new BaseSocket(options, logicalAddress)
     this.logicalAddress = logicalAddress
+    this.id = `${options.connectionId}-${logicalAddress.host}`
 
     this.eventSignal.add(event => {
       switch (event) {
@@ -23,7 +25,7 @@ export class PulsarSocket extends Initializable<void> {
     })
 
     this.dataSignal.add(message => {
-      if (this.state === 'INITIALIZING') {
+      if (this.getState() === 'INITIALIZING') {
         // message received during "initializing" is assumed to be from handshake effort.
         this.receiveHandshake(message.baseCommand)
       } else {
@@ -40,6 +42,10 @@ export class PulsarSocket extends Initializable<void> {
     })
   }
 
+  public getId (): string {
+    return this.id
+  }
+
   public async writeCommand (command: BaseCommand): Promise<void> {
     await this.ensureReady()
 
@@ -50,6 +56,10 @@ export class PulsarSocket extends Initializable<void> {
     payload.set(marshalledCommand)
 
     return await this.baseSocket.send(payload)
+  }
+
+  public async send (buffer: Uint8Array | Buffer): Promise<void> {
+    return await this.baseSocket.send(buffer)
   }
 
   protected async _initialize (): Promise<void> {
