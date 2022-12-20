@@ -17,13 +17,13 @@ export class BaseSocket extends Initializable<void> {
     super('BaseSocket', options, logicalAddress)
     this.wrappedLogger.info('base socket created')
     this.eventSignal.add(event => {
-      switch (event) {
+      switch (event.event) {
         case 'reconnect':
           this.initialize()
           break
       }
     })
-    this._eventSignal.dispatch('reconnect')
+    this._eventSignal.dispatch({ event: 'reconnect' })
   }
 
   async _initialize (): Promise<void> {
@@ -33,17 +33,17 @@ export class BaseSocket extends Initializable<void> {
     this.socket.on('error', (err: Error) => {
       // close event will trigger automatically after this event so not destroying here.
       this.wrappedLogger.error('socket error', err)
-      this._eventSignal.dispatch('close')
+      this._eventSignal.dispatch({ event: 'close' })
     })
 
     this.socket.on('close', () => {
       this.wrappedLogger.info('socket close requested by server')
-      this._eventSignal.dispatch('close')
+      this._eventSignal.dispatch({ event: 'close' })
     })
 
     this.socket.once('ready', () => {
       this.wrappedLogger.info('socket ready')
-      this._eventSignal.dispatch('base_socket_ready')
+      this._eventSignal.dispatch({ event: 'base_socket_ready' })
     })
 
     this.socket.on('data', (data: Buffer) => {
@@ -51,7 +51,7 @@ export class BaseSocket extends Initializable<void> {
     })
 
     // ready for a promise that is looking for 'socket_ready', treat all other events are failures
-    await this.eventSignal.filter(signal => signal === 'base_socket_ready')
+    await this.eventSignal.filter(signal => signal.event === 'base_socket_ready')
       .promisify(this.eventSignal)
   }
 

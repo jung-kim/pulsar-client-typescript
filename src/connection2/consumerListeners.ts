@@ -1,6 +1,6 @@
 import { Signal } from 'micro-signals'
 import { CommandCloseConsumer } from 'proto/PulsarApi'
-import { WrappedLogger } from 'util/logger'
+import { WrappedLogger } from '../util/logger'
 import { Message } from './index'
 
 export class ConsumerListeners {

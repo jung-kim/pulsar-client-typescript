@@ -1,16 +1,16 @@
 import AsyncRetry from 'async-retry'
-import { Message } from 'connection2'
+import { EventSignalType, Message } from './'
 import { ReadableSignal, Signal } from 'micro-signals'
 import { WrappedLogger } from '../util/logger'
-import { EVENT_SIGNALS, _ConnectionOptions } from './ConnectionOptions'
+import { _ConnectionOptions } from './ConnectionOptions'
 
 export abstract class Initializable<T> {
   private state: 'INITIALIZING' | 'READY' | 'CLOSED' = 'INITIALIZING'
   protected initializePromise: Promise<T> | undefined = undefined
   protected readonly wrappedLogger: WrappedLogger
 
-  public readonly _eventSignal: Signal<EVENT_SIGNALS>
-  public readonly eventSignal: ReadableSignal<EVENT_SIGNALS>
+  public readonly _eventSignal: Signal<EventSignalType>
+  public readonly eventSignal: ReadableSignal<EventSignalType>
   public readonly _dataSignal: Signal<Message>
   public readonly dataSignal: ReadableSignal<Message>
   public readonly options: _ConnectionOptions
@@ -24,7 +24,7 @@ export abstract class Initializable<T> {
     this.wrappedLogger = options.getWrappedLogger(name, logicalAddress)
 
     this.eventSignal.add(event => {
-      switch (event) {
+      switch (event.event) {
         case 'close':
           this.onClose()
           break
@@ -39,10 +39,15 @@ export abstract class Initializable<T> {
     if (this.initializePromise === undefined) {
       this.state = 'INITIALIZING'
       this.initializePromise = AsyncRetry(this._initialize, { retries: 5, maxTimeout: 5000 })
+        .then((v) => {
+          this.state = 'READY'
+          return v
+        })
+        .catch((e) => {
+          this._eventSignal.dispatch({ event: 'close' })
+          throw e
+        })
     }
-    this.initializePromise
-      .then(() => { this.state = 'READY' })
-      .catch(() => { this._eventSignal.dispatch('close') })
   }
 
   private onClose (): void {

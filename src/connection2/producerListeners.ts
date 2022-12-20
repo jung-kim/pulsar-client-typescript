@@ -1,7 +1,7 @@
 import { Message } from './index'
 import { Signal } from 'micro-signals'
 import { CommandCloseProducer, CommandSendReceipt, ServerError } from '../proto/PulsarApi'
-import { WrappedLogger } from 'util/logger'
+import { WrappedLogger } from '../util/logger'
 
 /**
  * Digest messages for producers.

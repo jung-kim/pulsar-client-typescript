@@ -52,7 +52,10 @@ export class RequestTracker<T> {
     return requestTrack
   }
 
-  get (id: Long): RequestTrack<T> | undefined {
+  get (id: Long | undefined): RequestTrack<T> | undefined {
+    if (id === undefined) {
+      return undefined
+    }
     return this.requestTrackMap.get(id.toString())
   }
 

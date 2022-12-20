@@ -1,8 +1,9 @@
 import { BaseCommand, BaseCommand_Type } from '../proto/PulsarApi'
 import { Writer } from 'protobufjs'
-import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION, _ConnectionOptions } from './ConnectionOptions'
+import { _ConnectionOptions } from './ConnectionOptions'
 import { BaseSocket } from './baseSocket'
 import { Initializable } from './initializable'
+import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from './'
 
 export class PulsarSocket extends Initializable<void> {
   private interval: ReturnType<typeof setInterval> | undefined = undefined
@@ -17,7 +18,7 @@ export class PulsarSocket extends Initializable<void> {
     this.id = `${options.connectionId}-${logicalAddress.host}`
 
     this.eventSignal.add(event => {
-      switch (event) {
+      switch (event.event) {
         case 'base_socket_ready':
           this.initialize()
           break
@@ -66,12 +67,12 @@ export class PulsarSocket extends Initializable<void> {
     await this.sendHandshake()
 
     const res = await Promise.any([
-      this.eventSignal.filter(s => s === 'pulsar_socket_ready').promisify(),
-      this.eventSignal.filter(s => s === 'pulsar_socket_error').promisify()
+      this.eventSignal.filter(s => s.event === 'pulsar_socket_ready').promisify(),
+      this.eventSignal.filter(s => s.event === 'pulsar_socket_error').promisify()
     ])
 
-    if (res === 'pulsar_socket_error') {
-      throw Error('pulsarSocket initfailed')
+    if (res.event === 'pulsar_socket_error') {
+      throw res.err ?? Error('Unknown error during initialize')
     }
   }
 
@@ -111,7 +112,7 @@ export class PulsarSocket extends Initializable<void> {
           { baseCommandType: baseCommand.type }
         )
       }
-      this._eventSignal.dispatch('pulsar_socket_error')
+      this._eventSignal.dispatch({ event: 'pulsar_socket_error' })
       return
     }
 
@@ -123,7 +124,7 @@ export class PulsarSocket extends Initializable<void> {
 
     this.wrappedLogger.info('connected!!')
     this.interval = setInterval((this.handleInterval.bind(this)), this.options.keepAliveIntervalMs)
-    this._eventSignal.dispatch('pulsar_socket_ready')
+    this._eventSignal.dispatch({ event: 'pulsar_socket_ready' })
   }
 
   private handleInterval (): void {
@@ -132,7 +133,7 @@ export class PulsarSocket extends Initializable<void> {
     if (this.baseSocket.getLastDataReceived() + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
       // stale connection, closing
       this.wrappedLogger.info('stale connection, closing')
-      this._eventSignal.dispatch('close')
+      this._eventSignal.dispatch({ event: 'close' })
     }
   }
 

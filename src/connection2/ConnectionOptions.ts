@@ -1,23 +1,13 @@
 import { NoAuth } from '../auth/noauth'
 import { Auth } from '../auth'
-import os from 'os'
 import { v4 } from 'uuid'
 import ip from 'ip'
 import { createConnection, Socket } from 'net'
 import { connect } from 'tls'
-import { Message } from './index'
+import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, EventSignalType, Message } from './index'
 import { Signal } from 'micro-signals'
 import { PulsarSocket } from './pulsarSocket'
-import { ProtocolVersion } from 'proto/PulsarApi'
-import { WrappedLogger } from 'util/logger'
-
-export const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
-export const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
-export const DEFAULT_MAX_MESSAGE_SIZE = 5 * 1024 * 1024
-export const PROTOCOL_VERSION = ProtocolVersion.v13
-export const PULSAR_CLIENT_VERSION = 'Pulsar TS 0.1'
-export const localAddress = Object.values(os.networkInterfaces())
-export type EVENT_SIGNALS = 'close' | 'base_socket_ready' | 'pulsar_socket_ready' | 'pingpon_socket_ready' | 'reconnect' | 'pulsar_socket_error'
+import { WrappedLogger } from '../util/logger'
 
 export interface ConnectionOptions {
   url: string
@@ -39,7 +29,7 @@ export class _ConnectionOptions {
   readonly connectionId: string
   readonly isTlsEnabled: boolean
   readonly uuid: string
-  readonly eventSignal = new Signal<EVENT_SIGNALS>()
+  readonly eventSignal = new Signal<EventSignalType>()
   readonly dataSiganl = new Signal<Message>()
 
   constructor (options: ConnectionOptions) {
@@ -72,7 +62,7 @@ export class _ConnectionOptions {
       })
   }
 
-  getEventSignal (): Signal<EVENT_SIGNALS> {
+  getEventSignal (): Signal<EventSignalType> {
     return this.eventSignal
   }
 
