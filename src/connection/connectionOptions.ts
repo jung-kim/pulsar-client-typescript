@@ -1,18 +1,13 @@
 import { NoAuth } from '../auth/noauth'
 import { Auth } from '../auth'
-import os from 'os'
 import { v4 } from 'uuid'
 import ip from 'ip'
 import { createConnection, Socket } from 'net'
 import { connect } from 'tls'
-import { Message } from './abstractPulsarSocket'
+import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, EventSignalType, Message } from './index'
 import { Signal } from 'micro-signals'
 import { PulsarSocket } from './pulsarSocket'
-
-export const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
-export const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
-export const DEFAULT_MAX_MESSAGE_SIZE = 5 * 1024 * 1024
-export const localAddress = Object.values(os.networkInterfaces())
+import { WrappedLogger } from '../util/logger'
 
 export interface ConnectionOptions {
   url: string
@@ -34,6 +29,8 @@ export class _ConnectionOptions {
   readonly connectionId: string
   readonly isTlsEnabled: boolean
   readonly uuid: string
+  readonly eventSignal = new Signal<EventSignalType>()
+  readonly dataSiganl = new Signal<Message>()
 
   constructor (options: ConnectionOptions) {
     const urlObj = new URL(options.url)
@@ -48,6 +45,14 @@ export class _ConnectionOptions {
     this.connectionId = `${ip.address()} -> ${options.url}`
     this.isTlsEnabled = urlObj.protocol === 'pulsar+ssl:' || urlObj.protocol === 'https:'
     this.uuid = v4()
+
+    const logger = new WrappedLogger({ uuid: this.uuid })
+    this.eventSignal.add((e: EventSignalType) => {
+      logger.debug(`event signal received: ${e.event}`)
+    })
+    this.dataSiganl.add((d: Message) => {
+      logger.debug(`data siganl received: type: ${d.baseCommand.type}`)
+    })
   }
 
   getSocket (): Socket {
@@ -65,15 +70,23 @@ export class _ConnectionOptions {
       })
   }
 
-  getDataStream (): Signal<Message> {
-    return new Signal<Message>()
+  getEventSignal (): Signal<EventSignalType> {
+    return this.eventSignal
   }
 
-  getEventStream (): Signal<string> {
-    return new Signal<string>()
+  getDataSignal (): Signal<Message> {
+    return this.dataSiganl
   }
 
-  getPulsarSocket (logicalAddress: URL): PulsarSocket {
+  getNewPulsarSocket (logicalAddress: URL): PulsarSocket {
     return new PulsarSocket(this, logicalAddress)
+  }
+
+  getWrappedLogger (name: string, logicalAddress: URL): WrappedLogger {
+    return new WrappedLogger({
+      name,
+      uuid: this.uuid,
+      id: `${this.connectionId}-${logicalAddress.host}`
+    })
   }
 }

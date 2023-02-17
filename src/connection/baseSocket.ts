@@ -1,157 +1,105 @@
+import { Message } from 'connection'
 import { Socket } from 'net'
+import { BaseCommand } from 'proto/PulsarApi'
+import { Reader } from 'protobufjs'
 import { TLSSocket } from 'tls'
-import AsyncRetry from 'async-retry'
-import { ProtocolVersion } from '../proto/PulsarApi'
 import { _ConnectionOptions } from './ConnectionOptions'
-import { WrappedLogger } from '../util/logger'
-import { ReadableSignal, Signal } from 'micro-signals'
+import { Initializable } from './initializable'
 
 /**
- * represents raw socket conenction to a destination
+ * represents raw TCP socket conenction to a destination
  */
-export abstract class BaseSocket {
-  protected state: 'INITIALIZING' | 'READY' | 'CLOSING' | 'CLOSED' | 'UNKNOWN' = 'INITIALIZING'
+export class BaseSocket extends Initializable<void> {
   private socket: Socket | TLSSocket | undefined = undefined
-  private initializePromise: Promise<void> | undefined = undefined
-  private initializePromiseRes: (() => void) | undefined = undefined
-  private initializePromiseRej: ((e: any) => void) | undefined = undefined
-  protected readonly options: _ConnectionOptions
-  protected readonly protocolVersion = ProtocolVersion.v13
-  protected readonly _eventStream: Signal<string>
-  public readonly eventStream: ReadableSignal<string>
-  public readonly wrappedLogger: WrappedLogger
+  private lastDataReceived: number = 0
 
-  constructor (options: _ConnectionOptions) {
-    this.options = options
-    this.wrappedLogger = new WrappedLogger({
-      name: 'BaseSocket',
-      url: this.options.url,
-      uuid: this.options.uuid
-    })
-    this._eventStream = options.getEventStream()
-    this.eventStream = this._eventStream.readOnly()
-    this.reconnect()
-      .catch((err) => { this.wrappedLogger.error('error while connecting', err) })
+  constructor (options: _ConnectionOptions, logicalAddress: URL) {
+    super('BaseSocket', options, logicalAddress)
     this.wrappedLogger.info('base socket created')
+    this.eventSignal.add(event => {
+      switch (event.event) {
+        case 'reconnect':
+          this.initialize()
+          break
+      }
+    })
+    this._eventSignal.dispatch({ event: 'reconnect' })
   }
 
-  /**
-   * Either returns ongoing initialization attempt, or return new initialization attempt.
-   * This function is the only one that modifies `state` variable, except for the `close`
-   * function.
-   * @returns initializePromise
-   */
-  async reconnect (): Promise<void> {
-    if (this.initializePromise !== undefined) {
-      return await this.initializePromise
-    }
+  async _initialize (): Promise<void> {
+    // initialize socket
+    this.socket = this.options.getSocket()
 
-    this.initializePromise = new Promise((resolve, reject) => {
-      this.initializePromiseRes = resolve
-      this.initializePromiseRej = reject
+    this.socket.on('error', (err: Error) => {
+      // close event will trigger automatically after this event so not destroying here.
+      this.wrappedLogger.error('socket error', err)
+      this._eventSignal.dispatch({ event: 'close' })
     })
 
-    AsyncRetry(
-      async () => {
-        // initialize tcp socket and wait for it
-        await new Promise((resolve, reject) => {
-          // initialize socket
-          this.socket = this.options.getSocket()
-
-          this.socket.on('error', (err: Error) => {
-            this.state = 'CLOSING'
-            this.socket?.removeAllListeners()
-            this._eventStream.dispatch('close')
-            // close event will trigger automatically after this event so not destroying here.
-            this.wrappedLogger.error('socket error', err)
-          })
-
-          this.socket.on('close', () => {
-            this.state = 'CLOSING'
-            this.socket?.removeAllListeners()
-            this._eventStream.dispatch('close')
-            reject(Error('socket closing'))
-            this.wrappedLogger.info('socket close')
-          })
-
-          this.socket.once('ready', () => {
-            // tcp socket is ready!
-            resolve(undefined)
-            this.wrappedLogger.info('socket ready')
-          })
-        })
-
-        // after tcp socket is established, wait for handshake to be finished
-        await this.handshake(this.socket)
-
-        // no errors, socket is ready
-        if (this.state === 'INITIALIZING') {
-          this.state = 'READY'
-        }
-
-        this.socket?.on('data', this.handleData)
-        if (this.initializePromiseRes !== undefined) {
-          this.initializePromiseRes()
-        }
-      },
-      {
-        retries: 5,
-        maxTimeout: 20000
-      }
-    ).catch((e) => {
-      this.wrappedLogger.error('socket creation error', e)
-      this._eventStream.dispatch('close')
-      if (this.initializePromiseRej !== undefined) {
-        this.initializePromiseRej(e)
-      }
+    this.socket.on('close', () => {
+      this.wrappedLogger.info('socket close requested by server')
+      this._eventSignal.dispatch({ event: 'close' })
     })
 
-    return await this.initializePromise
+    this.socket.once('ready', () => {
+      this.wrappedLogger.info('socket ready')
+      this._eventSignal.dispatch({ event: 'base_socket_ready' })
+    })
+
+    this.socket.on('data', (data: Buffer) => {
+      this._dataSignal.dispatch(this.parseReceived(data))
+    })
+
+    // ready for a promise that is looking for 'socket_ready', treat all other events are failures
+    await this.eventSignal.filter(signal => signal.event === 'base_socket_ready')
+      .promisify(this.eventSignal)
   }
 
   /**
    * closes the connection. Can be reconnected via `reconnect`
    */
-  close (): void {
-    this.wrappedLogger.info('socket closed')
-    if (this.state === 'CLOSED') {
-      return
-    }
-    if (this.initializePromiseRej !== undefined) {
-      this.initializePromiseRej(undefined)
-    }
+  _onClose (): void {
     this.socket?.destroy()
     this.socket = undefined
-    this.state = 'CLOSED'
-    this.initializePromise = undefined
-    this.initializePromiseRes = undefined
-    this.initializePromiseRej = undefined
-  }
-
-  getState (): string {
-    return this.state
-  }
-
-  protected getInitializePromise (): Promise<void> | undefined {
-    return this.initializePromise
   }
 
   async send (buffer: Uint8Array | Buffer): Promise<void> {
+    await this.ensureReady()
     this.wrappedLogger.debug('sending data')
     return await new Promise((_resolve, reject) => {
-      if ((this.socket === undefined) || this.state !== 'READY') {
-        this.wrappedLogger.warn('socket is closed, send is rejected')
-        return reject(Error('socket is closed'))
-      }
-      this.socket.write(buffer, (err) => {
+      this.socket?.write(buffer, (err) => {
         if (err !== undefined) {
           this.wrappedLogger.error('socket write error', err)
           return reject(err)
         }
         this.wrappedLogger.debug('written data')
+        _resolve()
       })
     })
   }
-  protected abstract handshake (socket: Socket | TLSSocket | undefined): Promise<void>
-  protected abstract handleData (buffer: Buffer): void
+
+  async ensureReady (): Promise<void> {
+    await super.ensureReady()
+    if (this.socket === undefined) {
+      throw Error('socket is not defined')
+    }
+  }
+
+  parseReceived (data: Buffer): Message {
+    this.lastDataReceived = (new Date()).getMilliseconds()
+    const frameSize = (new Reader(data.subarray(0, 4))).fixed32()
+    const commandSize = (new Reader(data.subarray(4, 8))).fixed32()
+    const headersAndPayloadSize = frameSize - (commandSize + 4)
+
+    const command = data.subarray(8, commandSize + 8)
+    const headersAndPayload = data.subarray(commandSize + 8, commandSize + headersAndPayloadSize + 8)
+    return {
+      baseCommand: BaseCommand.decode(command),
+      headersAndPayload
+    }
+  }
+
+  getLastDataReceived (): number {
+    return this.lastDataReceived
+  }
 }

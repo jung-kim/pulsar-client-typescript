@@ -1,13 +1,13 @@
 import { Producer } from './Producer'
 import { ProducerMessage } from './ProducerMessage'
 import { WrappedLogger } from '../util/logger'
-import { Connection, ConnectionPool } from '../connection'
+import { Connection, ConnectionPool, CommandTypesResponses } from 'connection'
 import { SendRequest } from './sendRequest'
 import { CommandCloseProducer, CommandSendReceipt } from 'proto/PulsarApi'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 import { BatchBuilder } from './batchBuilder'
-import { CommandTypesResponses } from 'connection/Connection'
+import { deferred } from 'util/deferred'
 
 export class PartitionedProducer {
   readonly parent: Producer
@@ -19,14 +19,13 @@ export class PartitionedProducer {
   private readonly wrappedLogger: WrappedLogger
   private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
   private readonly epoch: number = 0
-  private sequenceId: Long | undefined = undefined
+  private deferred = deferred<CommandTypesResponses>()
 
   private readonly producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
   private readonly pendingQueues: Array<{ sentAt: number }> = []
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
 
   private readonly batchBuilder: BatchBuilder
-  private requestId: Long = new Long(0)
   readonly isReadyProm: Promise<void>
 
   constructor (producer: Producer, partitionId: number) {
@@ -95,15 +94,12 @@ export class PartitionedProducer {
   }
 
   async grabCnx (): Promise<void> {
-    const { cnx, commandProducerResponse } = await this.cnxPool.getProducerConnection(
+    const { cnx } = await this.cnxPool.getProducerConnection(
       this.producerId,
       this.topicName,
       this.producerSignal,
       this.epoch,
       this.parent.options._properties)
-    if (this.sequenceId === undefined) {
-      this.sequenceId = commandProducerResponse.requestId.add(1)
-    }
     this.cnx = cnx
 
     if (this.state === 'PRODUCER_INIT') {
@@ -112,7 +108,6 @@ export class PartitionedProducer {
     this.wrappedLogger.info('producer cnx created', {
       // cnx: this.cnx.id,
       epoch: this.epoch,
-      sequenceId: this.sequenceId,
       state: this.state
     })
 
@@ -201,14 +196,7 @@ export class PartitionedProducer {
     if (sendRequest.flushImmediately || !sendAsBatch || this.batchBuilder.isFull()) {
       return await this.flush()
     } else {
-      // sending as batch and nothing to flush return prom
-      const requestTrack = this.cnx.getRequestTrack(this.requestId)
-      if (requestTrack === undefined) {
-        const err = Error('request is not found')
-        this.wrappedLogger.error('request is not found', err, { requestId: this.requestId })
-        throw err
-      }
-      return await requestTrack.prom
+      return await this.deferred.promise
     }
   }
 
@@ -224,11 +212,12 @@ export class PartitionedProducer {
     messageMetadata.uncompressedSize = uncompressedPayload.length
     messageMetadata.numMessagesInBatch = numMessagesInBatch
     this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })
-    try {
-      return await this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload, this.requestId).prom
-    } finally {
-      this.requestId = this.requestId.add(1)
-    }
+
+    const response = await this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload)
+    this.deferred.resolve(response)
+    const prom = this.deferred.promise
+    this.deferred = deferred()
+    return await prom
   }
 
   private setFailTimeoutFunc (): void {

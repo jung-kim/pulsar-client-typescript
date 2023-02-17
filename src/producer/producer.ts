@@ -1,11 +1,10 @@
-import { ConnectionPool } from '../connection'
+import { ConnectionPool, CommandTypesResponses } from 'connection'
 import _ from 'lodash'
 import { WrappedLogger } from 'util/logger'
 import { ProducerOption, _initializeOption } from './ProducerOption'
 import { PartitionedProducer } from './partitionedProducer'
 import { BaseCommand, BaseCommand_Type, CommandPartitionedTopicMetadataResponse } from 'proto/PulsarApi'
 import { ProducerMessage } from './ProducerMessage'
-import { CommandTypesResponses } from 'connection/Connection'
 
 export class Producer {
   public readonly cnxPool: ConnectionPool

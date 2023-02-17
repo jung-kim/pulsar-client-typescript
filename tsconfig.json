@@ -14,7 +14,8 @@
       "*": ["src/*"],
     },
     "lib": ["esnext", "dom", "es6", "scripthost"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "outDir": "dist"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

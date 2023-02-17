@@ -1,11 +1,10 @@
 import { WrappedLogger } from '../util/logger'
 import { BaseCommand, BaseCommand_Type, CommandCloseProducer, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, CommandSendReceipt, KeyValue } from '../proto/PulsarApi'
-import { CommandTypesResponses, Connection } from './Connection'
+import { Connection } from './Connection'
 import { ConnectionOptions, _ConnectionOptions } from './ConnectionOptions'
 import { Signal } from 'micro-signals'
 import Long from 'long'
-
-const lookupResultMaxRedirect = 20
+import { CommandTypesResponses, LOOKUP_RESULT_MAX_REDIRECT } from '.'
 
 export class ConnectionPool {
   // These connections are not used for topic message traffics.  Rather
@@ -19,8 +18,8 @@ export class ConnectionPool {
     this.options = new _ConnectionOptions(options)
     this.wrappedLogger = new WrappedLogger({
       name: 'ConnectionPool',
-      url: this.options.url,
-      uuid: this.options.uuid
+      uuid: this.options.uuid,
+      id: `${this.options.connectionId}`
     })
   }
 
@@ -63,7 +62,7 @@ export class ConnectionPool {
     })
     let res = (await this.getAnyAdminConnection().sendCommand(lookupCommand)) as CommandLookupTopicResponse
 
-    for (let i = 0; i < lookupResultMaxRedirect; i++) {
+    for (let i = 0; i < LOOKUP_RESULT_MAX_REDIRECT; i++) {
       const logicalAddress = this.options.isTlsEnabled
         ? res.brokerServiceUrlTls
         : res.brokerServiceUrl
@@ -79,7 +78,7 @@ export class ConnectionPool {
           return logicalAddrUrl
         default:
           // increase counter so we can fail out
-          i = lookupResultMaxRedirect
+          i = LOOKUP_RESULT_MAX_REDIRECT
       }
     }
 
