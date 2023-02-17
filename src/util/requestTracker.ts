@@ -1,4 +1,5 @@
 import Long from 'long'
+import { getDeferred } from './deferred'
 
 export interface RequestTrack<T> {
   id: Long
@@ -26,30 +27,26 @@ export class RequestTracker<T> {
 
   trackRequest (timeoutMs?: number): RequestTrack<T> {
     const id = this.getRequestId()
-    let res: (response: T) => void
-    let rej: (e: any) => void
-    let timeout: ReturnType<typeof setTimeout>
+    const deferred = getDeferred<T>()
 
-    const requestTrack = {
-      id,
-      prom: new Promise<T>((resolve, reject) => {
-        res = resolve
-        rej = reject
-        if (timeoutMs !== undefined && timeoutMs > 0) {
-          timeout = setTimeout(() => {
-            rej(Error('timeout of $timeout is triggered.'))
-          }, timeoutMs)
-        }
-      }).finally(() => {
-        clearTimeout(timeout)
-        this.requestTrackMap.delete(id.toString())
-      }),
-      resolveRequest: (value: T) => { res(value) },
-      rejectRequest: (e: any) => { rej(e) }
+    try {
+      return {
+        id,
+        prom: deferred.promise,
+        resolveRequest: deferred.resolve,
+        rejectRequest: deferred.reject
+      }
+    } finally {
+      if (timeoutMs !== undefined && timeoutMs > 0) {
+        const timeout = setTimeout(() => {
+          deferred.reject(Error(`timeout of ${timeoutMs} is triggered.`))
+        }, timeoutMs)
+        deferred.promise.finally(() => {
+          clearTimeout(timeout)
+          this.requestTrackMap.delete(id.toString())
+        })
+      }
     }
-
-    this.requestTrackMap.set(id.toString(), requestTrack)
-    return requestTrack
   }
 
   get (id: Long | undefined): RequestTrack<T> | undefined {

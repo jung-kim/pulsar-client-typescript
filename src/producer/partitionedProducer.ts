@@ -7,7 +7,7 @@ import { CommandCloseProducer, CommandSendReceipt } from 'proto/PulsarApi'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 import { BatchBuilder } from './batchBuilder'
-import { deferred } from 'util/deferred'
+import { getDeferred } from 'util/deferred'
 
 export class PartitionedProducer {
   readonly parent: Producer
@@ -19,7 +19,7 @@ export class PartitionedProducer {
   private readonly wrappedLogger: WrappedLogger
   private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
   private readonly epoch: number = 0
-  private deferred = deferred<CommandTypesResponses>()
+  private deferred = getDeferred<CommandTypesResponses>()
 
   private readonly producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
   private readonly pendingQueues: Array<{ sentAt: number }> = []
@@ -216,7 +216,7 @@ export class PartitionedProducer {
     const response = await this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload)
     this.deferred.resolve(response)
     const prom = this.deferred.promise
-    this.deferred = deferred()
+    this.deferred = getDeferred()
     return await prom
   }
 
