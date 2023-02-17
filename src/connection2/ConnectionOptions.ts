@@ -45,6 +45,14 @@ export class _ConnectionOptions {
     this.connectionId = `${ip.address()} -> ${options.url}`
     this.isTlsEnabled = urlObj.protocol === 'pulsar+ssl:' || urlObj.protocol === 'https:'
     this.uuid = v4()
+
+    const logger = new WrappedLogger({uuid: this.uuid})
+    this.eventSignal.add((e: EventSignalType) => {
+      logger.debug(`event signal received: ${e.event}`)
+    })
+    this.dataSiganl.add((d: Message) => {
+      logger.debug(`data siganl received: type: ${d.baseCommand.type}`)
+    })
   }
 
   getSocket (): Socket {
