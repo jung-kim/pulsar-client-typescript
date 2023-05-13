@@ -10,9 +10,9 @@ import sinon from 'sinon'
 describe('connection.Connection', () => {
   describe('constructor', () => {
     let conn: Connection
-    let signal: Signal<Message>
+    let dataSignal: Signal<Message>
 
-    beforeEach(() => ({ conn, signal } = getConnection()))
+    beforeEach(() => ({ conn, dataSignal } = getConnection()))
     afterEach(() => conn.close())
 
     it('should be able to construct', () => {
@@ -28,7 +28,7 @@ describe('connection.Connection', () => {
         const baseCommand = createDummyBaseCommand(BaseCommand_Type.SUCCESS)
         baseCommand.success = { requestId: Long.fromInt(111), schema: undefined }
 
-        signal.dispatch({
+        dataSignal.dispatch({
           baseCommand,
           headersAndPayload: dummyBuffer
         })
@@ -52,7 +52,7 @@ describe('connection.Connection', () => {
           producerReady: false
         }
 
-        signal.dispatch({
+        dataSignal.dispatch({
           baseCommand,
           headersAndPayload: dummyBuffer
         })
@@ -75,7 +75,7 @@ describe('connection.Connection', () => {
           message: 'aaa'
         }
 
-        signal.dispatch({
+        dataSignal.dispatch({
           baseCommand,
           headersAndPayload: dummyBuffer
         })
@@ -101,7 +101,7 @@ describe('connection.Connection', () => {
           proxyThroughServiceUrl: false
         }
 
-        signal.dispatch({
+        dataSignal.dispatch({
           baseCommand,
           headersAndPayload: dummyBuffer
         })
@@ -135,7 +135,7 @@ describe('connection.Connection', () => {
           messageAckRate: 5
         }
 
-        signal.dispatch({
+        dataSignal.dispatch({
           baseCommand,
           headersAndPayload: dummyBuffer
         })
@@ -156,7 +156,7 @@ describe('connection.Connection', () => {
           consumerMarkDeletePosition: undefined
         }
 
-        signal.dispatch({
+        dataSignal.dispatch({
           baseCommand,
           headersAndPayload: dummyBuffer
         })
@@ -179,7 +179,7 @@ describe('connection.Connection', () => {
           changed: true
         }
 
-        signal.dispatch({
+        dataSignal.dispatch({
           baseCommand,
           headersAndPayload: dummyBuffer
         })
@@ -202,7 +202,7 @@ describe('connection.Connection', () => {
           schemaVersion: new Uint8Array()
         }
 
-        signal.dispatch({
+        dataSignal.dispatch({
           baseCommand,
           headersAndPayload: dummyBuffer
         })
@@ -228,7 +228,7 @@ describe('connection.Connection', () => {
           baseCommand,
           headersAndPayload: Buffer.from('error')
         }
-        signal.dispatch(message)
+        dataSignal.dispatch(message)
 
         await prom
 

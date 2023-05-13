@@ -16,9 +16,9 @@ export abstract class Initializable<T> {
   public readonly options: _ConnectionOptions
 
   constructor (name: string, options: _ConnectionOptions, logicalAddress: URL) {
-    this._eventSignal = options.getEventSignal()
+    this._eventSignal = options._eventSignal
     this.eventSignal = this._eventSignal.readOnly()
-    this._dataSignal = options.getDataSignal()
+    this._dataSignal = options._dataSignal
     this.dataSignal = this._dataSignal.readOnly()
     this.options = options
     this.wrappedLogger = options.getWrappedLogger(name, logicalAddress)

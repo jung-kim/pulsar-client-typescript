@@ -29,8 +29,8 @@ export class _ConnectionOptions {
   readonly connectionId: string
   readonly isTlsEnabled: boolean
   readonly uuid: string
-  readonly eventSignal = new Signal<EventSignalType>()
-  readonly dataSignal = new Signal<Message>()
+  readonly _eventSignal = new Signal<EventSignalType>()
+  readonly _dataSignal = new Signal<Message>()
 
   constructor (options: ConnectionOptions) {
     const urlObj = new URL(options.url)
@@ -60,14 +60,6 @@ export class _ConnectionOptions {
         port: parseInt(this.urlObj.port),
         timeout: this.connectionTimeoutMs
       })
-  }
-
-  getEventSignal (): Signal<EventSignalType> {
-    return this.eventSignal
-  }
-
-  getDataSignal (): Signal<Message> {
-    return this.dataSignal
   }
 
   getNewPulsarSocket (logicalAddress: URL): PulsarSocket {
