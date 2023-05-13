@@ -1,5 +1,5 @@
 import { Signal } from 'micro-signals'
-import { CommandCloseConsumer } from 'proto/PulsarApi'
+import { CommandCloseConsumer } from '../proto/PulsarApi'
 import { WrappedLogger } from '../util/logger'
 import { Message } from './index'
 

@@ -1,6 +1,6 @@
 import sinon from 'sinon'
 
-exports.mochaHooks = {
+export const mochaHooks = {
   afterEach () {
     sinon.restore()
   }

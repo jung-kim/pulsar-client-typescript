@@ -1,8 +1,7 @@
 import { Signal } from 'micro-signals'
 import { Socket } from 'net'
 import sinon from 'sinon'
-import { Message } from '../../../src/connection/abstractPulsarSocket'
-import { CommandTypesResponses, Connection } from '../../../src/connection/Connection'
+import { CommandTypesResponses, Connection, Message } from '../../../src/connection'
 import { _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
 import { PulsarSocket } from '../../../src/connection/pulsarSocket'
 import { BaseCommand, BaseCommand_Type } from '../../../src/proto/PulsarApi'
@@ -20,12 +19,10 @@ export const getConnection = (): {
     .callsFake(() => socket)
   const pulsarSocket = new PulsarSocket(options, logicalAddress)
   const signal = new Signal<Message>()
-  sinon.stub(options, 'getPulsarSocket')
+  sinon.stub(options, 'getNewPulsarSocket')
     .callsFake((logicalAddress: URL) => pulsarSocket)
-  sinon.stub(options, 'getDataStream')
+  sinon.stub(options, 'getDataSignal')
     .callsFake(() => signal)
-  sinon.stub(pulsarSocket, 'reconnect')
-    .callsFake(async () => {})
   const conn = new Connection(options, logicalAddress)
 
   return {

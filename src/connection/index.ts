@@ -1,5 +1,4 @@
 import os from 'os'
-import { BaseCommand, ProtocolVersion } from 'proto/PulsarApi'
 import {
   CommandConsumerStatsResponse,
   CommandGetLastMessageIdResponse,
@@ -7,7 +6,9 @@ import {
   CommandLookupTopicResponse,
   CommandPartitionedTopicMetadataResponse,
   CommandProducerSuccess,
-  CommandSuccess
+  CommandSuccess,
+  BaseCommand,
+  ProtocolVersion
 } from '../proto/PulsarApi'
 
 export { Connection } from './Connection'

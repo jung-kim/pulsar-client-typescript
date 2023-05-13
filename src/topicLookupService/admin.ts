@@ -1,5 +1,5 @@
 import * as cloud from '@streamnative/pulsar-admin-client-typescript'
-import { Auth } from 'auth'
+import { Auth } from '../auth'
 import axios, { AxiosResponse } from 'axios'
 
 const topicPartitionSeprator = '-partition-'

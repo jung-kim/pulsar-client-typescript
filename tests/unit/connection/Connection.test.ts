@@ -1,6 +1,6 @@
 import { Connection } from '../../../src/connection/Connection'
 import { expect } from 'chai'
-import { Message } from '../../../src/connection/abstractPulsarSocket'
+import { Message } from '../../../src/connection'
 import { Signal } from 'micro-signals'
 import { BaseCommand_Type } from '../../../src/proto/PulsarApi'
 import { createDummyBaseCommand, getConnection, getDefaultHandleResponseStubs } from './utils'

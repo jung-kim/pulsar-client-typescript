@@ -1,8 +1,8 @@
 import { newDefaultRouter } from './defaultRouter'
 import { ProducerMessage } from './ProducerMessage'
 import murmurHash3 from 'murmurhash3js'
-import { KeyValue } from 'proto/PulsarApi'
-import { DEFAULT_MAX_MESSAGE_SIZE } from 'connection'
+import { KeyValue } from '../proto/PulsarApi'
+import { DEFAULT_MAX_MESSAGE_SIZE } from '../connection'
 
 // defaultSendTimeout init default timeout for ack since sent.
 export const DEFAULT_SEND_TIMEOUT_MS = 30 * 1000 // 30 sec

@@ -1,6 +1,6 @@
-import { Message } from 'connection'
+import { Message } from '../connection'
 import { Socket } from 'net'
-import { BaseCommand } from 'proto/PulsarApi'
+import { BaseCommand } from '../proto/PulsarApi'
 import { Reader } from 'protobufjs'
 import { TLSSocket } from 'tls'
 import { _ConnectionOptions } from './ConnectionOptions'

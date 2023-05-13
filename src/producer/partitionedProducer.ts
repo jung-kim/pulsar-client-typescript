@@ -1,13 +1,13 @@
 import { Producer } from './Producer'
 import { ProducerMessage } from './ProducerMessage'
 import { WrappedLogger } from '../util/logger'
-import { Connection, ConnectionPool, CommandTypesResponses } from 'connection'
+import { Connection, ConnectionPool, CommandTypesResponses } from '../connection'
 import { SendRequest } from './sendRequest'
-import { CommandCloseProducer, CommandSendReceipt } from 'proto/PulsarApi'
+import { CommandCloseProducer, CommandSendReceipt } from '../proto/PulsarApi'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 import { BatchBuilder } from './batchBuilder'
-import { getDeferred } from 'util/deferred'
+import { getDeferred } from '../util/deferred'
 
 export class PartitionedProducer {
   readonly parent: Producer

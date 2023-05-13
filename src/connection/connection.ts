@@ -11,7 +11,7 @@ import { Signal } from 'micro-signals'
 import { serializeBatch } from './Commands'
 import { BaseConnection } from './baseConnection'
 import { WrappedLogger } from '../util/logger'
-import { CommandTypesResponses } from 'connection'
+import { CommandTypesResponses } from '../connection'
 
 export class Connection extends BaseConnection {
   readonly wrappedLogger: WrappedLogger

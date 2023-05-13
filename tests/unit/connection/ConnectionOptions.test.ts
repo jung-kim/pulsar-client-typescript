@@ -1,4 +1,5 @@
-import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
+import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE } from '../../../src/connection'
+import { _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
 import { expect } from 'chai'
 import ip from 'ip'
 import { OAuth } from '../../../src/auth/oauth'
