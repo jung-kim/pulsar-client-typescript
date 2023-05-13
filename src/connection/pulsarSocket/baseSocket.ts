@@ -4,32 +4,33 @@ import { BaseCommand } from '../../proto/PulsarApi'
 import { Reader } from 'protobufjs'
 import { TLSSocket } from 'tls'
 import { _ConnectionOptions } from '../ConnectionOptions'
-import { Initializable } from '../initializable'
+import { Initializable } from './initializable'
 
 /**
- * represents raw TCP socket conenction to a destination
+ * Has raw TCP socket conenction and raw functions for raw sockets
  */
-export class BaseSocket extends Initializable<void> {
-  private socket: Socket | TLSSocket | undefined = undefined
+export class BaseSocket extends Initializable {
+  public socket: Socket | TLSSocket | undefined = undefined
   private lastDataReceived: number = 0
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     super('BaseSocket', options, logicalAddress)
     this.wrappedLogger.info('base socket created')
-    this.eventSignal.add(event => {
-      switch (event.event) {
-        case 'reconnect':
-          this.initialize()
-          break
-      }
-    })
-    this._eventSignal.dispatch({ event: 'reconnect' })
+
+    this._initialize()
   }
 
-  protected async _initialize (): Promise<void> {
-    // initialize socket
+  protected _initialize = (): void => {
+    if (this.getState() !== 'INITIALIZING') {
+      this.wrappedLogger.info('abort initialization due to wrong state')
+      return
+    }
+    if (this.socket !== undefined) {
+      this.socket.destroy()
+    }
     this.socket = this.options.getSocket()
 
+    // initialize socket
     this.socket.on('error', (err: Error) => {
       // close event will trigger automatically after this event so not destroying here.
       this.wrappedLogger.error('socket error', err)
@@ -49,10 +50,6 @@ export class BaseSocket extends Initializable<void> {
     this.socket.on('data', (data: Buffer) => {
       this._dataSignal.dispatch(this.parseReceived(data))
     })
-
-    // ready for a promise that is looking for 'socket_ready', treat all other events are failures
-    await this.eventSignal.filter(signal => signal.event === 'base_socket_ready')
-      .promisify(this.eventSignal)
   }
 
   /**
@@ -65,6 +62,11 @@ export class BaseSocket extends Initializable<void> {
 
   async send (buffer: Uint8Array | Buffer): Promise<void> {
     await this.ensureReady()
+    this.wrappedLogger.debug('sending data')
+    return await this.sendUnsafe(buffer)
+  }
+
+  protected async sendUnsafe (buffer: Uint8Array | Buffer): Promise<void> {
     this.wrappedLogger.debug('sending data')
     return await new Promise((_resolve, reject) => {
       this.socket?.write(buffer, (err) => {

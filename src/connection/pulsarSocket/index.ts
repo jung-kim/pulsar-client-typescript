@@ -1,9 +1,12 @@
 import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
-import { Writer } from 'protobufjs'
 import { _ConnectionOptions } from '../ConnectionOptions'
 import { BaseSocket } from './baseSocket'
 import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from '..'
+import { commandToPayload } from './utils'
 
+/**
+ * contains pulsar specifc socket logic
+ */
 export class PulsarSocket extends BaseSocket {
   private interval: ReturnType<typeof setInterval> | undefined = undefined
   private readonly logicalAddress: URL
@@ -16,7 +19,7 @@ export class PulsarSocket extends BaseSocket {
 
     this.eventSignal.add(event => {
       switch (event.event) {
-        case 'base_socket_ready':
+        case 'reconnect':
           this.initialize()
           break
       }
@@ -38,6 +41,8 @@ export class PulsarSocket extends BaseSocket {
         }
       }
     })
+
+    this.initialize()
   }
 
   public getId (): string {
@@ -45,33 +50,16 @@ export class PulsarSocket extends BaseSocket {
   }
 
   public async writeCommand (command: BaseCommand): Promise<void> {
-    await this.ensureReady()
-
-    const marshalledCommand = BaseCommand.encode(command).finish()
-    const payload = new Uint8Array(4 + 4 + marshalledCommand.length)
-    payload.set((new Writer()).fixed32(4 + marshalledCommand.length).finish().reverse())
-    payload.set((new Writer()).fixed32(marshalledCommand.length).finish().reverse())
-    payload.set(marshalledCommand)
-
-    return await this.send(payload)
+    return await this.send(commandToPayload(command))
   }
 
-  public async send (buffer: Uint8Array | Buffer): Promise<void> {
-    return await super.send(buffer)
-  }
-
-  protected async _initialize (): Promise<void> {
-    await super._initialize()
-    await this.sendHandshake()
-
-    const res = await Promise.any([
-      this.eventSignal.filter(s => s.event === 'pulsar_socket_ready').promisify(),
-      this.eventSignal.filter(s => s.event === 'pulsar_socket_error').promisify()
-    ])
-
-    if (res.event === 'pulsar_socket_error') {
-      throw res.err ?? Error('Unknown error during initialize')
+  protected _initialize = (): void => {
+    if (this.getState() !== 'INITIALIZING') {
+      this.wrappedLogger.info('abort initialization due to wrong state')
+      return
     }
+    super._initialize()
+    void this.sendHandshake()
   }
 
   protected _onClose (): void {
@@ -80,10 +68,8 @@ export class PulsarSocket extends BaseSocket {
   }
 
   protected async sendHandshake (): Promise<void> {
-    await this.ensureReady()
-
     const authData = await this.options.auth.getToken()
-    const payload = BaseCommand.fromJSON({
+    const handshake = BaseCommand.fromJSON({
       type: BaseCommand_Type.CONNECT,
       connect: {
         protocolVersion: PROTOCOL_VERSION,
@@ -96,7 +82,7 @@ export class PulsarSocket extends BaseSocket {
         proxyToBrokerUrl: this.logicalAddress.href === this.options.urlObj.href ? undefined : this.logicalAddress.host
       }
     })
-    await this.writeCommand(payload)
+    await this.sendUnsafe(commandToPayload(handshake))
   }
 
   protected receiveHandshake (baseCommand: BaseCommand): void {
@@ -110,7 +96,7 @@ export class PulsarSocket extends BaseSocket {
           { baseCommandType: baseCommand.type }
         )
       }
-      this._eventSignal.dispatch({ event: 'pulsar_socket_error' })
+      this._eventSignal.dispatch({ event: 'pulsar_socket_error', err: Error(baseCommand.error?.toString()) })
       return
     }
 

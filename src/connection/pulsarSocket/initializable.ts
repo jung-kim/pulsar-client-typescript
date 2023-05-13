@@ -4,9 +4,12 @@ import { ReadableSignal, Signal } from 'micro-signals'
 import { WrappedLogger } from '../../util/logger'
 import { _ConnectionOptions } from '../ConnectionOptions'
 
-export abstract class Initializable<T> {
+/**
+ * handles state and state's transitions for the pulsar socket
+ */
+export abstract class Initializable {
   private state: 'INITIALIZING' | 'READY' | 'CLOSED' = 'INITIALIZING'
-  protected initializePromise: Promise<T> | undefined = undefined
+  protected initializePromise: Promise<void> | undefined = undefined
   protected readonly wrappedLogger: WrappedLogger
 
   public readonly _eventSignal: Signal<EventSignalType>
@@ -28,21 +31,31 @@ export abstract class Initializable<T> {
         case 'close':
           this.onClose()
           break
+        case 'pulsar_socket_ready':
+          if (this.state === 'INITIALIZING') {
+            this.state = 'READY'
+          }
       }
     })
   }
 
-  protected abstract _initialize (): Promise<T>
+  protected abstract _initialize (): void
   protected abstract _onClose (): void
 
   initialize (): void {
     if (this.initializePromise === undefined) {
       this.state = 'INITIALIZING'
-      this.initializePromise = AsyncRetry(this._initialize.bind(this), { retries: 5, maxTimeout: 5000 })
-        .then((v: T) => {
-          this.state = 'READY'
-          return v
-        })
+      this.initializePromise = AsyncRetry(async (bail: (e: Error) => void) => {
+        try {
+          return this._initialize()
+        } catch (e: any) {
+          if (e?.code === 'ERR_SOCKET_CLOSED' || e?.code === 'ERR_STREAM_DESTROYED') {
+            // closed socket, bail out of retry
+            bail(e)
+          }
+          throw e
+        }
+      }, { retries: 5, maxTimeout: 5000 })
         .catch((e) => {
           this._eventSignal.dispatch({ event: 'close' })
           throw e
