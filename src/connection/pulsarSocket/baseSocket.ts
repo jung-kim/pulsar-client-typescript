@@ -1,10 +1,10 @@
-import { Message } from '../connection'
+import { Message } from '..'
 import { Socket } from 'net'
-import { BaseCommand } from '../proto/PulsarApi'
+import { BaseCommand } from '../../proto/PulsarApi'
 import { Reader } from 'protobufjs'
 import { TLSSocket } from 'tls'
-import { _ConnectionOptions } from './ConnectionOptions'
-import { Initializable } from './initializable'
+import { _ConnectionOptions } from '../ConnectionOptions'
+import { Initializable } from '../initializable'
 
 /**
  * represents raw TCP socket conenction to a destination

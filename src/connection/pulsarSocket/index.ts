@@ -1,8 +1,8 @@
-import { BaseCommand, BaseCommand_Type } from '../proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
 import { Writer } from 'protobufjs'
-import { _ConnectionOptions } from './ConnectionOptions'
+import { _ConnectionOptions } from '../ConnectionOptions'
 import { BaseSocket } from './baseSocket'
-import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from '.'
+import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from '..'
 
 export class PulsarSocket extends BaseSocket {
   private interval: ReturnType<typeof setInterval> | undefined = undefined

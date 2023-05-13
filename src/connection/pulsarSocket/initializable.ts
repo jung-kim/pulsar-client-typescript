@@ -1,8 +1,8 @@
 import AsyncRetry from 'async-retry'
-import { EventSignalType, Message } from '.'
+import { EventSignalType, Message } from '..'
 import { ReadableSignal, Signal } from 'micro-signals'
-import { WrappedLogger } from '../util/logger'
-import { _ConnectionOptions } from './ConnectionOptions'
+import { WrappedLogger } from '../../util/logger'
+import { _ConnectionOptions } from '../ConnectionOptions'
 
 export abstract class Initializable<T> {
   private state: 'INITIALIZING' | 'READY' | 'CLOSED' = 'INITIALIZING'
