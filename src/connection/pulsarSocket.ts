@@ -2,18 +2,15 @@ import { BaseCommand, BaseCommand_Type } from '../proto/PulsarApi'
 import { Writer } from 'protobufjs'
 import { _ConnectionOptions } from './ConnectionOptions'
 import { BaseSocket } from './baseSocket'
-import { Initializable } from './initializable'
 import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from '.'
 
-export class PulsarSocket extends Initializable<void> {
+export class PulsarSocket extends BaseSocket {
   private interval: ReturnType<typeof setInterval> | undefined = undefined
   private readonly logicalAddress: URL
   private readonly id: string
-  public readonly baseSocket: BaseSocket
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    super('PulsarSocket', options, logicalAddress)
-    this.baseSocket = new BaseSocket(options, logicalAddress)
+    super(options, logicalAddress)
     this.logicalAddress = logicalAddress
     this.id = `${options.connectionId}-${logicalAddress.host}`
 
@@ -56,14 +53,15 @@ export class PulsarSocket extends Initializable<void> {
     payload.set((new Writer()).fixed32(marshalledCommand.length).finish().reverse())
     payload.set(marshalledCommand)
 
-    return await this.baseSocket.send(payload)
+    return await this.send(payload)
   }
 
   public async send (buffer: Uint8Array | Buffer): Promise<void> {
-    return await this.baseSocket.send(buffer)
+    return await super.send(buffer)
   }
 
   protected async _initialize (): Promise<void> {
+    await super._initialize()
     await this.sendHandshake()
 
     const res = await Promise.any([
@@ -82,7 +80,7 @@ export class PulsarSocket extends Initializable<void> {
   }
 
   protected async sendHandshake (): Promise<void> {
-    await this.baseSocket.ensureReady()
+    await this.ensureReady()
 
     const authData = await this.options.auth.getToken()
     const payload = BaseCommand.fromJSON({
@@ -130,7 +128,7 @@ export class PulsarSocket extends Initializable<void> {
   private handleInterval (): void {
     this.sendPing()
 
-    if (this.baseSocket.getLastDataReceived() + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
+    if (this.getLastDataReceived() + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
       // stale connection, closing
       this.wrappedLogger.info('stale connection, closing')
       this._eventSignal.dispatch({ event: 'close' })

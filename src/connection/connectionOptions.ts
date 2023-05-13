@@ -23,14 +23,14 @@ export class _ConnectionOptions {
   readonly auth: Auth
   readonly connectionTimeoutMs: number
   readonly keepAliveIntervalMs: number
-  maxMessageSize: number // maybe modified later after connection is established
+  maxMessageSize: number // maybe modified later after connection is established from server response
   readonly listenerName: string
   readonly urlObj: URL
   readonly connectionId: string
   readonly isTlsEnabled: boolean
   readonly uuid: string
   readonly eventSignal = new Signal<EventSignalType>()
-  readonly dataSiganl = new Signal<Message>()
+  readonly dataSignal = new Signal<Message>()
 
   constructor (options: ConnectionOptions) {
     const urlObj = new URL(options.url)
@@ -45,14 +45,6 @@ export class _ConnectionOptions {
     this.connectionId = `${ip.address()} -> ${options.url}`
     this.isTlsEnabled = urlObj.protocol === 'pulsar+ssl:' || urlObj.protocol === 'https:'
     this.uuid = v4()
-
-    const logger = new WrappedLogger({ uuid: this.uuid })
-    this.eventSignal.add((e: EventSignalType) => {
-      logger.debug(`event signal received: ${e.event}`)
-    })
-    this.dataSiganl.add((d: Message) => {
-      logger.debug(`data siganl received: type: ${d.baseCommand.type}`)
-    })
   }
 
   getSocket (): Socket {
@@ -75,7 +67,7 @@ export class _ConnectionOptions {
   }
 
   getDataSignal (): Signal<Message> {
-    return this.dataSiganl
+    return this.dataSignal
   }
 
   getNewPulsarSocket (logicalAddress: URL): PulsarSocket {

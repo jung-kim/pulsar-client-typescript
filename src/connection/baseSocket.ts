@@ -26,7 +26,7 @@ export class BaseSocket extends Initializable<void> {
     this._eventSignal.dispatch({ event: 'reconnect' })
   }
 
-  async _initialize (): Promise<void> {
+  protected async _initialize (): Promise<void> {
     // initialize socket
     this.socket = this.options.getSocket()
 
@@ -58,7 +58,7 @@ export class BaseSocket extends Initializable<void> {
   /**
    * closes the connection. Can be reconnected via `reconnect`
    */
-  _onClose (): void {
+  protected _onClose (): void {
     this.socket?.destroy()
     this.socket = undefined
   }

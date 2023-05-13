@@ -38,8 +38,8 @@ export abstract class Initializable<T> {
   initialize (): void {
     if (this.initializePromise === undefined) {
       this.state = 'INITIALIZING'
-      this.initializePromise = AsyncRetry(this._initialize, { retries: 5, maxTimeout: 5000 })
-        .then((v) => {
+      this.initializePromise = AsyncRetry(this._initialize.bind(this), { retries: 5, maxTimeout: 5000 })
+        .then((v: T) => {
           this.state = 'READY'
           return v
         })
@@ -54,6 +54,7 @@ export abstract class Initializable<T> {
     this._onClose()
     this.wrappedLogger.info('close requested')
     this.initializePromise = undefined
+    this.options.getSocket().destroy()
     this.state = 'CLOSED'
   }
 

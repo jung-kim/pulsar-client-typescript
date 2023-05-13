@@ -19,7 +19,7 @@ export abstract class BaseConnection {
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     this.options = options
-    this.socket = new PulsarSocket(options, logicalAddress)
+    this.socket = options.getNewPulsarSocket(logicalAddress)
 
     // register producer listener
     this.producerListeners = new ProducerListeners(this.socket.getId())

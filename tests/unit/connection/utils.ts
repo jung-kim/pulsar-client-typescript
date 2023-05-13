@@ -17,12 +17,12 @@ export const getConnection = (): {
   const socket = new Socket({})
   sinon.stub(options, 'getSocket')
     .callsFake(() => socket)
-  const pulsarSocket = new PulsarSocket(options, logicalAddress)
   const signal = new Signal<Message>()
-  sinon.stub(options, 'getNewPulsarSocket')
-    .callsFake((logicalAddress: URL) => pulsarSocket)
   sinon.stub(options, 'getDataSignal')
     .callsFake(() => signal)
+  const pulsarSocket = new PulsarSocket(options, logicalAddress)
+  sinon.stub(options, 'getNewPulsarSocket')
+    .callsFake(() => pulsarSocket)
   const conn = new Connection(options, logicalAddress)
 
   return {
