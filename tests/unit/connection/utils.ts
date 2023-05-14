@@ -17,7 +17,7 @@ export const getConnection = (): {
   const logicalAddress = new URL('pulsar://a.b')
   const socket = new Socket({})
   sinon.stub(options, 'getSocket')
-    .callsFake(() => socket)
+    .callsFake(async () => socket)
   const pulsarSocket = new PulsarSocket(options, logicalAddress)
   sinon.stub(options, 'getNewPulsarSocket')
     .callsFake(() => pulsarSocket)

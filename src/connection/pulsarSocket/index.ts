@@ -17,19 +17,8 @@ export class PulsarSocket extends BaseSocket {
     this.logicalAddress = logicalAddress
     this.id = `${options.connectionId}-${logicalAddress.host}`
 
-    this.eventSignal.add(event => {
-      switch (event.event) {
-        case 'reconnect':
-          this.initialize()
-          break
-      }
-    })
-
     this.dataSignal.add(message => {
-      if (this.getState() === 'INITIALIZING') {
-        // message received during "initializing" is assumed to be from handshake effort.
-        this.receiveHandshake(message.baseCommand)
-      } else {
+      if (this.getState() === 'READY') {
         // when ready, handle normal data stream for pingpongs
         switch (message.baseCommand.type) {
           case BaseCommand_Type.PING:
@@ -42,7 +31,7 @@ export class PulsarSocket extends BaseSocket {
       }
     })
 
-    this.initialize()
+    this._eventSignal.dispatch({ event: 'connect' })
   }
 
   public getId (): string {
@@ -51,15 +40,6 @@ export class PulsarSocket extends BaseSocket {
 
   public async writeCommand (command: BaseCommand): Promise<void> {
     return await this.send(commandToPayload(command))
-  }
-
-  protected _initialize = (): void => {
-    if (this.getState() !== 'INITIALIZING') {
-      this.wrappedLogger.info('abort initialization due to wrong state')
-      return
-    }
-    super._initialize()
-    void this.sendHandshake()
   }
 
   protected _onClose (): void {
@@ -86,18 +66,13 @@ export class PulsarSocket extends BaseSocket {
   }
 
   protected receiveHandshake (baseCommand: BaseCommand): void {
-    if (baseCommand.connected === undefined) {
-      if (baseCommand.error !== undefined) {
-        this.wrappedLogger.error('error during handshake', baseCommand.error)
-      } else {
-        this.wrappedLogger.error(
-          'unkonwn base command was received',
-          undefined,
-          { baseCommandType: baseCommand.type }
-        )
-      }
-      this._eventSignal.dispatch({ event: 'pulsar_socket_error', err: Error(baseCommand.error?.toString()) })
-      return
+    if (baseCommand.connected === undefined || baseCommand.error !== undefined) {
+      this.wrappedLogger.error(
+        'error during handshake',
+        baseCommand.error,
+        { baseCommandType: baseCommand.type }
+      )
+      throw Error('error while receiving handshake', { cause: baseCommand.error })
     }
 
     if ((baseCommand.connected?.maxMessageSize ?? 0) > 0 && baseCommand.connected?.maxMessageSize > 0) {
@@ -108,7 +83,6 @@ export class PulsarSocket extends BaseSocket {
 
     this.wrappedLogger.info('connected!!')
     this.interval = setInterval((this.handleInterval.bind(this)), this.options.keepAliveIntervalMs)
-    this._eventSignal.dispatch({ event: 'pulsar_socket_ready' })
   }
 
   private handleInterval (): void {

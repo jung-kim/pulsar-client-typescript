@@ -22,13 +22,12 @@ export class Connection extends BaseConnection {
   }
 
   async reconnect (): Promise<void> {
-    this.socket._eventSignal.dispatch({ event: 'reconnect' })
-    return await this.socket.ensureReady()
+    throw Error('not implemented')
   }
 
   close (): void {
     this.requestTracker.clear()
-    this.socket._eventSignal.dispatch({ event: 'close' })
+    this.pulsarSocket._eventSignal.dispatch({ event: 'close' })
   }
 
   registerProducerListener (id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>): void {
@@ -48,7 +47,7 @@ export class Connection extends BaseConnection {
       }
     })
 
-    this.socket.writeCommand(cmd)
+    this.pulsarSocket.writeCommand(cmd)
       .catch(e => requestTrack.rejectRequest(e))
 
     return await requestTrack.prom
@@ -66,17 +65,17 @@ export class Connection extends BaseConnection {
 
     messageMetadata.sequenceId = requestTrack.id
 
-    this.socket.send(serializeBatch(sendCommand, messageMetadata, uncompressedPayload))
+    this.pulsarSocket.send(serializeBatch(sendCommand, messageMetadata, uncompressedPayload))
       .catch(e => requestTrack.rejectRequest(e))
 
     return await requestTrack.prom
   }
 
   isReady (): boolean {
-    return this.socket.getState() === 'READY'
+    return this.pulsarSocket.getState() === 'READY'
   }
 
   async ensureReady (): Promise<void> {
-    return await this.socket.ensureReady()
+    return await this.pulsarSocket.ensureReady()
   }
 }

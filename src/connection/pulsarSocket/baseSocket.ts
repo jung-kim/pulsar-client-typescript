@@ -9,26 +9,21 @@ import { Initializable } from './initializable'
 /**
  * Has raw TCP socket conenction and raw functions for raw sockets
  */
-export class BaseSocket extends Initializable {
-  public socket: Socket | TLSSocket | undefined = undefined
+export abstract class BaseSocket extends Initializable {
+  protected socket: Socket | TLSSocket | undefined = undefined
+  private readonly socketPromise = this.options.getSocket()
   private lastDataReceived: number = 0
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     super('BaseSocket', options, logicalAddress)
     this.wrappedLogger.info('base socket created')
-
-    this._initialize()
   }
 
-  protected _initialize = (): void => {
-    if (this.getState() !== 'INITIALIZING') {
-      this.wrappedLogger.info('abort initialization due to wrong state')
-      return
-    }
+  protected initializeRawSocket = (socket: Socket): void => {
     if (this.socket !== undefined) {
       this.socket.destroy()
     }
-    this.socket = this.options.getSocket()
+    this.socket = socket
 
     // initialize socket
     this.socket.on('error', (err: Error) => {
@@ -40,11 +35,6 @@ export class BaseSocket extends Initializable {
     this.socket.on('close', () => {
       this.wrappedLogger.info('socket close requested by server')
       this._eventSignal.dispatch({ event: 'close' })
-    })
-
-    this.socket.once('ready', () => {
-      this.wrappedLogger.info('socket ready')
-      this._eventSignal.dispatch({ event: 'base_socket_ready' })
     })
 
     this.socket.on('data', (data: Buffer) => {
@@ -78,13 +68,6 @@ export class BaseSocket extends Initializable {
         _resolve()
       })
     })
-  }
-
-  async ensureReady (): Promise<void> {
-    await super.ensureReady()
-    if (this.socket === undefined) {
-      throw Error('socket is not defined')
-    }
   }
 
   parseReceived (data: Buffer): Message {

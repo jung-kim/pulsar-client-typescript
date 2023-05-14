@@ -8,6 +8,7 @@ import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_
 import { Signal } from 'micro-signals'
 import { PulsarSocket } from './pulsarSocket'
 import { WrappedLogger } from '../util/logger'
+import { getDeferred } from '../../src/util/deferred'
 
 export interface ConnectionOptions {
   url: string
@@ -47,8 +48,8 @@ export class _ConnectionOptions {
     this.uuid = v4()
   }
 
-  getSocket (): Socket {
-    return this.isTlsEnabled
+  async getSocket (): Promise<Socket> {
+    const socket = this.isTlsEnabled
       ? connect({
         host: this.urlObj.hostname,
         port: parseInt(this.urlObj.port),
@@ -60,6 +61,28 @@ export class _ConnectionOptions {
         port: parseInt(this.urlObj.port),
         timeout: this.connectionTimeoutMs
       })
+    const baseSocketDeferred = getDeferred<Socket>()
+
+    const timeout = setTimeout(() => {
+      baseSocketDeferred.reject()
+    }, this.connectionTimeoutMs)
+
+    socket.on('close', () => {
+      clearTimeout(timeout)
+      socket.destroy()
+      baseSocketDeferred.reject()
+    })
+    socket.on('error', (err: Error) => {
+      clearTimeout(timeout)
+      socket.destroy()
+      baseSocketDeferred.reject(err)
+    })
+    socket.once('ready', () => {
+      clearTimeout(timeout)
+      baseSocketDeferred.resolve(socket)
+    })
+
+    return await baseSocketDeferred.promise
   }
 
   getNewPulsarSocket (logicalAddress: URL): PulsarSocket {

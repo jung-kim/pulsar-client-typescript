@@ -9,7 +9,7 @@ import { PulsarSocket } from './pulsarSocket'
 import { Signal } from 'micro-signals'
 
 export abstract class BaseConnection {
-  protected readonly socket: PulsarSocket
+  protected readonly pulsarSocket: PulsarSocket
   protected readonly producerListeners: ProducerListeners
   protected readonly consumerLinsteners: ConsumerListeners
   protected readonly requestTracker = new RequestTracker<CommandTypesResponses>()
@@ -19,13 +19,13 @@ export abstract class BaseConnection {
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     this.options = options
-    this.socket = options.getNewPulsarSocket(logicalAddress)
+    this.pulsarSocket = options.getNewPulsarSocket(logicalAddress)
 
     // register producer listener
-    this.producerListeners = new ProducerListeners(this.socket.getId())
-    this.consumerLinsteners = new ConsumerListeners(this.socket.getId())
+    this.producerListeners = new ProducerListeners(this.pulsarSocket.getId())
+    this.consumerLinsteners = new ConsumerListeners(this.pulsarSocket.getId())
 
-    this.socket.dataSignal.add((message: Message) => {
+    this.pulsarSocket.dataSignal.add((message: Message) => {
       switch (message.baseCommand.type) {
         case BaseCommand_Type.SUCCESS:
           if (message.baseCommand.success !== undefined) {
@@ -129,7 +129,7 @@ export abstract class BaseConnection {
           }
         }
       })
-      return await this.socket.writeCommand(payload)
+      return await this.pulsarSocket.writeCommand(payload)
     } catch (e) {
       this.wrappedLogger.error('auth challeng failed', e)
     }

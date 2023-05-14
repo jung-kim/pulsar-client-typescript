@@ -1,15 +1,18 @@
-import AsyncRetry from 'async-retry'
 import { EventSignalType, Message } from '..'
 import { ReadableSignal, Signal } from 'micro-signals'
 import { WrappedLogger } from '../../util/logger'
 import { _ConnectionOptions } from '../ConnectionOptions'
+import { getDeferred } from '../../../src/util/deferred'
+import { BaseCommand } from '../../../src/proto/PulsarApi'
+import { Socket } from 'net'
+import { STATE } from '../'
 
 /**
  * handles state and state's transitions for the pulsar socket
  */
 export abstract class Initializable {
-  private state: 'INITIALIZING' | 'READY' | 'CLOSED' = 'INITIALIZING'
-  protected initializePromise: Promise<void> | undefined = undefined
+  private state: STATE = 'INITIALIZING'
+  private readonly initializeDeferrred = getDeferred<unknown>()
   protected readonly wrappedLogger: WrappedLogger
 
   public readonly _eventSignal: Signal<EventSignalType>
@@ -26,62 +29,66 @@ export abstract class Initializable {
     this.options = options
     this.wrappedLogger = options.getWrappedLogger(name, logicalAddress)
 
-    this.eventSignal.add(event => {
-      switch (event.event) {
+    this.eventSignal.add(payload => {
+      switch (payload.event) {
         case 'close':
           this.onClose()
           break
-        case 'pulsar_socket_ready':
-          if (this.state === 'INITIALIZING') {
-            this.state = 'READY'
-          }
+        case 'connect':
+          this.options.getSocket()
+            .then(this.initializeRawSocket.bind(this))
+            .catch((e) => {
+              this.wrappedLogger.error('failed to initialize socket', e)
+              this._eventSignal.dispatch({ event: 'close' })
+            })
+            .then(this.sendHandshake.bind(this))
+            .catch((e) => {
+              this.wrappedLogger.error('failed during handshake', e)
+              this._eventSignal.dispatch({ event: 'close' })
+            })
+          break
+      }
+    })
+
+    this.dataSignal.add(message => {
+      if (this.getState() === 'INITIALIZING') {
+        // message received during "initializing" is assumed to be from handshake effort.
+        try {
+          this.receiveHandshake(message.baseCommand)
+          this.onReady()
+        } catch {
+          this.onClose()
+        }
       }
     })
   }
 
-  protected abstract _initialize (): void
+  protected abstract initializeRawSocket: (socket: Socket) => void
+  protected abstract sendHandshake (): Promise<void>
+  protected abstract receiveHandshake (baseCommand: BaseCommand): void
   protected abstract _onClose (): void
-
-  initialize (): void {
-    if (this.initializePromise === undefined) {
-      this.state = 'INITIALIZING'
-      this.initializePromise = AsyncRetry(async (bail: (e: Error) => void) => {
-        try {
-          return this._initialize()
-        } catch (e: any) {
-          if (e?.code === 'ERR_SOCKET_CLOSED' || e?.code === 'ERR_STREAM_DESTROYED') {
-            // closed socket, bail out of retry
-            bail(e)
-          }
-          throw e
-        }
-      }, { retries: 5, maxTimeout: 5000 })
-        .catch((e) => {
-          this._eventSignal.dispatch({ event: 'close' })
-          throw e
-        })
-    }
-  }
 
   private onClose (): void {
     this._onClose()
     this.wrappedLogger.info('close requested')
-    this.initializePromise = undefined
-    this.options.getSocket().destroy()
+    this.initializeDeferrred.reject()
     this.state = 'CLOSED'
   }
 
-  async ensureReady (): Promise<void> {
-    if (this.initializePromise === undefined) {
-      throw Error('Not initialized.')
-    }
-    await this.initializePromise
+  private onReady (): void {
+    this.initializeDeferrred.resolve(undefined)
+    this.state = 'READY'
+    this._eventSignal.dispatch({ event: 'ready' })
+  }
+
+  public async ensureReady (): Promise<void> {
+    await this.initializeDeferrred.promise
     if (this.state !== 'READY') {
       throw Error('Not initialized')
     }
   }
 
-  getState (): 'INITIALIZING' | 'READY' | 'CLOSED' {
+  public getState (): STATE {
     return this.state
   }
 }
