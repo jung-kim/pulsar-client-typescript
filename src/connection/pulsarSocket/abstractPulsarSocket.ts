@@ -1,21 +1,23 @@
-import { EventSignalType, Message } from '..'
+import { EventSignalType, Message, STATE } from '..'
 import { ReadableSignal, Signal } from 'micro-signals'
 import { WrappedLogger } from '../../util/logger'
 import { _ConnectionOptions } from '../ConnectionOptions'
-import { getDeferred } from '../../../src/util/deferred'
-import { STATE } from '../'
+import { getDeferred } from '../../util/deferred'
+import { BaseCommand } from '../../../src/proto/PulsarApi'
+import { commandToPayload } from './utils'
 
 /**
  * handles state and state's transitions for the pulsar socket
  */
-export abstract class Initializable {
+export abstract class AbstractPulsarSocket {
   private state: STATE = 'INITIALIZING'
   private readonly initializeDeferrred = getDeferred<undefined>()
+  private readonly id: string
   protected readonly wrappedLogger: WrappedLogger
 
-  public readonly _eventSignal: Signal<EventSignalType>
+  protected readonly _eventSignal: Signal<EventSignalType>
   public readonly eventSignal: ReadableSignal<EventSignalType>
-  public readonly _dataSignal: Signal<Message>
+  protected readonly _dataSignal: Signal<Message>
   public readonly dataSignal: ReadableSignal<Message>
   public readonly options: _ConnectionOptions
 
@@ -26,6 +28,7 @@ export abstract class Initializable {
     this.dataSignal = this._dataSignal.readOnly()
     this.options = options
     this.wrappedLogger = options.getWrappedLogger(name, logicalAddress)
+    this.id = `${options.connectionId}-${logicalAddress.host}`
 
     this.eventSignal.add(payload => {
       switch (payload.event) {
@@ -42,13 +45,23 @@ export abstract class Initializable {
   private onClose (): void {
     this.initializeDeferrred.resolve(undefined)
     this.state = 'CLOSED'
-    this.wrappedLogger.info('closed initializable')
+    this.wrappedLogger.info('closed abstract pulsar socket')
   }
 
   private onReady (): void {
     this.initializeDeferrred.resolve(undefined)
     this.state = 'READY'
     this._eventSignal.dispatch({ event: 'ready' })
+  }
+
+  public abstract send (buffer: Uint8Array | Buffer): Promise<void>
+
+  public getId (): string {
+    return this.id
+  }
+
+  public async writeCommand (command: BaseCommand): Promise<void> {
+    return await this.send(commandToPayload(command))
   }
 
   public async ensureReady (): Promise<void> {
@@ -60,5 +73,9 @@ export abstract class Initializable {
 
   public getState (): STATE {
     return this.state
+  }
+
+  public close (): void {
+    this._eventSignal.dispatch({ event: 'close' })
   }
 }

@@ -4,7 +4,7 @@ import { v4 } from 'uuid'
 import ip from 'ip'
 import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, EventSignalType, Message } from './index'
 import { Signal } from 'micro-signals'
-import { PulsarSocket } from './pulsarSocket'
+import { PulsarSocket } from './pulsarSocket/pulsarSocket'
 import { WrappedLogger } from '../util/logger'
 
 export interface ConnectionOptions {

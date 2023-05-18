@@ -5,7 +5,7 @@ import { RequestTracker } from '../util/requestTracker'
 import { _ConnectionOptions } from './ConnectionOptions'
 import { ConsumerListeners } from './consumerListeners'
 import { ProducerListeners } from './producerListeners'
-import { PulsarSocket } from './pulsarSocket'
+import { PulsarSocket } from './pulsarSocket/pulsarSocket'
 import { Signal } from 'micro-signals'
 
 export abstract class BaseConnection {

@@ -27,7 +27,7 @@ export class Connection extends BaseConnection {
 
   close (): void {
     this.requestTracker.clear()
-    this.pulsarSocket._eventSignal.dispatch({ event: 'close' })
+    this.pulsarSocket.close()
   }
 
   registerProducerListener (id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>): void {
