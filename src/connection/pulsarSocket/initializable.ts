@@ -3,8 +3,6 @@ import { ReadableSignal, Signal } from 'micro-signals'
 import { WrappedLogger } from '../../util/logger'
 import { _ConnectionOptions } from '../ConnectionOptions'
 import { getDeferred } from '../../../src/util/deferred'
-import { BaseCommand } from '../../../src/proto/PulsarApi'
-import { Socket } from 'net'
 import { STATE } from '../'
 
 /**
@@ -12,7 +10,7 @@ import { STATE } from '../'
  */
 export abstract class Initializable {
   private state: STATE = 'INITIALIZING'
-  private readonly initializeDeferrred = getDeferred<unknown>()
+  private readonly initializeDeferrred = getDeferred<undefined>()
   protected readonly wrappedLogger: WrappedLogger
 
   public readonly _eventSignal: Signal<EventSignalType>
@@ -34,45 +32,17 @@ export abstract class Initializable {
         case 'close':
           this.onClose()
           break
-        case 'connect':
-          this.options.getSocket()
-            .then(this.initializeRawSocket.bind(this))
-            .catch((e) => {
-              this.wrappedLogger.error('failed to initialize socket', e)
-              this._eventSignal.dispatch({ event: 'close' })
-            })
-            .then(this.sendHandshake.bind(this))
-            .catch((e) => {
-              this.wrappedLogger.error('failed during handshake', e)
-              this._eventSignal.dispatch({ event: 'close' })
-            })
-          break
-      }
-    })
-
-    this.dataSignal.add(message => {
-      if (this.getState() === 'INITIALIZING') {
-        // message received during "initializing" is assumed to be from handshake effort.
-        try {
-          this.receiveHandshake(message.baseCommand)
+        case 'handshake_success':
           this.onReady()
-        } catch {
-          this.onClose()
-        }
+          break
       }
     })
   }
 
-  protected abstract initializeRawSocket: (socket: Socket) => void
-  protected abstract sendHandshake (): Promise<void>
-  protected abstract receiveHandshake (baseCommand: BaseCommand): void
-  protected abstract _onClose (): void
-
   private onClose (): void {
-    this._onClose()
-    this.wrappedLogger.info('close requested')
-    this.initializeDeferrred.reject()
+    this.initializeDeferrred.resolve(undefined)
     this.state = 'CLOSED'
+    this.wrappedLogger.info('closed initializable')
   }
 
   private onReady (): void {

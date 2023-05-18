@@ -1,8 +1,8 @@
 import { Message } from '..'
-import { Socket } from 'net'
-import { BaseCommand } from '../../proto/PulsarApi'
+import { createConnection, Socket } from 'net'
+import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
 import { Reader } from 'protobufjs'
-import { TLSSocket } from 'tls'
+import { connect, TLSSocket } from 'tls'
 import { _ConnectionOptions } from '../ConnectionOptions'
 import { Initializable } from './initializable'
 
@@ -11,43 +11,90 @@ import { Initializable } from './initializable'
  */
 export abstract class BaseSocket extends Initializable {
   protected socket: Socket | TLSSocket | undefined = undefined
-  private readonly socketPromise = this.options.getSocket()
   private lastDataReceived: number = 0
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     super('BaseSocket', options, logicalAddress)
     this.wrappedLogger.info('base socket created')
+
+    this._eventSignal.add((payload) => {
+      switch (payload.event) {
+        case 'close':
+          this.closeRawSocket()
+          break
+        case 'connect':
+          this.initialize()
+          break
+      }
+    })
   }
 
-  protected initializeRawSocket = (socket: Socket): void => {
-    if (this.socket !== undefined) {
-      this.socket.destroy()
-    }
-    this.socket = socket
+  protected abstract receiveHandshake (baseCommand: BaseCommand): void
 
-    // initialize socket
-    this.socket.on('error', (err: Error) => {
-      // close event will trigger automatically after this event so not destroying here.
-      this.wrappedLogger.error('socket error', err)
+  protected initialize = (): void => {
+    this.socket?.destroy()
+    this.socket = this.options.isTlsEnabled
+      ? connect({
+        host: this.options.urlObj.hostname,
+        port: parseInt(this.options.urlObj.port),
+        servername: this.options.urlObj.hostname,
+        timeout: this.options.connectionTimeoutMs
+      })
+      : createConnection({
+        host: this.options.urlObj.hostname,
+        port: parseInt(this.options.urlObj.port),
+        timeout: this.options.connectionTimeoutMs
+      })
+
+    const timeout = setTimeout(() => {
       this._eventSignal.dispatch({ event: 'close' })
-    })
+      this.wrappedLogger.error('raw socket connection timeout')
+    }, this.options.connectionTimeoutMs)
 
     this.socket.on('close', () => {
-      this.wrappedLogger.info('socket close requested by server')
+      clearTimeout(timeout)
       this._eventSignal.dispatch({ event: 'close' })
+      this.wrappedLogger.info('raw socket close requested by server')
+    })
+
+    this.socket.on('error', (err: Error) => {
+      clearTimeout(timeout)
+      this._eventSignal.dispatch({ event: 'close', err })
+      this.wrappedLogger.info('raw socket error')
     })
 
     this.socket.on('data', (data: Buffer) => {
-      this._dataSignal.dispatch(this.parseReceived(data))
+      const message = this.parseReceived(data)
+
+      switch (message.baseCommand.type) {
+        case BaseCommand_Type.PING:
+          this._eventSignal.dispatch({ event: 'ping' })
+          break
+        case BaseCommand_Type.PONG:
+          this._eventSignal.dispatch({ event: 'pong' })
+          break
+        case BaseCommand_Type.CONNECTED:
+          this._eventSignal.dispatch({ event: 'handshake_response', command: message.baseCommand })
+          break
+        default:
+          this._dataSignal.dispatch(message)
+          break
+      }
+    })
+
+    this.socket.once('ready', () => {
+      clearTimeout(timeout)
+      this._eventSignal.dispatch({ event: 'handshake_start' })
     })
   }
 
   /**
-   * closes the connection. Can be reconnected via `reconnect`
+   * closes the connection.
    */
-  protected _onClose (): void {
+  private closeRawSocket (): void {
     this.socket?.destroy()
     this.socket = undefined
+    this.wrappedLogger.info('closed raw socket')
   }
 
   async send (buffer: Uint8Array | Buffer): Promise<void> {

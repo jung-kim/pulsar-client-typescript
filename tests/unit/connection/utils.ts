@@ -1,32 +1,20 @@
 import { Signal } from 'micro-signals'
-import { Socket } from 'net'
 import sinon from 'sinon'
 import { CommandTypesResponses, Connection, EventSignalType, Message } from '../../../src/connection'
 import { _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
-import { PulsarSocket } from '../../../src/connection/pulsarSocket'
 import { BaseCommand, BaseCommand_Type } from '../../../src/proto/PulsarApi'
 
 export const getConnection = (): {
   conn: Connection
-  socket: Socket
-  pulsarSocket: PulsarSocket
   dataSignal: Signal<Message>
   eventSignal: Signal<EventSignalType>
 } => {
-  const options = new _ConnectionOptions({ url: 'pulsar://a.b' })
-  const logicalAddress = new URL('pulsar://a.b')
-  const socket = new Socket({})
-  sinon.stub(options, 'getSocket')
-    .callsFake(async () => socket)
-  const pulsarSocket = new PulsarSocket(options, logicalAddress)
-  sinon.stub(options, 'getNewPulsarSocket')
-    .callsFake(() => pulsarSocket)
+  const options = new _ConnectionOptions({ url: 'pulsar://a.b:6651' })
+  const logicalAddress = new URL('pulsar://a.b:6651')
   const conn = new Connection(options, logicalAddress)
 
   return {
     conn,
-    socket,
-    pulsarSocket,
     dataSignal: options._dataSignal,
     eventSignal: options._eventSignal
   }
