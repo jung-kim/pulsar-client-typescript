@@ -2,16 +2,27 @@ import { Signal } from 'micro-signals'
 import sinon from 'sinon'
 import { CommandTypesResponses, Connection, EventSignalType, Message } from '../../../src/connection'
 import { _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
+import { ConsumerListeners } from '../../../src/connection/consumerListeners'
+import { ProducerListeners } from '../../../src/connection/producerListeners'
+import { PulsarSocket } from '../../../src/connection/pulsarSocket/pulsarSocket'
 import { BaseCommand, BaseCommand_Type } from '../../../src/proto/PulsarApi'
+import { RequestTracker } from '../../../src/util/requestTracker'
+
+export class TestConnection extends Connection {
+  getPulsarSocket (): PulsarSocket { return this.pulsarSocket }
+  getProducerListeners (): ProducerListeners { return this.producerListeners }
+  getConsumerListeners (): ConsumerListeners { return this.consumerLinsteners }
+  getRequestTracker (): RequestTracker<CommandTypesResponses> { return this.requestTracker }
+}
 
 export const getConnection = (): {
-  conn: Connection
+  conn: TestConnection
   dataSignal: Signal<Message>
   eventSignal: Signal<EventSignalType>
 } => {
   const options = new _ConnectionOptions({ url: 'pulsar://a.b:6651' })
   const logicalAddress = new URL('pulsar://a.b:6651')
-  const conn = new Connection(options, logicalAddress)
+  const conn = new TestConnection(options, logicalAddress)
 
   return {
     conn,

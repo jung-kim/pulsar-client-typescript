@@ -12,6 +12,7 @@ import { serializeBatch } from './Commands'
 import { BaseConnection } from './baseConnection'
 import { WrappedLogger } from '../util/logger'
 import { CommandTypesResponses } from '../connection'
+import { RequestTrack } from '../util/requestTracker'
 
 export class Connection extends BaseConnection {
   readonly wrappedLogger: WrappedLogger
@@ -38,19 +39,38 @@ export class Connection extends BaseConnection {
     return this.producerListeners.unregisterProducerListener(id)
   }
 
-  async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses> {
-    const requestTrack = this.requestTracker.trackRequest();
+  async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses | undefined> {
+    let requestTrack: RequestTrack<CommandTypesResponses>
 
-    (Object(cmd) as Array<keyof BaseCommand>).forEach((key: keyof BaseCommand) => {
-      if (cmd[key] !== undefined && 'requestId' in (cmd[key] as any)) {
-        (cmd[key] as any).requestId = requestTrack.id
+    Object.keys(cmd).forEach((key: keyof BaseCommand) => {
+      if (key !== 'type' && cmd[key] !== undefined && 'sequenceId' in (cmd[key] as any)) {
+        if (requestTrack !== undefined) {
+          throw new Error('multiple commands are passed in')
+        } else if ((cmd[key] as any).sequenceId === undefined || Long.UZERO.eq((cmd[key] as any).sequenceId)) {
+          // request id is not defined, create a new request id.
+          requestTrack = this.requestTracker.trackRequest();
+          (cmd[key] as any).sequenceId = requestTrack.id
+        } else {
+          // request id is defined, using passed in request id.
+          requestTrack = this.requestTracker.get((cmd[key] as any).sequenceId as Long)
+          if (requestTrack === undefined) {
+            throw new Error('passed in request id is invalid')
+          }
+        }
       }
     })
 
-    this.pulsarSocket.writeCommand(cmd)
-      .catch(e => requestTrack.rejectRequest(e))
+    try {
+      await this.pulsarSocket.writeCommand(cmd)
+    } catch (e) {
+      if (requestTrack !== undefined) {
+        requestTrack.rejectRequest(e)
+      }
+    }
 
-    return await requestTrack.prom
+    if (requestTrack !== undefined) {
+      return await requestTrack.prom
+    }
   }
 
   async sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array, requestId?: Long): Promise<CommandTypesResponses> {
