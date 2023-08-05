@@ -1,11 +1,13 @@
 import { Connection } from '../../../src/connection/Connection'
 import { expect } from 'chai'
-import { Message } from '../../../src/connection'
+import { CommandTypesResponses, Message } from '../../../src/connection'
 import { Signal } from 'micro-signals'
-import { BaseCommand_Type } from '../../../src/proto/PulsarApi'
-import { createDummyBaseCommand, getConnection, getDefaultHandleResponseStubs } from './utils'
+import { BaseCommand, BaseCommand_Type, CommandSendError, CommandSuccess, ServerError } from '../../../src/proto/PulsarApi'
+import { createDummyBaseCommand, getConnection, getDefaultHandleResponseStubs, TestConnection } from './utils'
 import Long from 'long'
 import sinon from 'sinon'
+import { PulsarSocket } from '../../../src/connection/pulsarSocket/pulsarSocket'
+import { RequestTracker } from '../../../src/util/requestTracker'
 
 describe('connection.Connection', () => {
   describe('constructor', () => {
@@ -235,6 +237,50 @@ describe('connection.Connection', () => {
         expect(responseStub.notCalled).to.eq(true)
         expect(errorResponseStub.calledOnceWith(message)).to.eq(true)
       })
+    })
+  })
+
+  describe('sendCommand()', () => {
+    let conn: TestConnection
+    let rt: RequestTracker<CommandTypesResponses>
+    let ps: PulsarSocket
+
+    beforeEach(() => {
+      ({ conn } = getConnection())
+      rt = conn.getRequestTracker()
+      ps = conn.getPulsarSocket()
+    })
+    afterEach(() => conn.close())
+
+    it('should create a request tracker if not passed in', async () => {
+      const sendErrorCommand = BaseCommand.fromJSON({
+        type: BaseCommand_Type.SEND_ERROR,
+        sendError: CommandSendError.fromJSON({
+          produceId: Long.fromInt(123),
+          error: ServerError.AuthenticationError,
+          message: 'message'
+        })
+      })
+
+      const trackRequest = rt.trackRequest()
+      const sequenceId = trackRequest.id.add(1)
+      const writeCommandStub = sinon.stub(ps, 'writeCommand')
+
+      const sendErrorComamndResultProm = conn.sendCommand(sendErrorCommand)
+      const interval = setInterval(() => {
+        if (rt.get(sequenceId) === undefined) {
+          return
+        }
+        expect(rt.get(sequenceId)).to.be.an('object')
+        rt.get(sequenceId)?.resolveRequest(CommandSuccess.fromJSON({
+          requestId: sequenceId
+        }))
+        clearInterval(interval)
+      }, 25)
+      const sendErrorComamndResult = await sendErrorComamndResultProm as CommandSuccess
+
+      expect(writeCommandStub.callCount).to.eq(1)
+      expect(sendErrorComamndResult.requestId.eq(sequenceId)).to.eq(true)
     })
   })
 })

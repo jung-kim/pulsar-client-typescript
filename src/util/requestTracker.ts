@@ -12,71 +12,56 @@ export interface RequestTrack<T> {
  *
  */
 export class RequestTracker<T> {
-  private currentRequestId: Long = Long.UZERO
-  private readonly requestTrackMap: Map<string, RequestTrack<T>> = new Map()
+  protected currentRequestId: Long = Long.UZERO // unsigned long
+  protected readonly requestTrackMap: Map<string, RequestTrack<T>> = new Map()
 
   private getRequestId (): Long {
     const id = this.currentRequestId
-    if (id.equals(Long.MAX_UNSIGNED_VALUE)) {
-      this.currentRequestId = Long.UZERO
-    } else {
-      this.currentRequestId = this.currentRequestId.add(1)
-    }
+    this.currentRequestId = this.currentRequestId.add(1)
     return id
   }
 
   trackRequest (timeoutMs?: number): RequestTrack<T> {
     const id = this.getRequestId()
     const deferred = getDeferred<T>()
+    let timeout: ReturnType<typeof setTimeout> | undefined
 
-    try {
-      return {
-        id,
-        prom: deferred.promise,
-        resolveRequest: deferred.resolve,
-        rejectRequest: deferred.reject
-      }
-    } finally {
-      if (timeoutMs !== undefined && timeoutMs > 0) {
-        const timeout = setTimeout(() => {
-          deferred.reject(Error(`timeout of ${timeoutMs} is triggered.`))
-        }, timeoutMs)
-        deferred.promise.finally(() => {
-          clearTimeout(timeout)
-          this.requestTrackMap.delete(id.toString())
-        })
-      }
+    if (timeoutMs !== undefined && timeoutMs > 0) {
+      timeout = setTimeout(() => {
+        deferred.reject(Error(`timeout of ${timeoutMs} is triggered.`))
+      }, timeoutMs)
     }
+
+    const requestTrack = {
+      id,
+      prom: deferred.promise.finally(() => {
+        if (timeout !== undefined) {
+          this.requestTrackMap.get(id.toString())?.rejectRequest(new Error(`timeout of ${timeoutMs ?? ''} occured`))
+          clearTimeout(timeout)
+        }
+        this.requestTrackMap.delete(id.toString())
+      }),
+      resolveRequest: deferred.resolve,
+      rejectRequest: deferred.reject
+    }
+    this.requestTrackMap.set(id.toString(), requestTrack)
+    return requestTrack
   }
 
   get (id: Long | undefined): RequestTrack<T> | undefined {
-    if (id === undefined) {
-      return undefined
-    }
-    return this.requestTrackMap.get(id.toString())
+    return id === undefined ? undefined : this.requestTrackMap.get(id.toString())
   }
 
   resolveRequest (id: Long | undefined, value: T): void {
-    if (id === undefined) {
-      return
-    }
-    const requestTrack = this.get(id)
-    if (requestTrack !== undefined) {
-      requestTrack.resolveRequest(value)
-    }
+    this.get(id)?.resolveRequest(value)
   }
 
   rejectRequest (id: Long | undefined, reason?: any): void {
-    if (id === undefined) {
-      return
-    }
-    const requestTrack = this.get(id)
-    if (requestTrack !== undefined) {
-      requestTrack.rejectRequest(reason)
-    }
+    this.get(id)?.rejectRequest(reason)
   }
 
-  clear (): void {
-    Object.values(this.requestTrackMap).forEach(requestTrack => requestTrack.rejectRequest('socket is closing.'))
+  clear (message?: string): void {
+    this.requestTrackMap.forEach((v) => v.rejectRequest(new Error(message ?? 'clearing all requests')))
+    this.requestTrackMap.clear()
   }
 }
