@@ -37,7 +37,7 @@ export const serializeBatch = (cmdSend: CommandSend, msgMetadata: MessageMetadat
   return payload
 }
 
-export const getCommandPayload = (cmdSend: BaseCommand): Uint8Array => {
+const getCommandPayload = (cmdSend: BaseCommand): Uint8Array => {
   const cmdSendPayload = BaseCommand.encode(cmdSend).finish()
 
   // [CMD_SIZE][CMD]
@@ -47,7 +47,7 @@ export const getCommandPayload = (cmdSend: BaseCommand): Uint8Array => {
   return payload
 }
 
-export const getMsMetadataPayload = (msgMetadata: MessageMetadata): Uint8Array => {
+const getMsMetadataPayload = (msgMetadata: MessageMetadata): Uint8Array => {
   const msgMetadataPayload = MessageMetadata.encode(msgMetadata).finish()
 
   const metadataPayload = new Uint8Array(4 + msgMetadataPayload.length)

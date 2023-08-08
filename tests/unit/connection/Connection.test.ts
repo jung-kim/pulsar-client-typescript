@@ -2,7 +2,7 @@ import { Connection } from '../../../src/connection/Connection'
 import { expect } from 'chai'
 import { CommandTypesResponses, Message } from '../../../src/connection'
 import { Signal } from 'micro-signals'
-import { BaseCommand, BaseCommand_Type, CommandSendError, CommandSuccess, ServerError } from '../../../src/proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type, CommandCloseConsumer, CommandPing, CommandSuccess } from '../../../src/proto/PulsarApi'
 import { createDummyBaseCommand, getConnection, getDefaultHandleResponseStubs, TestConnection } from './utils'
 import Long from 'long'
 import sinon from 'sinon'
@@ -253,34 +253,99 @@ describe('connection.Connection', () => {
     afterEach(() => conn.close())
 
     it('should create a request tracker if not passed in', async () => {
-      const sendErrorCommand = BaseCommand.fromJSON({
-        type: BaseCommand_Type.SEND_ERROR,
-        sendError: CommandSendError.fromJSON({
-          produceId: Long.fromInt(123),
-          error: ServerError.AuthenticationError,
-          message: 'message'
+      const closeConsumerCommand = BaseCommand.fromJSON({
+        type: BaseCommand_Type.CLOSE_CONSUMER,
+        closeConsumer: CommandCloseConsumer.fromJSON({
+          consumerId: Long.UZERO
         })
       })
 
-      const trackRequest = rt.trackRequest()
-      const sequenceId = trackRequest.id.add(1)
+      const requestId = Long.UZERO
       const writeCommandStub = sinon.stub(ps, 'writeCommand')
 
-      const sendErrorComamndResultProm = conn.sendCommand(sendErrorCommand)
+      const closeConsumerCommandResultProm = conn.sendCommand(closeConsumerCommand)
       const interval = setInterval(() => {
-        if (rt.get(sequenceId) === undefined) {
+        if (rt.get(requestId) === undefined) {
           return
         }
-        expect(rt.get(sequenceId)).to.be.an('object')
-        rt.get(sequenceId)?.resolveRequest(CommandSuccess.fromJSON({
-          requestId: sequenceId
+        expect(rt.get(requestId)).to.be.an('object')
+        rt.get(requestId)?.resolveRequest(CommandSuccess.fromJSON({
+          requestId
         }))
         clearInterval(interval)
       }, 25)
-      const sendErrorComamndResult = await sendErrorComamndResultProm as CommandSuccess
+      const closeConsumerCommandResult = await closeConsumerCommandResultProm as CommandSuccess
 
       expect(writeCommandStub.callCount).to.eq(1)
-      expect(sendErrorComamndResult.requestId.eq(sequenceId)).to.eq(true)
+      expect(closeConsumerCommandResult.requestId.eq(requestId)).to.eq(true)
+    })
+
+    it('should be able to passin custom request id', async () => {
+      const requestId = Long.fromNumber(5, true)
+      for (let i = 0; i <= requestId.toNumber(); i++) {
+        conn.getRequestTracker().trackRequest()
+      }
+      const closeConsumerCommand = BaseCommand.fromJSON({
+        type: BaseCommand_Type.CLOSE_CONSUMER,
+        closeConsumer: CommandCloseConsumer.fromJSON({
+          consumerId: Long.UZERO,
+          requestId
+        })
+      })
+
+      const writeCommandStub = sinon.stub(ps, 'writeCommand')
+
+      const closeConsumerCommandResultProm = conn.sendCommand(closeConsumerCommand)
+      const interval = setInterval(() => {
+        if (rt.get(requestId) === undefined) {
+          console.log(7177723)
+          return
+        }
+        expect(rt.get(requestId)).to.be.an('object')
+        rt.get(requestId)?.resolveRequest(CommandSuccess.fromJSON({
+          requestId
+        }))
+        clearInterval(interval)
+      }, 25)
+      const closeConsumerCommandResult = await closeConsumerCommandResultProm as CommandSuccess
+
+      expect(writeCommandStub.callCount).to.eq(1)
+      expect(closeConsumerCommandResult.requestId.eq(requestId)).to.eq(true)
+    })
+
+    it('missing request id if passed in', async () => {
+      const closeConsumerCommand = BaseCommand.fromJSON({
+        type: BaseCommand_Type.CLOSE_CONSUMER,
+        closeConsumer: CommandCloseConsumer.fromJSON({
+          consumerId: Long.UZERO,
+          requestId: Long.fromNumber(55, true)
+        })
+      })
+
+      try {
+        await conn.sendCommand(closeConsumerCommand)
+        expect.fail('should not have succeeded')
+      } catch (e) {
+        expect(e.message).to.eq('passed in request id is invalid')
+      }
+    })
+
+    it('invalid multiple payloads', async () => {
+      const invalidCommand = BaseCommand.fromJSON({
+        type: BaseCommand_Type.CLOSE_CONSUMER,
+        closeConsumer: CommandCloseConsumer.fromJSON({
+          consumerId: Long.UZERO,
+          requestId: Long.UZERO
+        }),
+        ping: CommandPing.fromJSON({})
+      })
+
+      try {
+        await conn.sendCommand(invalidCommand)
+        expect.fail('should not have succeeded')
+      } catch (e) {
+        expect(e.message).to.eq('invalid number of commands are passed in')
+      }
     })
   })
 })

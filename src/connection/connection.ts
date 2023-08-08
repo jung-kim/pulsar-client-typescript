@@ -41,24 +41,32 @@ export class Connection extends BaseConnection {
 
   async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses | undefined> {
     let requestTrack: RequestTrack<CommandTypesResponses>
+    let commandCount = 0
 
     Object.keys(cmd).forEach((key: keyof BaseCommand) => {
-      if (key !== 'type' && cmd[key] !== undefined && 'sequenceId' in (cmd[key] as any)) {
-        if (requestTrack !== undefined) {
-          throw new Error('multiple commands are passed in')
-        } else if ((cmd[key] as any).sequenceId === undefined || Long.UZERO.eq((cmd[key] as any).sequenceId)) {
+      if (key === 'type' || cmd[key] === undefined) {
+        return
+      }
+      commandCount++
+
+      if ('requestId' in (cmd[key] as any)) {
+        if ((cmd[key] as any).requestId === undefined || Long.UZERO.eq((cmd[key] as any).requestId)) {
           // request id is not defined, create a new request id.
           requestTrack = this.requestTracker.trackRequest();
-          (cmd[key] as any).sequenceId = requestTrack.id
+          (cmd[key] as any).requestId = requestTrack.id
         } else {
           // request id is defined, using passed in request id.
-          requestTrack = this.requestTracker.get((cmd[key] as any).sequenceId as Long)
+          requestTrack = this.requestTracker.get((cmd[key] as any).requestId as Long)
           if (requestTrack === undefined) {
             throw new Error('passed in request id is invalid')
           }
         }
       }
     })
+
+    if (commandCount !== 1) {
+      throw new Error('invalid number of commands are passed in')
+    }
 
     try {
       await this.pulsarSocket.writeCommand(cmd)
