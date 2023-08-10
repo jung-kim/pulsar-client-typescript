@@ -14,6 +14,23 @@ export interface OAuthOptions {
   _token?: string // this is more for debuging, used if passed in instead of token exchange
 }
 
+export const convertFromSNOauth2KeyFile = (audience: string, args: {
+  client_id: string
+  client_secret: string
+  issuer_url: string
+}): OAuthOptions => {
+  return {
+    clientId: args.client_id,
+    clientSecret: args.client_secret,
+    baseSite: args.issuer_url,
+    accessTokenPath: 'oauth/token',
+    customParams: {
+      audience,
+      grant_type: 'client_credentials'
+    }
+  }
+}
+
 export class OAuth implements Auth {
   readonly name = 'token'
   readonly oauth: OAuthLib.OAuth2
@@ -113,13 +130,13 @@ export class OAuth implements Auth {
   async _fetchAccessToken (params: Record<string, string>): Promise<{ accessToken: string, refreshToken: string, expiresIn: number }> {
     return await new Promise<{ accessToken: string, refreshToken: string, expiresIn: number }>((resolve, reject) => {
       this.oauth.getOAuthAccessToken('', params, (err, accessToken, refreshToken, results) => {
-        if (err !== undefined) {
-          reject(Error(`Failed to get token, statusCode: ${err.statusCode}`))
+        if (err !== undefined && err !== null) {
+          reject(new Error(`Failed to get token, statusCode: ${err.statusCode}`))
+        } else if (results?.expires_in === undefined) {
+          reject(new Error('Failed to get token expiry'))
+        } else {
+          resolve({ accessToken, refreshToken, expiresIn: results.expires_in })
         }
-        if (results?.expires_in === undefined) {
-          reject(Error('Failed to get token expiry'))
-        }
-        resolve({ accessToken, refreshToken, expiresIn: results.expires_in })
       })
     })
   }

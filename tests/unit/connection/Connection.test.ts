@@ -347,5 +347,24 @@ describe('connection.Connection', () => {
         expect(e.message).to.eq('invalid number of commands are passed in')
       }
     })
+
+    it('throws error when write command errors', async () => {
+      const closeConsumerCommand = BaseCommand.fromJSON({
+        type: BaseCommand_Type.CLOSE_CONSUMER,
+        closeConsumer: CommandCloseConsumer.fromJSON({
+          consumerId: Long.UZERO
+        })
+      })
+
+      const writeCommandStub = sinon.stub(ps, 'writeCommand')
+      writeCommandStub.throws(new Error('some error'))
+
+      try {
+        await conn.sendCommand(closeConsumerCommand)
+        expect.fail('should not have succeeded')
+      } catch (e) {
+        expect(e.message).to.eq('some error')
+      }
+    })
   })
 })

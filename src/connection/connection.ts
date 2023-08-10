@@ -22,10 +22,6 @@ export class Connection extends BaseConnection {
     this.wrappedLogger = options.getWrappedLogger('BaseConnection', logicalAddress)
   }
 
-  async reconnect (): Promise<void> {
-    throw Error('not implemented')
-  }
-
   close (): void {
     this.requestTracker.clear()
     this.pulsarSocket.close()
@@ -39,6 +35,15 @@ export class Connection extends BaseConnection {
     return this.producerListeners.unregisterProducerListener(id)
   }
 
+  /**
+   * Send pulsar commands to the brokers
+   * @param cmd is a BaseCommand
+   *  - must include the type attribute
+   *  - must have and one and only one command
+   *  - when requestId can be undefined or uzero, request is automatically tracked with an available request id
+   *  - when requestId is set, requestTracker must have requestTrack for the requestId
+   * @returns promise for the command. Awaiting for the returned value will return the respons back from the server
+   */
   async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses | undefined> {
     let requestTrack: RequestTrack<CommandTypesResponses>
     let commandCount = 0
@@ -82,15 +87,14 @@ export class Connection extends BaseConnection {
   }
 
   async sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array, requestId?: Long): Promise<CommandTypesResponses> {
-    const requestTrack = (requestId != null) ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest()
-    if (requestTrack == null) {
+    const requestTrack = (requestId !== undefined) ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest()
+    if (requestTrack === undefined) {
       throw Error('request tracker is not found')
     }
     const sendCommand = CommandSend.fromJSON({
       producerId,
       sequenceId: requestTrack.id
     })
-
     messageMetadata.sequenceId = requestTrack.id
 
     this.pulsarSocket.send(serializeBatch(sendCommand, messageMetadata, uncompressedPayload))
