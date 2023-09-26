@@ -7,6 +7,7 @@ import { ConsumerListeners } from './consumerListeners'
 import { ProducerListeners } from './producerListeners'
 import { PulsarSocket } from './pulsarSocket/pulsarSocket'
 import { Signal } from 'micro-signals'
+import Long from 'long'
 
 export abstract class BaseConnection {
   protected readonly pulsarSocket: PulsarSocket
