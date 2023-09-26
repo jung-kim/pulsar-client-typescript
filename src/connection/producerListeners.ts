@@ -11,8 +11,8 @@ export class ProducerListeners {
   private readonly wrappedLogger: WrappedLogger
   private readonly producerListeners: Map<string, Signal<CommandSendReceipt | CommandCloseProducer>> = new Map()
 
-  constructor (socketId: string) {
-    this.wrappedLogger = new WrappedLogger({ name: ProducerListeners, socketId })
+  constructor (uuid: string) {
+    this.wrappedLogger = new WrappedLogger({ name: ProducerListeners, uuid })
     this.wrappedLogger.debug('producer listeners created')
   }
 

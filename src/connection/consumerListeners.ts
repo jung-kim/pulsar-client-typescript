@@ -8,8 +8,8 @@ export class ConsumerListeners {
   private readonly wrappedLogger: WrappedLogger
   private readonly consumerListeners: Map<string, Signal<Message | CommandCloseConsumer>> = new Map()
 
-  constructor (socketId: string) {
-    this.wrappedLogger = new WrappedLogger({ name: 'ConsumerListeners', socketId })
+  constructor (uuid: string) {
+    this.wrappedLogger = new WrappedLogger({ name: 'ConsumerListeners', uuid })
     this.wrappedLogger.info('created a consumer listener')
   }
 

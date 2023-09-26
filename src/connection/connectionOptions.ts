@@ -4,7 +4,6 @@ import { v4 } from 'uuid'
 import ip from 'ip'
 import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, EventSignalType, Message } from './index'
 import { Signal } from 'micro-signals'
-import { PulsarSocket } from './pulsarSocket/pulsarSocket'
 import { WrappedLogger } from '../util/logger'
 
 export interface ConnectionOptions {
@@ -17,7 +16,6 @@ export interface ConnectionOptions {
 }
 
 export class _ConnectionOptions {
-  readonly url: string
   readonly auth: Auth
   readonly connectionTimeoutMs: number
   readonly keepAliveIntervalMs: number
@@ -33,7 +31,6 @@ export class _ConnectionOptions {
   constructor (options: ConnectionOptions) {
     const urlObj = new URL(options.url)
 
-    this.url = options.url
     this.connectionTimeoutMs = options.connectionTimeoutMs ?? DEFAULT_CONNECTION_TIMEOUT_MS
     this.keepAliveIntervalMs = options.keepAliveIntervalMs ?? DEFAULT_KEEP_ALIVE_INTERVAL_MS
     this.maxMessageSize = options.maxMessageSize ?? DEFAULT_MAX_MESSAGE_SIZE
@@ -45,15 +42,11 @@ export class _ConnectionOptions {
     this.uuid = v4()
   }
 
-  getNewPulsarSocket (logicalAddress: URL): PulsarSocket {
-    return new PulsarSocket(this, logicalAddress)
-  }
-
   getWrappedLogger (name: string, logicalAddress: URL): WrappedLogger {
     return new WrappedLogger({
       name,
       uuid: this.uuid,
-      id: `${this.connectionId}-${logicalAddress.host}`
+      host: logicalAddress.host
     })
   }
 }

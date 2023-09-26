@@ -2,10 +2,7 @@ import { createLogger, transports, format } from 'winston'
 import configs from '../configs/configs'
 
 const consoleFormat = new transports.Console({
-  format: format.combine(
-    format.timestamp(),
-    format.prettyPrint()
-  )
+  format: format.combine(format.timestamp())
 })
 const jsonFormat = new transports.Console({
   format: format.json()

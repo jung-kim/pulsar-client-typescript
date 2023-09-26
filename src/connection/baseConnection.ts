@@ -20,11 +20,11 @@ export abstract class BaseConnection {
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     this.options = options
-    this.pulsarSocket = options.getNewPulsarSocket(logicalAddress)
+    this.pulsarSocket = new PulsarSocket(options, logicalAddress)
 
     // register producer listener
-    this.producerListeners = new ProducerListeners(this.pulsarSocket.getId())
-    this.consumerLinsteners = new ConsumerListeners(this.pulsarSocket.getId())
+    this.producerListeners = new ProducerListeners(options.uuid)
+    this.consumerLinsteners = new ConsumerListeners(options.uuid)
 
     this.pulsarSocket.dataSignal.add((message: Message) => {
       switch (message.baseCommand.type) {
