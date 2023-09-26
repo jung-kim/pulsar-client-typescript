@@ -1,18 +1,30 @@
-// import { ClientOption, TlsOptions, _initializeOption } from "./option"
-// import * as _ from 'lodash'
-// import { ProducerOption } from "producer/option"
-// import { Producer } from "producer/producer"
+import { Connection, ConnectionPool } from '../connection'
+import { ClientOptions } from './clientOptions'
 
-// export class Client {
-//   readonly clientOptions: ClientOption
-//   readonly tlsOptions: TlsOptions | undefined
+export class Client {
+  readonly cp: ConnectionPool
 
-//   constructor(clientOptions: ClientOption) {
-//     this.clientOptions = _initializeOption(_.cloneDeep(clientOptions))
-//   }
+  constructor (opt: ClientOptions) {
+    this.cp = new ConnectionPool(opt)
+  }
 
-//   createProducer(producerOption: ProducerOption) {
-//     return new Producer(producerOption, this)
+  /**
+   * returns a connection
+   * @param logicalAddress optional, if undefined return getAnyAdminConnection()
+   * @returns Connection
+   */
+  protected getConnection (logicalAddress?: URL): Connection {
+    if (logicalAddress === undefined) {
+      return this.cp.getAnyAdminConnection()
+    }
 
-//   }
-// }
+    return this.getConnection(logicalAddress)
+  }
+
+  /**
+   * close all connections
+   */
+  public clear (): void {
+    this.cp.clear()
+  }
+}

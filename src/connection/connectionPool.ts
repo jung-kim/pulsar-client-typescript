@@ -23,6 +23,10 @@ export class ConnectionPool {
     })
   }
 
+  clear (): void {
+    Object.values(this.connections).forEach(c => c.close())
+  }
+
   getAnyAdminConnection (): Connection {
     const cnx = Object.values(this.connections).find(cnx => cnx.isReady())
     if (cnx !== undefined) {

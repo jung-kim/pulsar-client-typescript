@@ -1,11 +1,11 @@
 import { convertFromSNOauth2KeyFile, OAuth } from '../../src/auth/oauth'
 import { configs } from './configs'
 import { readFileSync } from 'fs'
-import { ConnectionPool } from '../../src/connection'
+import { TestClient } from '../utils'
 
 describe('e2e connect tests', () => {
   const sn2Oauth2KeyFile = JSON.parse(readFileSync(configs.snOauth2KeyFile).toString())
-  const cp = new ConnectionPool({
+  const client = new TestClient({
     url: configs.brokerUrl,
     auth: new OAuth(convertFromSNOauth2KeyFile(configs.audience, sn2Oauth2KeyFile))
   })
@@ -21,7 +21,7 @@ describe('e2e connect tests', () => {
   })
 
   it('can establish a connection', async () => {
-    const cnx = cp.getConnection(new URL(configs.brokerUrl))
+    const cnx = client.getConnection()
     await cnx.ensureReady()
   })
 })
