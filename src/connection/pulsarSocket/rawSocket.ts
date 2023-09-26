@@ -4,22 +4,17 @@ import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
 import { Reader } from 'protobufjs'
 import { connect, TLSSocket } from 'tls'
 import { _ConnectionOptions } from '../ConnectionOptions'
-import { WrappedLogger } from '../../../src/util/logger'
+import { AbstractPulsarSocket } from './abstractPulsarSocket'
 
 /**
  * Has raw TCP socket conenction and raw functions for raw sockets
  */
-export class RawSocket {
+export class RawSocket extends AbstractPulsarSocket {
   protected socket: Socket | TLSSocket | undefined = undefined
-  private readonly logicalAddress: URL
-  private readonly options: _ConnectionOptions
-  protected readonly wrappedLogger: WrappedLogger
   private lastDataReceived: number = 0
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    this.logicalAddress = logicalAddress
-    this.options = options
-    this.wrappedLogger = options.getWrappedLogger('RawSocket', logicalAddress)
+    super('aaa', options, logicalAddress)
     this.wrappedLogger.info('base socket created')
 
     this.options._eventSignal.add((payload) => {

@@ -3,19 +3,16 @@ import { _ConnectionOptions } from '../ConnectionOptions'
 import { RawSocket } from './rawSocket'
 import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from '..'
 import { commandToPayload } from './utils'
-import { AbstractPulsarSocket } from './abstractPulsarSocket'
 
 /**
  * contains pulsar specifc socket logic
  */
-export class PulsarSocket extends AbstractPulsarSocket {
+export class PulsarSocket extends RawSocket {
   private interval: ReturnType<typeof setInterval> | undefined = undefined
-  private readonly logicalAddress: URL
   private readonly rawSocket: RawSocket
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    super('PulsarSocket', options, logicalAddress)
-    this.logicalAddress = logicalAddress
+    super(options, logicalAddress)
     this.rawSocket = new RawSocket(options, logicalAddress)
 
     this.eventSignal.add(payload => {
@@ -49,6 +46,9 @@ export class PulsarSocket extends AbstractPulsarSocket {
   }
 
   protected async sendHandshake (): Promise<void> {
+    if (this.getState() !== 'INITIALIZING') {
+      return
+    }
     try {
       const authData = await this.options.auth.getToken()
       const handshake = BaseCommand.fromJSON({
@@ -134,6 +134,9 @@ export class PulsarSocket extends AbstractPulsarSocket {
   protected handlePong (): void { }
 
   protected handlePing (): void {
+    if (this.getState() !== 'READY') {
+      return
+    }
     this.wrappedLogger.debug('handle ping')
     this.writeCommand(
       BaseCommand.fromJSON({

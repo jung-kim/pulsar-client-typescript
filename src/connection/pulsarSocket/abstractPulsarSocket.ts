@@ -20,6 +20,7 @@ export abstract class AbstractPulsarSocket {
   protected readonly _dataSignal: Signal<Message>
   public readonly dataSignal: ReadableSignal<Message>
   public readonly options: _ConnectionOptions
+  public readonly logicalAddress: URL
 
   constructor (name: string, options: _ConnectionOptions, logicalAddress: URL) {
     this._eventSignal = options._eventSignal
@@ -27,6 +28,7 @@ export abstract class AbstractPulsarSocket {
     this._dataSignal = options._dataSignal
     this.dataSignal = this._dataSignal.readOnly()
     this.options = options
+    this.logicalAddress = logicalAddress
     this.wrappedLogger = options.getWrappedLogger(name, logicalAddress)
     this.id = `${options.connectionId}-${logicalAddress.host}`
 
