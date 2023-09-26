@@ -957,11 +957,15 @@ export interface CommandSubscribe {
    * markd-delete position  on the particular message id and
    * will send messages from that point
    */
-  startMessageId: MessageIdData | undefined;
+  startMessageId:
+    | MessageIdData
+    | undefined;
   /** / Add optional metadata key=value to this consumer */
   metadata: KeyValue[];
   readCompacted: boolean;
-  schema: Schema | undefined;
+  schema:
+    | Schema
+    | undefined;
   /**
    * Signal whether the subscription will initialize on latest
    * or not -- earliest
@@ -1000,9 +1004,7 @@ export enum CommandSubscribe_SubType {
   UNRECOGNIZED = -1,
 }
 
-export function commandSubscribe_SubTypeFromJSON(
-  object: any
-): CommandSubscribe_SubType {
+export function commandSubscribe_SubTypeFromJSON(object: any): CommandSubscribe_SubType {
   switch (object) {
     case 0:
     case "Exclusive":
@@ -1023,9 +1025,7 @@ export function commandSubscribe_SubTypeFromJSON(
   }
 }
 
-export function commandSubscribe_SubTypeToJSON(
-  object: CommandSubscribe_SubType
-): string {
+export function commandSubscribe_SubTypeToJSON(object: CommandSubscribe_SubType): string {
   switch (object) {
     case CommandSubscribe_SubType.Exclusive:
       return "Exclusive";
@@ -1047,9 +1047,7 @@ export enum CommandSubscribe_InitialPosition {
   UNRECOGNIZED = -1,
 }
 
-export function commandSubscribe_InitialPositionFromJSON(
-  object: any
-): CommandSubscribe_InitialPosition {
+export function commandSubscribe_InitialPositionFromJSON(object: any): CommandSubscribe_InitialPosition {
   switch (object) {
     case 0:
     case "Latest":
@@ -1064,9 +1062,7 @@ export function commandSubscribe_InitialPositionFromJSON(
   }
 }
 
-export function commandSubscribe_InitialPositionToJSON(
-  object: CommandSubscribe_InitialPosition
-): string {
+export function commandSubscribe_InitialPositionToJSON(object: CommandSubscribe_InitialPosition): string {
   switch (object) {
     case CommandSubscribe_InitialPosition.Latest:
       return "Latest";
@@ -1111,7 +1107,7 @@ export enum CommandPartitionedTopicMetadataResponse_LookupType {
 }
 
 export function commandPartitionedTopicMetadataResponse_LookupTypeFromJSON(
-  object: any
+  object: any,
 ): CommandPartitionedTopicMetadataResponse_LookupType {
   switch (object) {
     case 0:
@@ -1128,7 +1124,7 @@ export function commandPartitionedTopicMetadataResponse_LookupTypeFromJSON(
 }
 
 export function commandPartitionedTopicMetadataResponse_LookupTypeToJSON(
-  object: CommandPartitionedTopicMetadataResponse_LookupType
+  object: CommandPartitionedTopicMetadataResponse_LookupType,
 ): string {
   switch (object) {
     case CommandPartitionedTopicMetadataResponse_LookupType.Success:
@@ -1185,9 +1181,7 @@ export enum CommandLookupTopicResponse_LookupType {
   UNRECOGNIZED = -1,
 }
 
-export function commandLookupTopicResponse_LookupTypeFromJSON(
-  object: any
-): CommandLookupTopicResponse_LookupType {
+export function commandLookupTopicResponse_LookupTypeFromJSON(object: any): CommandLookupTopicResponse_LookupType {
   switch (object) {
     case 0:
     case "Redirect":
@@ -1205,9 +1199,7 @@ export function commandLookupTopicResponse_LookupTypeFromJSON(
   }
 }
 
-export function commandLookupTopicResponse_LookupTypeToJSON(
-  object: CommandLookupTopicResponse_LookupType
-): string {
+export function commandLookupTopicResponse_LookupTypeToJSON(object: CommandLookupTopicResponse_LookupType): string {
   switch (object) {
     case CommandLookupTopicResponse_LookupType.Redirect:
       return "Redirect";
@@ -1237,7 +1229,9 @@ export interface CommandProducer {
   encrypted: boolean;
   /** / Add optional metadata key=value to this producer */
   metadata: KeyValue[];
-  schema: Schema | undefined;
+  schema:
+    | Schema
+    | undefined;
   /** If producer reconnect to broker, the epoch of this producer will +1 */
   epoch: Long;
   /**
@@ -1359,9 +1353,7 @@ export enum CommandAck_ValidationError {
   UNRECOGNIZED = -1,
 }
 
-export function commandAck_ValidationErrorFromJSON(
-  object: any
-): CommandAck_ValidationError {
+export function commandAck_ValidationErrorFromJSON(object: any): CommandAck_ValidationError {
   switch (object) {
     case 0:
     case "UncompressedSizeCorruption":
@@ -1385,9 +1377,7 @@ export function commandAck_ValidationErrorFromJSON(
   }
 }
 
-export function commandAck_ValidationErrorToJSON(
-  object: CommandAck_ValidationError
-): string {
+export function commandAck_ValidationErrorToJSON(object: CommandAck_ValidationError): string {
   switch (object) {
     case CommandAck_ValidationError.UncompressedSizeCorruption:
       return "UncompressedSizeCorruption";
@@ -1506,9 +1496,11 @@ export interface CommandError {
  * When either client or broker doesn't receive commands for certain
  * amount of time, they will send a Ping probe.
  */
-export interface CommandPing {}
+export interface CommandPing {
+}
 
-export interface CommandPong {}
+export interface CommandPong {
+}
 
 export interface CommandConsumerStats {
   requestId: Long;
@@ -1577,9 +1569,7 @@ export enum CommandGetTopicsOfNamespace_Mode {
   UNRECOGNIZED = -1,
 }
 
-export function commandGetTopicsOfNamespace_ModeFromJSON(
-  object: any
-): CommandGetTopicsOfNamespace_Mode {
+export function commandGetTopicsOfNamespace_ModeFromJSON(object: any): CommandGetTopicsOfNamespace_Mode {
   switch (object) {
     case 0:
     case "PERSISTENT":
@@ -1597,9 +1587,7 @@ export function commandGetTopicsOfNamespace_ModeFromJSON(
   }
 }
 
-export function commandGetTopicsOfNamespace_ModeToJSON(
-  object: CommandGetTopicsOfNamespace_Mode
-): string {
+export function commandGetTopicsOfNamespace_ModeToJSON(object: CommandGetTopicsOfNamespace_Mode): string {
   switch (object) {
     case CommandGetTopicsOfNamespace_Mode.PERSISTENT:
       return "PERSISTENT";
@@ -1808,13 +1796,9 @@ export interface BaseCommand {
   producerSuccess: CommandProducerSuccess | undefined;
   ping: CommandPing | undefined;
   pong: CommandPong | undefined;
-  redeliverUnacknowledgedMessages:
-    | CommandRedeliverUnacknowledgedMessages
-    | undefined;
+  redeliverUnacknowledgedMessages: CommandRedeliverUnacknowledgedMessages | undefined;
   partitionMetadata: CommandPartitionedTopicMetadata | undefined;
-  partitionMetadataResponse:
-    | CommandPartitionedTopicMetadataResponse
-    | undefined;
+  partitionMetadataResponse: CommandPartitionedTopicMetadataResponse | undefined;
   lookupTopic: CommandLookupTopic | undefined;
   lookupTopicResponse: CommandLookupTopicResponse | undefined;
   consumerStats: CommandConsumerStats | undefined;
@@ -1832,7 +1816,9 @@ export interface BaseCommand {
   authResponse: CommandAuthResponse | undefined;
   ackResponse: CommandAckResponse | undefined;
   getOrCreateSchema: CommandGetOrCreateSchema | undefined;
-  getOrCreateSchemaResponse: CommandGetOrCreateSchemaResponse | undefined;
+  getOrCreateSchemaResponse:
+    | CommandGetOrCreateSchemaResponse
+    | undefined;
   /** transaction related */
   newTxn: CommandNewTxn | undefined;
   newTxnResponse: CommandNewTxnResponse | undefined;
@@ -2219,14 +2205,11 @@ export function baseCommand_TypeToJSON(object: BaseCommand_Type): string {
 }
 
 function createBaseSchema(): Schema {
-  return { name: "", schemaData: new Uint8Array(), type: 0, properties: [] };
+  return { name: "", schemaData: new Uint8Array(0), type: 0, properties: [] };
 }
 
 export const Schema = {
-  encode(
-    message: Schema,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: Schema, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
@@ -2243,28 +2226,45 @@ export const Schema = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Schema {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSchema();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.name = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.schemaData = reader.bytes();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.type = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.properties.push(KeyValue.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2272,41 +2272,38 @@ export const Schema = {
   fromJSON(object: any): Schema {
     return {
       name: isSet(object.name) ? String(object.name) : "",
-      schemaData: isSet(object.schemaData)
-        ? bytesFromBase64(object.schemaData)
-        : new Uint8Array(),
+      schemaData: isSet(object.schemaData) ? bytesFromBase64(object.schemaData) : new Uint8Array(0),
       type: isSet(object.type) ? schema_TypeFromJSON(object.type) : 0,
-      properties: Array.isArray(object?.properties)
-        ? object.properties.map((e: any) => KeyValue.fromJSON(e))
-        : [],
+      properties: Array.isArray(object?.properties) ? object.properties.map((e: any) => KeyValue.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: Schema): unknown {
     const obj: any = {};
-    message.name !== undefined && (obj.name = message.name);
-    message.schemaData !== undefined &&
-      (obj.schemaData = base64FromBytes(
-        message.schemaData !== undefined ? message.schemaData : new Uint8Array()
-      ));
-    message.type !== undefined && (obj.type = schema_TypeToJSON(message.type));
-    if (message.properties) {
-      obj.properties = message.properties.map((e) =>
-        e ? KeyValue.toJSON(e) : undefined
-      );
-    } else {
-      obj.properties = [];
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.schemaData.length !== 0) {
+      obj.schemaData = base64FromBytes(message.schemaData);
+    }
+    if (message.type !== 0) {
+      obj.type = schema_TypeToJSON(message.type);
+    }
+    if (message.properties?.length) {
+      obj.properties = message.properties.map((e) => KeyValue.toJSON(e));
     }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<Schema>, I>>(base?: I): Schema {
+    return Schema.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<Schema>, I>>(object: I): Schema {
     const message = createBaseSchema();
     message.name = object.name ?? "";
-    message.schemaData = object.schemaData ?? new Uint8Array();
+    message.schemaData = object.schemaData ?? new Uint8Array(0);
     message.type = object.type ?? 0;
-    message.properties =
-      object.properties?.map((e) => KeyValue.fromPartial(e)) || [];
+    message.properties = object.properties?.map((e) => KeyValue.fromPartial(e)) || [];
     return message;
   },
 };
@@ -2324,10 +2321,7 @@ function createBaseMessageIdData(): MessageIdData {
 }
 
 export const MessageIdData = {
-  encode(
-    message: MessageIdData,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: MessageIdData, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.ledgerId.isZero()) {
       writer.uint32(8).uint64(message.ledgerId);
     }
@@ -2349,73 +2343,93 @@ export const MessageIdData = {
       writer.uint32(48).int32(message.batchSize);
     }
     if (message.firstChunkMessageId !== undefined) {
-      MessageIdData.encode(
-        message.firstChunkMessageId,
-        writer.uint32(58).fork()
-      ).ldelim();
+      MessageIdData.encode(message.firstChunkMessageId, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MessageIdData {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMessageIdData();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.ledgerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.entryId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.partition = reader.int32();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.batchIndex = reader.int32();
-          break;
+          continue;
         case 5:
-          if ((tag & 7) === 2) {
+          if (tag === 40) {
+            message.ackSet.push(reader.int64() as Long);
+
+            continue;
+          }
+
+          if (tag === 42) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
               message.ackSet.push(reader.int64() as Long);
             }
-          } else {
-            message.ackSet.push(reader.int64() as Long);
+
+            continue;
           }
+
           break;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.batchSize = reader.int32();
-          break;
+          continue;
         case 7:
-          message.firstChunkMessageId = MessageIdData.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          if (tag !== 58) {
+            break;
+          }
+
+          message.firstChunkMessageId = MessageIdData.decode(reader, reader.uint32());
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): MessageIdData {
     return {
-      ledgerId: isSet(object.ledgerId)
-        ? Long.fromValue(object.ledgerId)
-        : Long.UZERO,
-      entryId: isSet(object.entryId)
-        ? Long.fromValue(object.entryId)
-        : Long.UZERO,
+      ledgerId: isSet(object.ledgerId) ? Long.fromValue(object.ledgerId) : Long.UZERO,
+      entryId: isSet(object.entryId) ? Long.fromValue(object.entryId) : Long.UZERO,
       partition: isSet(object.partition) ? Number(object.partition) : 0,
       batchIndex: isSet(object.batchIndex) ? Number(object.batchIndex) : 0,
-      ackSet: Array.isArray(object?.ackSet)
-        ? object.ackSet.map((e: any) => Long.fromValue(e))
-        : [],
+      ackSet: Array.isArray(object?.ackSet) ? object.ackSet.map((e: any) => Long.fromValue(e)) : [],
       batchSize: isSet(object.batchSize) ? Number(object.batchSize) : 0,
       firstChunkMessageId: isSet(object.firstChunkMessageId)
         ? MessageIdData.fromJSON(object.firstChunkMessageId)
@@ -2425,49 +2439,48 @@ export const MessageIdData = {
 
   toJSON(message: MessageIdData): unknown {
     const obj: any = {};
-    message.ledgerId !== undefined &&
-      (obj.ledgerId = (message.ledgerId || Long.UZERO).toString());
-    message.entryId !== undefined &&
-      (obj.entryId = (message.entryId || Long.UZERO).toString());
-    message.partition !== undefined &&
-      (obj.partition = Math.round(message.partition));
-    message.batchIndex !== undefined &&
-      (obj.batchIndex = Math.round(message.batchIndex));
-    if (message.ackSet) {
-      obj.ackSet = message.ackSet.map((e) => (e || Long.ZERO).toString());
-    } else {
-      obj.ackSet = [];
+    if (!message.ledgerId.isZero()) {
+      obj.ledgerId = (message.ledgerId || Long.UZERO).toString();
     }
-    message.batchSize !== undefined &&
-      (obj.batchSize = Math.round(message.batchSize));
-    message.firstChunkMessageId !== undefined &&
-      (obj.firstChunkMessageId = message.firstChunkMessageId
-        ? MessageIdData.toJSON(message.firstChunkMessageId)
-        : undefined);
+    if (!message.entryId.isZero()) {
+      obj.entryId = (message.entryId || Long.UZERO).toString();
+    }
+    if (message.partition !== 0) {
+      obj.partition = Math.round(message.partition);
+    }
+    if (message.batchIndex !== 0) {
+      obj.batchIndex = Math.round(message.batchIndex);
+    }
+    if (message.ackSet?.length) {
+      obj.ackSet = message.ackSet.map((e) => (e || Long.ZERO).toString());
+    }
+    if (message.batchSize !== 0) {
+      obj.batchSize = Math.round(message.batchSize);
+    }
+    if (message.firstChunkMessageId !== undefined) {
+      obj.firstChunkMessageId = MessageIdData.toJSON(message.firstChunkMessageId);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<MessageIdData>, I>>(
-    object: I
-  ): MessageIdData {
+  create<I extends Exact<DeepPartial<MessageIdData>, I>>(base?: I): MessageIdData {
+    return MessageIdData.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MessageIdData>, I>>(object: I): MessageIdData {
     const message = createBaseMessageIdData();
-    message.ledgerId =
-      object.ledgerId !== undefined && object.ledgerId !== null
-        ? Long.fromValue(object.ledgerId)
-        : Long.UZERO;
-    message.entryId =
-      object.entryId !== undefined && object.entryId !== null
-        ? Long.fromValue(object.entryId)
-        : Long.UZERO;
+    message.ledgerId = (object.ledgerId !== undefined && object.ledgerId !== null)
+      ? Long.fromValue(object.ledgerId)
+      : Long.UZERO;
+    message.entryId = (object.entryId !== undefined && object.entryId !== null)
+      ? Long.fromValue(object.entryId)
+      : Long.UZERO;
     message.partition = object.partition ?? 0;
     message.batchIndex = object.batchIndex ?? 0;
     message.ackSet = object.ackSet?.map((e) => Long.fromValue(e)) || [];
     message.batchSize = object.batchSize ?? 0;
-    message.firstChunkMessageId =
-      object.firstChunkMessageId !== undefined &&
-      object.firstChunkMessageId !== null
-        ? MessageIdData.fromPartial(object.firstChunkMessageId)
-        : undefined;
+    message.firstChunkMessageId = (object.firstChunkMessageId !== undefined && object.firstChunkMessageId !== null)
+      ? MessageIdData.fromPartial(object.firstChunkMessageId)
+      : undefined;
     return message;
   },
 };
@@ -2477,10 +2490,7 @@ function createBaseKeyValue(): KeyValue {
 }
 
 export const KeyValue = {
-  encode(
-    message: KeyValue,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: KeyValue, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
@@ -2491,40 +2501,53 @@ export const KeyValue = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): KeyValue {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseKeyValue();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.key = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.value = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): KeyValue {
-    return {
-      key: isSet(object.key) ? String(object.key) : "",
-      value: isSet(object.value) ? String(object.value) : "",
-    };
+    return { key: isSet(object.key) ? String(object.key) : "", value: isSet(object.value) ? String(object.value) : "" };
   },
 
   toJSON(message: KeyValue): unknown {
     const obj: any = {};
-    message.key !== undefined && (obj.key = message.key);
-    message.value !== undefined && (obj.value = message.value);
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<KeyValue>, I>>(base?: I): KeyValue {
+    return KeyValue.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<KeyValue>, I>>(object: I): KeyValue {
     const message = createBaseKeyValue();
     message.key = object.key ?? "";
@@ -2538,10 +2561,7 @@ function createBaseKeyLongValue(): KeyLongValue {
 }
 
 export const KeyLongValue = {
-  encode(
-    message: KeyLongValue,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: KeyLongValue, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
@@ -2552,22 +2572,31 @@ export const KeyLongValue = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): KeyLongValue {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseKeyLongValue();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.key = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.value = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2581,21 +2610,22 @@ export const KeyLongValue = {
 
   toJSON(message: KeyLongValue): unknown {
     const obj: any = {};
-    message.key !== undefined && (obj.key = message.key);
-    message.value !== undefined &&
-      (obj.value = (message.value || Long.UZERO).toString());
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (!message.value.isZero()) {
+      obj.value = (message.value || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<KeyLongValue>, I>>(
-    object: I
-  ): KeyLongValue {
+  create<I extends Exact<DeepPartial<KeyLongValue>, I>>(base?: I): KeyLongValue {
+    return KeyLongValue.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<KeyLongValue>, I>>(object: I): KeyLongValue {
     const message = createBaseKeyLongValue();
     message.key = object.key ?? "";
-    message.value =
-      object.value !== undefined && object.value !== null
-        ? Long.fromValue(object.value)
-        : Long.UZERO;
+    message.value = (object.value !== undefined && object.value !== null) ? Long.fromValue(object.value) : Long.UZERO;
     return message;
   },
 };
@@ -2605,10 +2635,7 @@ function createBaseIntRange(): IntRange {
 }
 
 export const IntRange = {
-  encode(
-    message: IntRange,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: IntRange, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.start !== 0) {
       writer.uint32(8).int32(message.start);
     }
@@ -2619,40 +2646,53 @@ export const IntRange = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): IntRange {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseIntRange();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.start = reader.int32();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.end = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): IntRange {
-    return {
-      start: isSet(object.start) ? Number(object.start) : 0,
-      end: isSet(object.end) ? Number(object.end) : 0,
-    };
+    return { start: isSet(object.start) ? Number(object.start) : 0, end: isSet(object.end) ? Number(object.end) : 0 };
   },
 
   toJSON(message: IntRange): unknown {
     const obj: any = {};
-    message.start !== undefined && (obj.start = Math.round(message.start));
-    message.end !== undefined && (obj.end = Math.round(message.end));
+    if (message.start !== 0) {
+      obj.start = Math.round(message.start);
+    }
+    if (message.end !== 0) {
+      obj.end = Math.round(message.end);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<IntRange>, I>>(base?: I): IntRange {
+    return IntRange.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<IntRange>, I>>(object: I): IntRange {
     const message = createBaseIntRange();
     message.start = object.start ?? 0;
@@ -2662,14 +2702,11 @@ export const IntRange = {
 };
 
 function createBaseEncryptionKeys(): EncryptionKeys {
-  return { key: "", value: new Uint8Array(), metadata: [] };
+  return { key: "", value: new Uint8Array(0), metadata: [] };
 }
 
 export const EncryptionKeys = {
-  encode(
-    message: EncryptionKeys,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: EncryptionKeys, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
@@ -2683,25 +2720,38 @@ export const EncryptionKeys = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): EncryptionKeys {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEncryptionKeys();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.key = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.value = reader.bytes();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.metadata.push(KeyValue.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -2709,40 +2759,33 @@ export const EncryptionKeys = {
   fromJSON(object: any): EncryptionKeys {
     return {
       key: isSet(object.key) ? String(object.key) : "",
-      value: isSet(object.value)
-        ? bytesFromBase64(object.value)
-        : new Uint8Array(),
-      metadata: Array.isArray(object?.metadata)
-        ? object.metadata.map((e: any) => KeyValue.fromJSON(e))
-        : [],
+      value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
+      metadata: Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: EncryptionKeys): unknown {
     const obj: any = {};
-    message.key !== undefined && (obj.key = message.key);
-    message.value !== undefined &&
-      (obj.value = base64FromBytes(
-        message.value !== undefined ? message.value : new Uint8Array()
-      ));
-    if (message.metadata) {
-      obj.metadata = message.metadata.map((e) =>
-        e ? KeyValue.toJSON(e) : undefined
-      );
-    } else {
-      obj.metadata = [];
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value.length !== 0) {
+      obj.value = base64FromBytes(message.value);
+    }
+    if (message.metadata?.length) {
+      obj.metadata = message.metadata.map((e) => KeyValue.toJSON(e));
     }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<EncryptionKeys>, I>>(
-    object: I
-  ): EncryptionKeys {
+  create<I extends Exact<DeepPartial<EncryptionKeys>, I>>(base?: I): EncryptionKeys {
+    return EncryptionKeys.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EncryptionKeys>, I>>(object: I): EncryptionKeys {
     const message = createBaseEncryptionKeys();
     message.key = object.key ?? "";
-    message.value = object.value ?? new Uint8Array();
-    message.metadata =
-      object.metadata?.map((e) => KeyValue.fromPartial(e)) || [];
+    message.value = object.value ?? new Uint8Array(0);
+    message.metadata = object.metadata?.map((e) => KeyValue.fromPartial(e)) || [];
     return message;
   },
 };
@@ -2762,10 +2805,10 @@ function createBaseMessageMetadata(): MessageMetadata {
     eventTime: Long.UZERO,
     encryptionKeys: [],
     encryptionAlgo: "",
-    encryptionParam: new Uint8Array(),
-    schemaVersion: new Uint8Array(),
+    encryptionParam: new Uint8Array(0),
+    schemaVersion: new Uint8Array(0),
     partitionKeyB64Encoded: false,
-    orderingKey: new Uint8Array(),
+    orderingKey: new Uint8Array(0),
     deliverAtTime: Long.ZERO,
     markerType: 0,
     txnidLeastBits: Long.UZERO,
@@ -2781,10 +2824,7 @@ function createBaseMessageMetadata(): MessageMetadata {
 }
 
 export const MessageMetadata = {
-  encode(
-    message: MessageMetadata,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: MessageMetadata, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.producerName !== "") {
       writer.uint32(10).string(message.producerName);
     }
@@ -2873,323 +2913,382 @@ export const MessageMetadata = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MessageMetadata {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMessageMetadata();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.producerName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.sequenceId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.publishTime = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.properties.push(KeyValue.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.replicatedFrom = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.partitionKey = reader.string();
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.replicateTo.push(reader.string());
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.compression = reader.int32() as any;
-          break;
+          continue;
         case 9:
+          if (tag !== 72) {
+            break;
+          }
+
           message.uncompressedSize = reader.uint32();
-          break;
+          continue;
         case 11:
+          if (tag !== 88) {
+            break;
+          }
+
           message.numMessagesInBatch = reader.int32();
-          break;
+          continue;
         case 12:
+          if (tag !== 96) {
+            break;
+          }
+
           message.eventTime = reader.uint64() as Long;
-          break;
+          continue;
         case 13:
-          message.encryptionKeys.push(
-            EncryptionKeys.decode(reader, reader.uint32())
-          );
-          break;
+          if (tag !== 106) {
+            break;
+          }
+
+          message.encryptionKeys.push(EncryptionKeys.decode(reader, reader.uint32()));
+          continue;
         case 14:
+          if (tag !== 114) {
+            break;
+          }
+
           message.encryptionAlgo = reader.string();
-          break;
+          continue;
         case 15:
+          if (tag !== 122) {
+            break;
+          }
+
           message.encryptionParam = reader.bytes();
-          break;
+          continue;
         case 16:
+          if (tag !== 130) {
+            break;
+          }
+
           message.schemaVersion = reader.bytes();
-          break;
+          continue;
         case 17:
+          if (tag !== 136) {
+            break;
+          }
+
           message.partitionKeyB64Encoded = reader.bool();
-          break;
+          continue;
         case 18:
+          if (tag !== 146) {
+            break;
+          }
+
           message.orderingKey = reader.bytes();
-          break;
+          continue;
         case 19:
+          if (tag !== 152) {
+            break;
+          }
+
           message.deliverAtTime = reader.int64() as Long;
-          break;
+          continue;
         case 20:
+          if (tag !== 160) {
+            break;
+          }
+
           message.markerType = reader.int32();
-          break;
+          continue;
         case 22:
+          if (tag !== 176) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 23:
+          if (tag !== 184) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 24:
+          if (tag !== 192) {
+            break;
+          }
+
           message.highestSequenceId = reader.uint64() as Long;
-          break;
+          continue;
         case 25:
+          if (tag !== 200) {
+            break;
+          }
+
           message.nullValue = reader.bool();
-          break;
+          continue;
         case 26:
+          if (tag !== 210) {
+            break;
+          }
+
           message.uuid = reader.string();
-          break;
+          continue;
         case 27:
+          if (tag !== 216) {
+            break;
+          }
+
           message.numChunksFromMsg = reader.int32();
-          break;
+          continue;
         case 28:
+          if (tag !== 224) {
+            break;
+          }
+
           message.totalChunkMsgSize = reader.int32();
-          break;
+          continue;
         case 29:
+          if (tag !== 232) {
+            break;
+          }
+
           message.chunkId = reader.int32();
-          break;
+          continue;
         case 30:
+          if (tag !== 240) {
+            break;
+          }
+
           message.nullPartitionKey = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): MessageMetadata {
     return {
-      producerName: isSet(object.producerName)
-        ? String(object.producerName)
-        : "",
-      sequenceId: isSet(object.sequenceId)
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO,
-      publishTime: isSet(object.publishTime)
-        ? Long.fromValue(object.publishTime)
-        : Long.UZERO,
-      properties: Array.isArray(object?.properties)
-        ? object.properties.map((e: any) => KeyValue.fromJSON(e))
-        : [],
-      replicatedFrom: isSet(object.replicatedFrom)
-        ? String(object.replicatedFrom)
-        : "",
-      partitionKey: isSet(object.partitionKey)
-        ? String(object.partitionKey)
-        : "",
-      replicateTo: Array.isArray(object?.replicateTo)
-        ? object.replicateTo.map((e: any) => String(e))
-        : [],
-      compression: isSet(object.compression)
-        ? compressionTypeFromJSON(object.compression)
-        : 0,
-      uncompressedSize: isSet(object.uncompressedSize)
-        ? Number(object.uncompressedSize)
-        : 0,
-      numMessagesInBatch: isSet(object.numMessagesInBatch)
-        ? Number(object.numMessagesInBatch)
-        : 0,
-      eventTime: isSet(object.eventTime)
-        ? Long.fromValue(object.eventTime)
-        : Long.UZERO,
+      producerName: isSet(object.producerName) ? String(object.producerName) : "",
+      sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
+      publishTime: isSet(object.publishTime) ? Long.fromValue(object.publishTime) : Long.UZERO,
+      properties: Array.isArray(object?.properties) ? object.properties.map((e: any) => KeyValue.fromJSON(e)) : [],
+      replicatedFrom: isSet(object.replicatedFrom) ? String(object.replicatedFrom) : "",
+      partitionKey: isSet(object.partitionKey) ? String(object.partitionKey) : "",
+      replicateTo: Array.isArray(object?.replicateTo) ? object.replicateTo.map((e: any) => String(e)) : [],
+      compression: isSet(object.compression) ? compressionTypeFromJSON(object.compression) : 0,
+      uncompressedSize: isSet(object.uncompressedSize) ? Number(object.uncompressedSize) : 0,
+      numMessagesInBatch: isSet(object.numMessagesInBatch) ? Number(object.numMessagesInBatch) : 0,
+      eventTime: isSet(object.eventTime) ? Long.fromValue(object.eventTime) : Long.UZERO,
       encryptionKeys: Array.isArray(object?.encryptionKeys)
         ? object.encryptionKeys.map((e: any) => EncryptionKeys.fromJSON(e))
         : [],
-      encryptionAlgo: isSet(object.encryptionAlgo)
-        ? String(object.encryptionAlgo)
-        : "",
-      encryptionParam: isSet(object.encryptionParam)
-        ? bytesFromBase64(object.encryptionParam)
-        : new Uint8Array(),
-      schemaVersion: isSet(object.schemaVersion)
-        ? bytesFromBase64(object.schemaVersion)
-        : new Uint8Array(),
-      partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded)
-        ? Boolean(object.partitionKeyB64Encoded)
-        : false,
-      orderingKey: isSet(object.orderingKey)
-        ? bytesFromBase64(object.orderingKey)
-        : new Uint8Array(),
-      deliverAtTime: isSet(object.deliverAtTime)
-        ? Long.fromValue(object.deliverAtTime)
-        : Long.ZERO,
+      encryptionAlgo: isSet(object.encryptionAlgo) ? String(object.encryptionAlgo) : "",
+      encryptionParam: isSet(object.encryptionParam) ? bytesFromBase64(object.encryptionParam) : new Uint8Array(0),
+      schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
+      partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded) ? Boolean(object.partitionKeyB64Encoded) : false,
+      orderingKey: isSet(object.orderingKey) ? bytesFromBase64(object.orderingKey) : new Uint8Array(0),
+      deliverAtTime: isSet(object.deliverAtTime) ? Long.fromValue(object.deliverAtTime) : Long.ZERO,
       markerType: isSet(object.markerType) ? Number(object.markerType) : 0,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
-      highestSequenceId: isSet(object.highestSequenceId)
-        ? Long.fromValue(object.highestSequenceId)
-        : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
+      highestSequenceId: isSet(object.highestSequenceId) ? Long.fromValue(object.highestSequenceId) : Long.UZERO,
       nullValue: isSet(object.nullValue) ? Boolean(object.nullValue) : false,
       uuid: isSet(object.uuid) ? String(object.uuid) : "",
-      numChunksFromMsg: isSet(object.numChunksFromMsg)
-        ? Number(object.numChunksFromMsg)
-        : 0,
-      totalChunkMsgSize: isSet(object.totalChunkMsgSize)
-        ? Number(object.totalChunkMsgSize)
-        : 0,
+      numChunksFromMsg: isSet(object.numChunksFromMsg) ? Number(object.numChunksFromMsg) : 0,
+      totalChunkMsgSize: isSet(object.totalChunkMsgSize) ? Number(object.totalChunkMsgSize) : 0,
       chunkId: isSet(object.chunkId) ? Number(object.chunkId) : 0,
-      nullPartitionKey: isSet(object.nullPartitionKey)
-        ? Boolean(object.nullPartitionKey)
-        : false,
+      nullPartitionKey: isSet(object.nullPartitionKey) ? Boolean(object.nullPartitionKey) : false,
     };
   },
 
   toJSON(message: MessageMetadata): unknown {
     const obj: any = {};
-    message.producerName !== undefined &&
-      (obj.producerName = message.producerName);
-    message.sequenceId !== undefined &&
-      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
-    message.publishTime !== undefined &&
-      (obj.publishTime = (message.publishTime || Long.UZERO).toString());
-    if (message.properties) {
-      obj.properties = message.properties.map((e) =>
-        e ? KeyValue.toJSON(e) : undefined
-      );
-    } else {
-      obj.properties = [];
+    if (message.producerName !== "") {
+      obj.producerName = message.producerName;
     }
-    message.replicatedFrom !== undefined &&
-      (obj.replicatedFrom = message.replicatedFrom);
-    message.partitionKey !== undefined &&
-      (obj.partitionKey = message.partitionKey);
-    if (message.replicateTo) {
-      obj.replicateTo = message.replicateTo.map((e) => e);
-    } else {
-      obj.replicateTo = [];
+    if (!message.sequenceId.isZero()) {
+      obj.sequenceId = (message.sequenceId || Long.UZERO).toString();
     }
-    message.compression !== undefined &&
-      (obj.compression = compressionTypeToJSON(message.compression));
-    message.uncompressedSize !== undefined &&
-      (obj.uncompressedSize = Math.round(message.uncompressedSize));
-    message.numMessagesInBatch !== undefined &&
-      (obj.numMessagesInBatch = Math.round(message.numMessagesInBatch));
-    message.eventTime !== undefined &&
-      (obj.eventTime = (message.eventTime || Long.UZERO).toString());
-    if (message.encryptionKeys) {
-      obj.encryptionKeys = message.encryptionKeys.map((e) =>
-        e ? EncryptionKeys.toJSON(e) : undefined
-      );
-    } else {
-      obj.encryptionKeys = [];
+    if (!message.publishTime.isZero()) {
+      obj.publishTime = (message.publishTime || Long.UZERO).toString();
     }
-    message.encryptionAlgo !== undefined &&
-      (obj.encryptionAlgo = message.encryptionAlgo);
-    message.encryptionParam !== undefined &&
-      (obj.encryptionParam = base64FromBytes(
-        message.encryptionParam !== undefined
-          ? message.encryptionParam
-          : new Uint8Array()
-      ));
-    message.schemaVersion !== undefined &&
-      (obj.schemaVersion = base64FromBytes(
-        message.schemaVersion !== undefined
-          ? message.schemaVersion
-          : new Uint8Array()
-      ));
-    message.partitionKeyB64Encoded !== undefined &&
-      (obj.partitionKeyB64Encoded = message.partitionKeyB64Encoded);
-    message.orderingKey !== undefined &&
-      (obj.orderingKey = base64FromBytes(
-        message.orderingKey !== undefined
-          ? message.orderingKey
-          : new Uint8Array()
-      ));
-    message.deliverAtTime !== undefined &&
-      (obj.deliverAtTime = (message.deliverAtTime || Long.ZERO).toString());
-    message.markerType !== undefined &&
-      (obj.markerType = Math.round(message.markerType));
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.highestSequenceId !== undefined &&
-      (obj.highestSequenceId = (
-        message.highestSequenceId || Long.UZERO
-      ).toString());
-    message.nullValue !== undefined && (obj.nullValue = message.nullValue);
-    message.uuid !== undefined && (obj.uuid = message.uuid);
-    message.numChunksFromMsg !== undefined &&
-      (obj.numChunksFromMsg = Math.round(message.numChunksFromMsg));
-    message.totalChunkMsgSize !== undefined &&
-      (obj.totalChunkMsgSize = Math.round(message.totalChunkMsgSize));
-    message.chunkId !== undefined &&
-      (obj.chunkId = Math.round(message.chunkId));
-    message.nullPartitionKey !== undefined &&
-      (obj.nullPartitionKey = message.nullPartitionKey);
+    if (message.properties?.length) {
+      obj.properties = message.properties.map((e) => KeyValue.toJSON(e));
+    }
+    if (message.replicatedFrom !== "") {
+      obj.replicatedFrom = message.replicatedFrom;
+    }
+    if (message.partitionKey !== "") {
+      obj.partitionKey = message.partitionKey;
+    }
+    if (message.replicateTo?.length) {
+      obj.replicateTo = message.replicateTo;
+    }
+    if (message.compression !== 0) {
+      obj.compression = compressionTypeToJSON(message.compression);
+    }
+    if (message.uncompressedSize !== 0) {
+      obj.uncompressedSize = Math.round(message.uncompressedSize);
+    }
+    if (message.numMessagesInBatch !== 0) {
+      obj.numMessagesInBatch = Math.round(message.numMessagesInBatch);
+    }
+    if (!message.eventTime.isZero()) {
+      obj.eventTime = (message.eventTime || Long.UZERO).toString();
+    }
+    if (message.encryptionKeys?.length) {
+      obj.encryptionKeys = message.encryptionKeys.map((e) => EncryptionKeys.toJSON(e));
+    }
+    if (message.encryptionAlgo !== "") {
+      obj.encryptionAlgo = message.encryptionAlgo;
+    }
+    if (message.encryptionParam.length !== 0) {
+      obj.encryptionParam = base64FromBytes(message.encryptionParam);
+    }
+    if (message.schemaVersion.length !== 0) {
+      obj.schemaVersion = base64FromBytes(message.schemaVersion);
+    }
+    if (message.partitionKeyB64Encoded === true) {
+      obj.partitionKeyB64Encoded = message.partitionKeyB64Encoded;
+    }
+    if (message.orderingKey.length !== 0) {
+      obj.orderingKey = base64FromBytes(message.orderingKey);
+    }
+    if (!message.deliverAtTime.isZero()) {
+      obj.deliverAtTime = (message.deliverAtTime || Long.ZERO).toString();
+    }
+    if (message.markerType !== 0) {
+      obj.markerType = Math.round(message.markerType);
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (!message.highestSequenceId.isZero()) {
+      obj.highestSequenceId = (message.highestSequenceId || Long.UZERO).toString();
+    }
+    if (message.nullValue === true) {
+      obj.nullValue = message.nullValue;
+    }
+    if (message.uuid !== "") {
+      obj.uuid = message.uuid;
+    }
+    if (message.numChunksFromMsg !== 0) {
+      obj.numChunksFromMsg = Math.round(message.numChunksFromMsg);
+    }
+    if (message.totalChunkMsgSize !== 0) {
+      obj.totalChunkMsgSize = Math.round(message.totalChunkMsgSize);
+    }
+    if (message.chunkId !== 0) {
+      obj.chunkId = Math.round(message.chunkId);
+    }
+    if (message.nullPartitionKey === true) {
+      obj.nullPartitionKey = message.nullPartitionKey;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<MessageMetadata>, I>>(
-    object: I
-  ): MessageMetadata {
+  create<I extends Exact<DeepPartial<MessageMetadata>, I>>(base?: I): MessageMetadata {
+    return MessageMetadata.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MessageMetadata>, I>>(object: I): MessageMetadata {
     const message = createBaseMessageMetadata();
     message.producerName = object.producerName ?? "";
-    message.sequenceId =
-      object.sequenceId !== undefined && object.sequenceId !== null
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO;
-    message.publishTime =
-      object.publishTime !== undefined && object.publishTime !== null
-        ? Long.fromValue(object.publishTime)
-        : Long.UZERO;
-    message.properties =
-      object.properties?.map((e) => KeyValue.fromPartial(e)) || [];
+    message.sequenceId = (object.sequenceId !== undefined && object.sequenceId !== null)
+      ? Long.fromValue(object.sequenceId)
+      : Long.UZERO;
+    message.publishTime = (object.publishTime !== undefined && object.publishTime !== null)
+      ? Long.fromValue(object.publishTime)
+      : Long.UZERO;
+    message.properties = object.properties?.map((e) => KeyValue.fromPartial(e)) || [];
     message.replicatedFrom = object.replicatedFrom ?? "";
     message.partitionKey = object.partitionKey ?? "";
     message.replicateTo = object.replicateTo?.map((e) => e) || [];
     message.compression = object.compression ?? 0;
     message.uncompressedSize = object.uncompressedSize ?? 0;
     message.numMessagesInBatch = object.numMessagesInBatch ?? 0;
-    message.eventTime =
-      object.eventTime !== undefined && object.eventTime !== null
-        ? Long.fromValue(object.eventTime)
-        : Long.UZERO;
-    message.encryptionKeys =
-      object.encryptionKeys?.map((e) => EncryptionKeys.fromPartial(e)) || [];
+    message.eventTime = (object.eventTime !== undefined && object.eventTime !== null)
+      ? Long.fromValue(object.eventTime)
+      : Long.UZERO;
+    message.encryptionKeys = object.encryptionKeys?.map((e) => EncryptionKeys.fromPartial(e)) || [];
     message.encryptionAlgo = object.encryptionAlgo ?? "";
-    message.encryptionParam = object.encryptionParam ?? new Uint8Array();
-    message.schemaVersion = object.schemaVersion ?? new Uint8Array();
+    message.encryptionParam = object.encryptionParam ?? new Uint8Array(0);
+    message.schemaVersion = object.schemaVersion ?? new Uint8Array(0);
     message.partitionKeyB64Encoded = object.partitionKeyB64Encoded ?? false;
-    message.orderingKey = object.orderingKey ?? new Uint8Array();
-    message.deliverAtTime =
-      object.deliverAtTime !== undefined && object.deliverAtTime !== null
-        ? Long.fromValue(object.deliverAtTime)
-        : Long.ZERO;
+    message.orderingKey = object.orderingKey ?? new Uint8Array(0);
+    message.deliverAtTime = (object.deliverAtTime !== undefined && object.deliverAtTime !== null)
+      ? Long.fromValue(object.deliverAtTime)
+      : Long.ZERO;
     message.markerType = object.markerType ?? 0;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
-    message.highestSequenceId =
-      object.highestSequenceId !== undefined &&
-      object.highestSequenceId !== null
-        ? Long.fromValue(object.highestSequenceId)
-        : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
+    message.highestSequenceId = (object.highestSequenceId !== undefined && object.highestSequenceId !== null)
+      ? Long.fromValue(object.highestSequenceId)
+      : Long.UZERO;
     message.nullValue = object.nullValue ?? false;
     message.uuid = object.uuid ?? "";
     message.numChunksFromMsg = object.numChunksFromMsg ?? 0;
@@ -3208,7 +3307,7 @@ function createBaseSingleMessageMetadata(): SingleMessageMetadata {
     compactedOut: false,
     eventTime: Long.UZERO,
     partitionKeyB64Encoded: false,
-    orderingKey: new Uint8Array(),
+    orderingKey: new Uint8Array(0),
     sequenceId: Long.UZERO,
     nullValue: false,
     nullPartitionKey: false,
@@ -3216,10 +3315,7 @@ function createBaseSingleMessageMetadata(): SingleMessageMetadata {
 }
 
 export const SingleMessageMetadata = {
-  encode(
-    message: SingleMessageMetadata,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: SingleMessageMetadata, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.properties) {
       KeyValue.encode(v!, writer.uint32(10).fork()).ldelim();
     }
@@ -3253,137 +3349,159 @@ export const SingleMessageMetadata = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): SingleMessageMetadata {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): SingleMessageMetadata {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSingleMessageMetadata();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.properties.push(KeyValue.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.partitionKey = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.payloadSize = reader.int32();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.compactedOut = reader.bool();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.eventTime = reader.uint64() as Long;
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.partitionKeyB64Encoded = reader.bool();
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.orderingKey = reader.bytes();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.sequenceId = reader.uint64() as Long;
-          break;
+          continue;
         case 9:
+          if (tag !== 72) {
+            break;
+          }
+
           message.nullValue = reader.bool();
-          break;
+          continue;
         case 10:
+          if (tag !== 80) {
+            break;
+          }
+
           message.nullPartitionKey = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): SingleMessageMetadata {
     return {
-      properties: Array.isArray(object?.properties)
-        ? object.properties.map((e: any) => KeyValue.fromJSON(e))
-        : [],
-      partitionKey: isSet(object.partitionKey)
-        ? String(object.partitionKey)
-        : "",
+      properties: Array.isArray(object?.properties) ? object.properties.map((e: any) => KeyValue.fromJSON(e)) : [],
+      partitionKey: isSet(object.partitionKey) ? String(object.partitionKey) : "",
       payloadSize: isSet(object.payloadSize) ? Number(object.payloadSize) : 0,
-      compactedOut: isSet(object.compactedOut)
-        ? Boolean(object.compactedOut)
-        : false,
-      eventTime: isSet(object.eventTime)
-        ? Long.fromValue(object.eventTime)
-        : Long.UZERO,
-      partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded)
-        ? Boolean(object.partitionKeyB64Encoded)
-        : false,
-      orderingKey: isSet(object.orderingKey)
-        ? bytesFromBase64(object.orderingKey)
-        : new Uint8Array(),
-      sequenceId: isSet(object.sequenceId)
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO,
+      compactedOut: isSet(object.compactedOut) ? Boolean(object.compactedOut) : false,
+      eventTime: isSet(object.eventTime) ? Long.fromValue(object.eventTime) : Long.UZERO,
+      partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded) ? Boolean(object.partitionKeyB64Encoded) : false,
+      orderingKey: isSet(object.orderingKey) ? bytesFromBase64(object.orderingKey) : new Uint8Array(0),
+      sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
       nullValue: isSet(object.nullValue) ? Boolean(object.nullValue) : false,
-      nullPartitionKey: isSet(object.nullPartitionKey)
-        ? Boolean(object.nullPartitionKey)
-        : false,
+      nullPartitionKey: isSet(object.nullPartitionKey) ? Boolean(object.nullPartitionKey) : false,
     };
   },
 
   toJSON(message: SingleMessageMetadata): unknown {
     const obj: any = {};
-    if (message.properties) {
-      obj.properties = message.properties.map((e) =>
-        e ? KeyValue.toJSON(e) : undefined
-      );
-    } else {
-      obj.properties = [];
+    if (message.properties?.length) {
+      obj.properties = message.properties.map((e) => KeyValue.toJSON(e));
     }
-    message.partitionKey !== undefined &&
-      (obj.partitionKey = message.partitionKey);
-    message.payloadSize !== undefined &&
-      (obj.payloadSize = Math.round(message.payloadSize));
-    message.compactedOut !== undefined &&
-      (obj.compactedOut = message.compactedOut);
-    message.eventTime !== undefined &&
-      (obj.eventTime = (message.eventTime || Long.UZERO).toString());
-    message.partitionKeyB64Encoded !== undefined &&
-      (obj.partitionKeyB64Encoded = message.partitionKeyB64Encoded);
-    message.orderingKey !== undefined &&
-      (obj.orderingKey = base64FromBytes(
-        message.orderingKey !== undefined
-          ? message.orderingKey
-          : new Uint8Array()
-      ));
-    message.sequenceId !== undefined &&
-      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
-    message.nullValue !== undefined && (obj.nullValue = message.nullValue);
-    message.nullPartitionKey !== undefined &&
-      (obj.nullPartitionKey = message.nullPartitionKey);
+    if (message.partitionKey !== "") {
+      obj.partitionKey = message.partitionKey;
+    }
+    if (message.payloadSize !== 0) {
+      obj.payloadSize = Math.round(message.payloadSize);
+    }
+    if (message.compactedOut === true) {
+      obj.compactedOut = message.compactedOut;
+    }
+    if (!message.eventTime.isZero()) {
+      obj.eventTime = (message.eventTime || Long.UZERO).toString();
+    }
+    if (message.partitionKeyB64Encoded === true) {
+      obj.partitionKeyB64Encoded = message.partitionKeyB64Encoded;
+    }
+    if (message.orderingKey.length !== 0) {
+      obj.orderingKey = base64FromBytes(message.orderingKey);
+    }
+    if (!message.sequenceId.isZero()) {
+      obj.sequenceId = (message.sequenceId || Long.UZERO).toString();
+    }
+    if (message.nullValue === true) {
+      obj.nullValue = message.nullValue;
+    }
+    if (message.nullPartitionKey === true) {
+      obj.nullPartitionKey = message.nullPartitionKey;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<SingleMessageMetadata>, I>>(
-    object: I
-  ): SingleMessageMetadata {
+  create<I extends Exact<DeepPartial<SingleMessageMetadata>, I>>(base?: I): SingleMessageMetadata {
+    return SingleMessageMetadata.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SingleMessageMetadata>, I>>(object: I): SingleMessageMetadata {
     const message = createBaseSingleMessageMetadata();
-    message.properties =
-      object.properties?.map((e) => KeyValue.fromPartial(e)) || [];
+    message.properties = object.properties?.map((e) => KeyValue.fromPartial(e)) || [];
     message.partitionKey = object.partitionKey ?? "";
     message.payloadSize = object.payloadSize ?? 0;
     message.compactedOut = object.compactedOut ?? false;
-    message.eventTime =
-      object.eventTime !== undefined && object.eventTime !== null
-        ? Long.fromValue(object.eventTime)
-        : Long.UZERO;
+    message.eventTime = (object.eventTime !== undefined && object.eventTime !== null)
+      ? Long.fromValue(object.eventTime)
+      : Long.UZERO;
     message.partitionKeyB64Encoded = object.partitionKeyB64Encoded ?? false;
-    message.orderingKey = object.orderingKey ?? new Uint8Array();
-    message.sequenceId =
-      object.sequenceId !== undefined && object.sequenceId !== null
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO;
+    message.orderingKey = object.orderingKey ?? new Uint8Array(0);
+    message.sequenceId = (object.sequenceId !== undefined && object.sequenceId !== null)
+      ? Long.fromValue(object.sequenceId)
+      : Long.UZERO;
     message.nullValue = object.nullValue ?? false;
     message.nullPartitionKey = object.nullPartitionKey ?? false;
     return message;
@@ -3395,10 +3513,7 @@ function createBaseBrokerEntryMetadata(): BrokerEntryMetadata {
 }
 
 export const BrokerEntryMetadata = {
-  encode(
-    message: BrokerEntryMetadata,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: BrokerEntryMetadata, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.brokerTimestamp.isZero()) {
       writer.uint32(8).uint64(message.brokerTimestamp);
     }
@@ -3409,58 +3524,62 @@ export const BrokerEntryMetadata = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): BrokerEntryMetadata {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseBrokerEntryMetadata();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.brokerTimestamp = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.index = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): BrokerEntryMetadata {
     return {
-      brokerTimestamp: isSet(object.brokerTimestamp)
-        ? Long.fromValue(object.brokerTimestamp)
-        : Long.UZERO,
+      brokerTimestamp: isSet(object.brokerTimestamp) ? Long.fromValue(object.brokerTimestamp) : Long.UZERO,
       index: isSet(object.index) ? Long.fromValue(object.index) : Long.UZERO,
     };
   },
 
   toJSON(message: BrokerEntryMetadata): unknown {
     const obj: any = {};
-    message.brokerTimestamp !== undefined &&
-      (obj.brokerTimestamp = (
-        message.brokerTimestamp || Long.UZERO
-      ).toString());
-    message.index !== undefined &&
-      (obj.index = (message.index || Long.UZERO).toString());
+    if (!message.brokerTimestamp.isZero()) {
+      obj.brokerTimestamp = (message.brokerTimestamp || Long.UZERO).toString();
+    }
+    if (!message.index.isZero()) {
+      obj.index = (message.index || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<BrokerEntryMetadata>, I>>(
-    object: I
-  ): BrokerEntryMetadata {
+  create<I extends Exact<DeepPartial<BrokerEntryMetadata>, I>>(base?: I): BrokerEntryMetadata {
+    return BrokerEntryMetadata.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BrokerEntryMetadata>, I>>(object: I): BrokerEntryMetadata {
     const message = createBaseBrokerEntryMetadata();
-    message.brokerTimestamp =
-      object.brokerTimestamp !== undefined && object.brokerTimestamp !== null
-        ? Long.fromValue(object.brokerTimestamp)
-        : Long.UZERO;
-    message.index =
-      object.index !== undefined && object.index !== null
-        ? Long.fromValue(object.index)
-        : Long.UZERO;
+    message.brokerTimestamp = (object.brokerTimestamp !== undefined && object.brokerTimestamp !== null)
+      ? Long.fromValue(object.brokerTimestamp)
+      : Long.UZERO;
+    message.index = (object.index !== undefined && object.index !== null) ? Long.fromValue(object.index) : Long.UZERO;
     return message;
   },
 };
@@ -3469,7 +3588,7 @@ function createBaseCommandConnect(): CommandConnect {
   return {
     clientVersion: "",
     authMethod: 0,
-    authData: new Uint8Array(),
+    authData: new Uint8Array(0),
     protocolVersion: 0,
     authMethodName: "",
     proxyToBrokerUrl: "",
@@ -3481,10 +3600,7 @@ function createBaseCommandConnect(): CommandConnect {
 }
 
 export const CommandConnect = {
-  encode(
-    message: CommandConnect,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandConnect, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.clientVersion !== "") {
       writer.uint32(10).string(message.clientVersion);
     }
@@ -3513,140 +3629,164 @@ export const CommandConnect = {
       writer.uint32(74).string(message.originalAuthMethod);
     }
     if (message.featureFlags !== undefined) {
-      FeatureFlags.encode(
-        message.featureFlags,
-        writer.uint32(82).fork()
-      ).ldelim();
+      FeatureFlags.encode(message.featureFlags, writer.uint32(82).fork()).ldelim();
     }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandConnect {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandConnect();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.clientVersion = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.authMethod = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.authData = reader.bytes();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.protocolVersion = reader.int32();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.authMethodName = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.proxyToBrokerUrl = reader.string();
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.originalPrincipal = reader.string();
-          break;
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.originalAuthData = reader.string();
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.originalAuthMethod = reader.string();
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.featureFlags = FeatureFlags.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandConnect {
     return {
-      clientVersion: isSet(object.clientVersion)
-        ? String(object.clientVersion)
-        : "",
-      authMethod: isSet(object.authMethod)
-        ? authMethodFromJSON(object.authMethod)
-        : 0,
-      authData: isSet(object.authData)
-        ? bytesFromBase64(object.authData)
-        : new Uint8Array(),
-      protocolVersion: isSet(object.protocolVersion)
-        ? Number(object.protocolVersion)
-        : 0,
-      authMethodName: isSet(object.authMethodName)
-        ? String(object.authMethodName)
-        : "",
-      proxyToBrokerUrl: isSet(object.proxyToBrokerUrl)
-        ? String(object.proxyToBrokerUrl)
-        : "",
-      originalPrincipal: isSet(object.originalPrincipal)
-        ? String(object.originalPrincipal)
-        : "",
-      originalAuthData: isSet(object.originalAuthData)
-        ? String(object.originalAuthData)
-        : "",
-      originalAuthMethod: isSet(object.originalAuthMethod)
-        ? String(object.originalAuthMethod)
-        : "",
-      featureFlags: isSet(object.featureFlags)
-        ? FeatureFlags.fromJSON(object.featureFlags)
-        : undefined,
+      clientVersion: isSet(object.clientVersion) ? String(object.clientVersion) : "",
+      authMethod: isSet(object.authMethod) ? authMethodFromJSON(object.authMethod) : 0,
+      authData: isSet(object.authData) ? bytesFromBase64(object.authData) : new Uint8Array(0),
+      protocolVersion: isSet(object.protocolVersion) ? Number(object.protocolVersion) : 0,
+      authMethodName: isSet(object.authMethodName) ? String(object.authMethodName) : "",
+      proxyToBrokerUrl: isSet(object.proxyToBrokerUrl) ? String(object.proxyToBrokerUrl) : "",
+      originalPrincipal: isSet(object.originalPrincipal) ? String(object.originalPrincipal) : "",
+      originalAuthData: isSet(object.originalAuthData) ? String(object.originalAuthData) : "",
+      originalAuthMethod: isSet(object.originalAuthMethod) ? String(object.originalAuthMethod) : "",
+      featureFlags: isSet(object.featureFlags) ? FeatureFlags.fromJSON(object.featureFlags) : undefined,
     };
   },
 
   toJSON(message: CommandConnect): unknown {
     const obj: any = {};
-    message.clientVersion !== undefined &&
-      (obj.clientVersion = message.clientVersion);
-    message.authMethod !== undefined &&
-      (obj.authMethod = authMethodToJSON(message.authMethod));
-    message.authData !== undefined &&
-      (obj.authData = base64FromBytes(
-        message.authData !== undefined ? message.authData : new Uint8Array()
-      ));
-    message.protocolVersion !== undefined &&
-      (obj.protocolVersion = Math.round(message.protocolVersion));
-    message.authMethodName !== undefined &&
-      (obj.authMethodName = message.authMethodName);
-    message.proxyToBrokerUrl !== undefined &&
-      (obj.proxyToBrokerUrl = message.proxyToBrokerUrl);
-    message.originalPrincipal !== undefined &&
-      (obj.originalPrincipal = message.originalPrincipal);
-    message.originalAuthData !== undefined &&
-      (obj.originalAuthData = message.originalAuthData);
-    message.originalAuthMethod !== undefined &&
-      (obj.originalAuthMethod = message.originalAuthMethod);
-    message.featureFlags !== undefined &&
-      (obj.featureFlags = message.featureFlags
-        ? FeatureFlags.toJSON(message.featureFlags)
-        : undefined);
+    if (message.clientVersion !== "") {
+      obj.clientVersion = message.clientVersion;
+    }
+    if (message.authMethod !== 0) {
+      obj.authMethod = authMethodToJSON(message.authMethod);
+    }
+    if (message.authData.length !== 0) {
+      obj.authData = base64FromBytes(message.authData);
+    }
+    if (message.protocolVersion !== 0) {
+      obj.protocolVersion = Math.round(message.protocolVersion);
+    }
+    if (message.authMethodName !== "") {
+      obj.authMethodName = message.authMethodName;
+    }
+    if (message.proxyToBrokerUrl !== "") {
+      obj.proxyToBrokerUrl = message.proxyToBrokerUrl;
+    }
+    if (message.originalPrincipal !== "") {
+      obj.originalPrincipal = message.originalPrincipal;
+    }
+    if (message.originalAuthData !== "") {
+      obj.originalAuthData = message.originalAuthData;
+    }
+    if (message.originalAuthMethod !== "") {
+      obj.originalAuthMethod = message.originalAuthMethod;
+    }
+    if (message.featureFlags !== undefined) {
+      obj.featureFlags = FeatureFlags.toJSON(message.featureFlags);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandConnect>, I>>(
-    object: I
-  ): CommandConnect {
+  create<I extends Exact<DeepPartial<CommandConnect>, I>>(base?: I): CommandConnect {
+    return CommandConnect.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandConnect>, I>>(object: I): CommandConnect {
     const message = createBaseCommandConnect();
     message.clientVersion = object.clientVersion ?? "";
     message.authMethod = object.authMethod ?? 0;
-    message.authData = object.authData ?? new Uint8Array();
+    message.authData = object.authData ?? new Uint8Array(0);
     message.protocolVersion = object.protocolVersion ?? 0;
     message.authMethodName = object.authMethodName ?? "";
     message.proxyToBrokerUrl = object.proxyToBrokerUrl ?? "";
     message.originalPrincipal = object.originalPrincipal ?? "";
     message.originalAuthData = object.originalAuthData ?? "";
     message.originalAuthMethod = object.originalAuthMethod ?? "";
-    message.featureFlags =
-      object.featureFlags !== undefined && object.featureFlags !== null
-        ? FeatureFlags.fromPartial(object.featureFlags)
-        : undefined;
+    message.featureFlags = (object.featureFlags !== undefined && object.featureFlags !== null)
+      ? FeatureFlags.fromPartial(object.featureFlags)
+      : undefined;
     return message;
   },
 };
@@ -3661,10 +3801,7 @@ function createBaseFeatureFlags(): FeatureFlags {
 }
 
 export const FeatureFlags = {
-  encode(
-    message: FeatureFlags,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: FeatureFlags, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.supportsAuthRefresh === true) {
       writer.uint32(8).bool(message.supportsAuthRefresh);
     }
@@ -3681,69 +3818,84 @@ export const FeatureFlags = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): FeatureFlags {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseFeatureFlags();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.supportsAuthRefresh = reader.bool();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.supportsBrokerEntryMetadata = reader.bool();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.supportsPartialProducer = reader.bool();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.supportsTopicWatchers = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): FeatureFlags {
     return {
-      supportsAuthRefresh: isSet(object.supportsAuthRefresh)
-        ? Boolean(object.supportsAuthRefresh)
-        : false,
+      supportsAuthRefresh: isSet(object.supportsAuthRefresh) ? Boolean(object.supportsAuthRefresh) : false,
       supportsBrokerEntryMetadata: isSet(object.supportsBrokerEntryMetadata)
         ? Boolean(object.supportsBrokerEntryMetadata)
         : false,
-      supportsPartialProducer: isSet(object.supportsPartialProducer)
-        ? Boolean(object.supportsPartialProducer)
-        : false,
-      supportsTopicWatchers: isSet(object.supportsTopicWatchers)
-        ? Boolean(object.supportsTopicWatchers)
-        : false,
+      supportsPartialProducer: isSet(object.supportsPartialProducer) ? Boolean(object.supportsPartialProducer) : false,
+      supportsTopicWatchers: isSet(object.supportsTopicWatchers) ? Boolean(object.supportsTopicWatchers) : false,
     };
   },
 
   toJSON(message: FeatureFlags): unknown {
     const obj: any = {};
-    message.supportsAuthRefresh !== undefined &&
-      (obj.supportsAuthRefresh = message.supportsAuthRefresh);
-    message.supportsBrokerEntryMetadata !== undefined &&
-      (obj.supportsBrokerEntryMetadata = message.supportsBrokerEntryMetadata);
-    message.supportsPartialProducer !== undefined &&
-      (obj.supportsPartialProducer = message.supportsPartialProducer);
-    message.supportsTopicWatchers !== undefined &&
-      (obj.supportsTopicWatchers = message.supportsTopicWatchers);
+    if (message.supportsAuthRefresh === true) {
+      obj.supportsAuthRefresh = message.supportsAuthRefresh;
+    }
+    if (message.supportsBrokerEntryMetadata === true) {
+      obj.supportsBrokerEntryMetadata = message.supportsBrokerEntryMetadata;
+    }
+    if (message.supportsPartialProducer === true) {
+      obj.supportsPartialProducer = message.supportsPartialProducer;
+    }
+    if (message.supportsTopicWatchers === true) {
+      obj.supportsTopicWatchers = message.supportsTopicWatchers;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<FeatureFlags>, I>>(
-    object: I
-  ): FeatureFlags {
+  create<I extends Exact<DeepPartial<FeatureFlags>, I>>(base?: I): FeatureFlags {
+    return FeatureFlags.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<FeatureFlags>, I>>(object: I): FeatureFlags {
     const message = createBaseFeatureFlags();
     message.supportsAuthRefresh = object.supportsAuthRefresh ?? false;
-    message.supportsBrokerEntryMetadata =
-      object.supportsBrokerEntryMetadata ?? false;
+    message.supportsBrokerEntryMetadata = object.supportsBrokerEntryMetadata ?? false;
     message.supportsPartialProducer = object.supportsPartialProducer ?? false;
     message.supportsTopicWatchers = object.supportsTopicWatchers ?? false;
     return message;
@@ -3751,19 +3903,11 @@ export const FeatureFlags = {
 };
 
 function createBaseCommandConnected(): CommandConnected {
-  return {
-    serverVersion: "",
-    protocolVersion: 0,
-    maxMessageSize: 0,
-    featureFlags: undefined,
-  };
+  return { serverVersion: "", protocolVersion: 0, maxMessageSize: 0, featureFlags: undefined };
 }
 
 export const CommandConnected = {
-  encode(
-    message: CommandConnected,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandConnected, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.serverVersion !== "") {
       writer.uint32(10).string(message.serverVersion);
     }
@@ -3774,84 +3918,92 @@ export const CommandConnected = {
       writer.uint32(24).int32(message.maxMessageSize);
     }
     if (message.featureFlags !== undefined) {
-      FeatureFlags.encode(
-        message.featureFlags,
-        writer.uint32(34).fork()
-      ).ldelim();
+      FeatureFlags.encode(message.featureFlags, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandConnected {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandConnected();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.serverVersion = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.protocolVersion = reader.int32();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.maxMessageSize = reader.int32();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.featureFlags = FeatureFlags.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandConnected {
     return {
-      serverVersion: isSet(object.serverVersion)
-        ? String(object.serverVersion)
-        : "",
-      protocolVersion: isSet(object.protocolVersion)
-        ? Number(object.protocolVersion)
-        : 0,
-      maxMessageSize: isSet(object.maxMessageSize)
-        ? Number(object.maxMessageSize)
-        : 0,
-      featureFlags: isSet(object.featureFlags)
-        ? FeatureFlags.fromJSON(object.featureFlags)
-        : undefined,
+      serverVersion: isSet(object.serverVersion) ? String(object.serverVersion) : "",
+      protocolVersion: isSet(object.protocolVersion) ? Number(object.protocolVersion) : 0,
+      maxMessageSize: isSet(object.maxMessageSize) ? Number(object.maxMessageSize) : 0,
+      featureFlags: isSet(object.featureFlags) ? FeatureFlags.fromJSON(object.featureFlags) : undefined,
     };
   },
 
   toJSON(message: CommandConnected): unknown {
     const obj: any = {};
-    message.serverVersion !== undefined &&
-      (obj.serverVersion = message.serverVersion);
-    message.protocolVersion !== undefined &&
-      (obj.protocolVersion = Math.round(message.protocolVersion));
-    message.maxMessageSize !== undefined &&
-      (obj.maxMessageSize = Math.round(message.maxMessageSize));
-    message.featureFlags !== undefined &&
-      (obj.featureFlags = message.featureFlags
-        ? FeatureFlags.toJSON(message.featureFlags)
-        : undefined);
+    if (message.serverVersion !== "") {
+      obj.serverVersion = message.serverVersion;
+    }
+    if (message.protocolVersion !== 0) {
+      obj.protocolVersion = Math.round(message.protocolVersion);
+    }
+    if (message.maxMessageSize !== 0) {
+      obj.maxMessageSize = Math.round(message.maxMessageSize);
+    }
+    if (message.featureFlags !== undefined) {
+      obj.featureFlags = FeatureFlags.toJSON(message.featureFlags);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandConnected>, I>>(
-    object: I
-  ): CommandConnected {
+  create<I extends Exact<DeepPartial<CommandConnected>, I>>(base?: I): CommandConnected {
+    return CommandConnected.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandConnected>, I>>(object: I): CommandConnected {
     const message = createBaseCommandConnected();
     message.serverVersion = object.serverVersion ?? "";
     message.protocolVersion = object.protocolVersion ?? 0;
     message.maxMessageSize = object.maxMessageSize ?? 0;
-    message.featureFlags =
-      object.featureFlags !== undefined && object.featureFlags !== null
-        ? FeatureFlags.fromPartial(object.featureFlags)
-        : undefined;
+    message.featureFlags = (object.featureFlags !== undefined && object.featureFlags !== null)
+      ? FeatureFlags.fromPartial(object.featureFlags)
+      : undefined;
     return message;
   },
 };
@@ -3861,10 +4013,7 @@ function createBaseCommandAuthResponse(): CommandAuthResponse {
 }
 
 export const CommandAuthResponse = {
-  encode(
-    message: CommandAuthResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandAuthResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.clientVersion !== "") {
       writer.uint32(10).string(message.clientVersion);
     }
@@ -3878,65 +4027,73 @@ export const CommandAuthResponse = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandAuthResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandAuthResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.clientVersion = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.response = AuthData.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.protocolVersion = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandAuthResponse {
     return {
-      clientVersion: isSet(object.clientVersion)
-        ? String(object.clientVersion)
-        : "",
-      response: isSet(object.response)
-        ? AuthData.fromJSON(object.response)
-        : undefined,
-      protocolVersion: isSet(object.protocolVersion)
-        ? Number(object.protocolVersion)
-        : 0,
+      clientVersion: isSet(object.clientVersion) ? String(object.clientVersion) : "",
+      response: isSet(object.response) ? AuthData.fromJSON(object.response) : undefined,
+      protocolVersion: isSet(object.protocolVersion) ? Number(object.protocolVersion) : 0,
     };
   },
 
   toJSON(message: CommandAuthResponse): unknown {
     const obj: any = {};
-    message.clientVersion !== undefined &&
-      (obj.clientVersion = message.clientVersion);
-    message.response !== undefined &&
-      (obj.response = message.response
-        ? AuthData.toJSON(message.response)
-        : undefined);
-    message.protocolVersion !== undefined &&
-      (obj.protocolVersion = Math.round(message.protocolVersion));
+    if (message.clientVersion !== "") {
+      obj.clientVersion = message.clientVersion;
+    }
+    if (message.response !== undefined) {
+      obj.response = AuthData.toJSON(message.response);
+    }
+    if (message.protocolVersion !== 0) {
+      obj.protocolVersion = Math.round(message.protocolVersion);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandAuthResponse>, I>>(
-    object: I
-  ): CommandAuthResponse {
+  create<I extends Exact<DeepPartial<CommandAuthResponse>, I>>(base?: I): CommandAuthResponse {
+    return CommandAuthResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandAuthResponse>, I>>(object: I): CommandAuthResponse {
     const message = createBaseCommandAuthResponse();
     message.clientVersion = object.clientVersion ?? "";
-    message.response =
-      object.response !== undefined && object.response !== null
-        ? AuthData.fromPartial(object.response)
-        : undefined;
+    message.response = (object.response !== undefined && object.response !== null)
+      ? AuthData.fromPartial(object.response)
+      : undefined;
     message.protocolVersion = object.protocolVersion ?? 0;
     return message;
   },
@@ -3947,10 +4104,7 @@ function createBaseCommandAuthChallenge(): CommandAuthChallenge {
 }
 
 export const CommandAuthChallenge = {
-  encode(
-    message: CommandAuthChallenge,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandAuthChallenge, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.serverVersion !== "") {
       writer.uint32(10).string(message.serverVersion);
     }
@@ -3963,83 +4117,85 @@ export const CommandAuthChallenge = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandAuthChallenge {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandAuthChallenge {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandAuthChallenge();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.serverVersion = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.challenge = AuthData.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.protocolVersion = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandAuthChallenge {
     return {
-      serverVersion: isSet(object.serverVersion)
-        ? String(object.serverVersion)
-        : "",
-      challenge: isSet(object.challenge)
-        ? AuthData.fromJSON(object.challenge)
-        : undefined,
-      protocolVersion: isSet(object.protocolVersion)
-        ? Number(object.protocolVersion)
-        : 0,
+      serverVersion: isSet(object.serverVersion) ? String(object.serverVersion) : "",
+      challenge: isSet(object.challenge) ? AuthData.fromJSON(object.challenge) : undefined,
+      protocolVersion: isSet(object.protocolVersion) ? Number(object.protocolVersion) : 0,
     };
   },
 
   toJSON(message: CommandAuthChallenge): unknown {
     const obj: any = {};
-    message.serverVersion !== undefined &&
-      (obj.serverVersion = message.serverVersion);
-    message.challenge !== undefined &&
-      (obj.challenge = message.challenge
-        ? AuthData.toJSON(message.challenge)
-        : undefined);
-    message.protocolVersion !== undefined &&
-      (obj.protocolVersion = Math.round(message.protocolVersion));
+    if (message.serverVersion !== "") {
+      obj.serverVersion = message.serverVersion;
+    }
+    if (message.challenge !== undefined) {
+      obj.challenge = AuthData.toJSON(message.challenge);
+    }
+    if (message.protocolVersion !== 0) {
+      obj.protocolVersion = Math.round(message.protocolVersion);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandAuthChallenge>, I>>(
-    object: I
-  ): CommandAuthChallenge {
+  create<I extends Exact<DeepPartial<CommandAuthChallenge>, I>>(base?: I): CommandAuthChallenge {
+    return CommandAuthChallenge.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandAuthChallenge>, I>>(object: I): CommandAuthChallenge {
     const message = createBaseCommandAuthChallenge();
     message.serverVersion = object.serverVersion ?? "";
-    message.challenge =
-      object.challenge !== undefined && object.challenge !== null
-        ? AuthData.fromPartial(object.challenge)
-        : undefined;
+    message.challenge = (object.challenge !== undefined && object.challenge !== null)
+      ? AuthData.fromPartial(object.challenge)
+      : undefined;
     message.protocolVersion = object.protocolVersion ?? 0;
     return message;
   },
 };
 
 function createBaseAuthData(): AuthData {
-  return { authMethodName: "", authData: new Uint8Array() };
+  return { authMethodName: "", authData: new Uint8Array(0) };
 }
 
 export const AuthData = {
-  encode(
-    message: AuthData,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: AuthData, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.authMethodName !== "") {
       writer.uint32(10).string(message.authMethodName);
     }
@@ -4050,52 +4206,60 @@ export const AuthData = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): AuthData {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAuthData();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.authMethodName = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.authData = reader.bytes();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): AuthData {
     return {
-      authMethodName: isSet(object.authMethodName)
-        ? String(object.authMethodName)
-        : "",
-      authData: isSet(object.authData)
-        ? bytesFromBase64(object.authData)
-        : new Uint8Array(),
+      authMethodName: isSet(object.authMethodName) ? String(object.authMethodName) : "",
+      authData: isSet(object.authData) ? bytesFromBase64(object.authData) : new Uint8Array(0),
     };
   },
 
   toJSON(message: AuthData): unknown {
     const obj: any = {};
-    message.authMethodName !== undefined &&
-      (obj.authMethodName = message.authMethodName);
-    message.authData !== undefined &&
-      (obj.authData = base64FromBytes(
-        message.authData !== undefined ? message.authData : new Uint8Array()
-      ));
+    if (message.authMethodName !== "") {
+      obj.authMethodName = message.authMethodName;
+    }
+    if (message.authData.length !== 0) {
+      obj.authData = base64FromBytes(message.authData);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<AuthData>, I>>(base?: I): AuthData {
+    return AuthData.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<AuthData>, I>>(object: I): AuthData {
     const message = createBaseAuthData();
     message.authMethodName = object.authMethodName ?? "";
-    message.authData = object.authData ?? new Uint8Array();
+    message.authData = object.authData ?? new Uint8Array(0);
     return message;
   },
 };
@@ -4105,10 +4269,7 @@ function createBaseKeySharedMeta(): KeySharedMeta {
 }
 
 export const KeySharedMeta = {
-  encode(
-    message: KeySharedMeta,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: KeySharedMeta, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.keySharedMode !== 0) {
       writer.uint32(8).int32(message.keySharedMode);
     }
@@ -4122,66 +4283,71 @@ export const KeySharedMeta = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): KeySharedMeta {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseKeySharedMeta();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.keySharedMode = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.hashRanges.push(IntRange.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.allowOutOfOrderDelivery = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): KeySharedMeta {
     return {
-      keySharedMode: isSet(object.keySharedMode)
-        ? keySharedModeFromJSON(object.keySharedMode)
-        : 0,
-      hashRanges: Array.isArray(object?.hashRanges)
-        ? object.hashRanges.map((e: any) => IntRange.fromJSON(e))
-        : [],
-      allowOutOfOrderDelivery: isSet(object.allowOutOfOrderDelivery)
-        ? Boolean(object.allowOutOfOrderDelivery)
-        : false,
+      keySharedMode: isSet(object.keySharedMode) ? keySharedModeFromJSON(object.keySharedMode) : 0,
+      hashRanges: Array.isArray(object?.hashRanges) ? object.hashRanges.map((e: any) => IntRange.fromJSON(e)) : [],
+      allowOutOfOrderDelivery: isSet(object.allowOutOfOrderDelivery) ? Boolean(object.allowOutOfOrderDelivery) : false,
     };
   },
 
   toJSON(message: KeySharedMeta): unknown {
     const obj: any = {};
-    message.keySharedMode !== undefined &&
-      (obj.keySharedMode = keySharedModeToJSON(message.keySharedMode));
-    if (message.hashRanges) {
-      obj.hashRanges = message.hashRanges.map((e) =>
-        e ? IntRange.toJSON(e) : undefined
-      );
-    } else {
-      obj.hashRanges = [];
+    if (message.keySharedMode !== 0) {
+      obj.keySharedMode = keySharedModeToJSON(message.keySharedMode);
     }
-    message.allowOutOfOrderDelivery !== undefined &&
-      (obj.allowOutOfOrderDelivery = message.allowOutOfOrderDelivery);
+    if (message.hashRanges?.length) {
+      obj.hashRanges = message.hashRanges.map((e) => IntRange.toJSON(e));
+    }
+    if (message.allowOutOfOrderDelivery === true) {
+      obj.allowOutOfOrderDelivery = message.allowOutOfOrderDelivery;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<KeySharedMeta>, I>>(
-    object: I
-  ): KeySharedMeta {
+  create<I extends Exact<DeepPartial<KeySharedMeta>, I>>(base?: I): KeySharedMeta {
+    return KeySharedMeta.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<KeySharedMeta>, I>>(object: I): KeySharedMeta {
     const message = createBaseKeySharedMeta();
     message.keySharedMode = object.keySharedMode ?? 0;
-    message.hashRanges =
-      object.hashRanges?.map((e) => IntRange.fromPartial(e)) || [];
+    message.hashRanges = object.hashRanges?.map((e) => IntRange.fromPartial(e)) || [];
     message.allowOutOfOrderDelivery = object.allowOutOfOrderDelivery ?? false;
     return message;
   },
@@ -4212,10 +4378,7 @@ function createBaseCommandSubscribe(): CommandSubscribe {
 }
 
 export const CommandSubscribe = {
-  encode(
-    message: CommandSubscribe,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandSubscribe, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
@@ -4241,10 +4404,7 @@ export const CommandSubscribe = {
       writer.uint32(64).bool(message.durable);
     }
     if (message.startMessageId !== undefined) {
-      MessageIdData.encode(
-        message.startMessageId,
-        writer.uint32(74).fork()
-      ).ldelim();
+      MessageIdData.encode(message.startMessageId, writer.uint32(74).fork()).ldelim();
     }
     for (const v of message.metadata) {
       KeyValue.encode(v!, writer.uint32(82).fork()).ldelim();
@@ -4268,10 +4428,7 @@ export const CommandSubscribe = {
       writer.uint32(128).uint64(message.startMessageRollbackDurationSec);
     }
     if (message.keySharedMeta !== undefined) {
-      KeySharedMeta.encode(
-        message.keySharedMeta,
-        writer.uint32(138).fork()
-      ).ldelim();
+      KeySharedMeta.encode(message.keySharedMeta, writer.uint32(138).fork()).ldelim();
     }
     for (const v of message.subscriptionProperties) {
       KeyValue.encode(v!, writer.uint32(146).fork()).ldelim();
@@ -4283,78 +4440,150 @@ export const CommandSubscribe = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandSubscribe {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandSubscribe();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.subscription = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.subType = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.consumerName = reader.string();
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.priorityLevel = reader.int32();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.durable = reader.bool();
-          break;
+          continue;
         case 9:
-          message.startMessageId = MessageIdData.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 74) {
+            break;
+          }
+
+          message.startMessageId = MessageIdData.decode(reader, reader.uint32());
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.metadata.push(KeyValue.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 11:
+          if (tag !== 88) {
+            break;
+          }
+
           message.readCompacted = reader.bool();
-          break;
+          continue;
         case 12:
+          if (tag !== 98) {
+            break;
+          }
+
           message.schema = Schema.decode(reader, reader.uint32());
-          break;
+          continue;
         case 13:
+          if (tag !== 104) {
+            break;
+          }
+
           message.initialPosition = reader.int32() as any;
-          break;
+          continue;
         case 14:
+          if (tag !== 112) {
+            break;
+          }
+
           message.replicateSubscriptionState = reader.bool();
-          break;
+          continue;
         case 15:
+          if (tag !== 120) {
+            break;
+          }
+
           message.forceTopicCreation = reader.bool();
-          break;
+          continue;
         case 16:
+          if (tag !== 128) {
+            break;
+          }
+
           message.startMessageRollbackDurationSec = reader.uint64() as Long;
-          break;
+          continue;
         case 17:
+          if (tag !== 138) {
+            break;
+          }
+
           message.keySharedMeta = KeySharedMeta.decode(reader, reader.uint32());
-          break;
+          continue;
         case 18:
-          message.subscriptionProperties.push(
-            KeyValue.decode(reader, reader.uint32())
-          );
-          break;
+          if (tag !== 146) {
+            break;
+          }
+
+          message.subscriptionProperties.push(KeyValue.decode(reader, reader.uint32()));
+          continue;
         case 19:
+          if (tag !== 152) {
+            break;
+          }
+
           message.consumerEpoch = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -4362,34 +4591,16 @@ export const CommandSubscribe = {
   fromJSON(object: any): CommandSubscribe {
     return {
       topic: isSet(object.topic) ? String(object.topic) : "",
-      subscription: isSet(object.subscription)
-        ? String(object.subscription)
-        : "",
-      subType: isSet(object.subType)
-        ? commandSubscribe_SubTypeFromJSON(object.subType)
-        : 0,
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      consumerName: isSet(object.consumerName)
-        ? String(object.consumerName)
-        : "",
-      priorityLevel: isSet(object.priorityLevel)
-        ? Number(object.priorityLevel)
-        : 0,
+      subscription: isSet(object.subscription) ? String(object.subscription) : "",
+      subType: isSet(object.subType) ? commandSubscribe_SubTypeFromJSON(object.subType) : 0,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      consumerName: isSet(object.consumerName) ? String(object.consumerName) : "",
+      priorityLevel: isSet(object.priorityLevel) ? Number(object.priorityLevel) : 0,
       durable: isSet(object.durable) ? Boolean(object.durable) : false,
-      startMessageId: isSet(object.startMessageId)
-        ? MessageIdData.fromJSON(object.startMessageId)
-        : undefined,
-      metadata: Array.isArray(object?.metadata)
-        ? object.metadata.map((e: any) => KeyValue.fromJSON(e))
-        : [],
-      readCompacted: isSet(object.readCompacted)
-        ? Boolean(object.readCompacted)
-        : false,
+      startMessageId: isSet(object.startMessageId) ? MessageIdData.fromJSON(object.startMessageId) : undefined,
+      metadata: Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
+      readCompacted: isSet(object.readCompacted) ? Boolean(object.readCompacted) : false,
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
       initialPosition: isSet(object.initialPosition)
         ? commandSubscribe_InitialPositionFromJSON(object.initialPosition)
@@ -4397,152 +4608,129 @@ export const CommandSubscribe = {
       replicateSubscriptionState: isSet(object.replicateSubscriptionState)
         ? Boolean(object.replicateSubscriptionState)
         : false,
-      forceTopicCreation: isSet(object.forceTopicCreation)
-        ? Boolean(object.forceTopicCreation)
-        : false,
-      startMessageRollbackDurationSec: isSet(
-        object.startMessageRollbackDurationSec
-      )
+      forceTopicCreation: isSet(object.forceTopicCreation) ? Boolean(object.forceTopicCreation) : false,
+      startMessageRollbackDurationSec: isSet(object.startMessageRollbackDurationSec)
         ? Long.fromValue(object.startMessageRollbackDurationSec)
         : Long.UZERO,
-      keySharedMeta: isSet(object.keySharedMeta)
-        ? KeySharedMeta.fromJSON(object.keySharedMeta)
-        : undefined,
+      keySharedMeta: isSet(object.keySharedMeta) ? KeySharedMeta.fromJSON(object.keySharedMeta) : undefined,
       subscriptionProperties: Array.isArray(object?.subscriptionProperties)
         ? object.subscriptionProperties.map((e: any) => KeyValue.fromJSON(e))
         : [],
-      consumerEpoch: isSet(object.consumerEpoch)
-        ? Long.fromValue(object.consumerEpoch)
-        : Long.UZERO,
+      consumerEpoch: isSet(object.consumerEpoch) ? Long.fromValue(object.consumerEpoch) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandSubscribe): unknown {
     const obj: any = {};
-    message.topic !== undefined && (obj.topic = message.topic);
-    message.subscription !== undefined &&
-      (obj.subscription = message.subscription);
-    message.subType !== undefined &&
-      (obj.subType = commandSubscribe_SubTypeToJSON(message.subType));
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.consumerName !== undefined &&
-      (obj.consumerName = message.consumerName);
-    message.priorityLevel !== undefined &&
-      (obj.priorityLevel = Math.round(message.priorityLevel));
-    message.durable !== undefined && (obj.durable = message.durable);
-    message.startMessageId !== undefined &&
-      (obj.startMessageId = message.startMessageId
-        ? MessageIdData.toJSON(message.startMessageId)
-        : undefined);
-    if (message.metadata) {
-      obj.metadata = message.metadata.map((e) =>
-        e ? KeyValue.toJSON(e) : undefined
-      );
-    } else {
-      obj.metadata = [];
+    if (message.topic !== "") {
+      obj.topic = message.topic;
     }
-    message.readCompacted !== undefined &&
-      (obj.readCompacted = message.readCompacted);
-    message.schema !== undefined &&
-      (obj.schema = message.schema ? Schema.toJSON(message.schema) : undefined);
-    message.initialPosition !== undefined &&
-      (obj.initialPosition = commandSubscribe_InitialPositionToJSON(
-        message.initialPosition
-      ));
-    message.replicateSubscriptionState !== undefined &&
-      (obj.replicateSubscriptionState = message.replicateSubscriptionState);
-    message.forceTopicCreation !== undefined &&
-      (obj.forceTopicCreation = message.forceTopicCreation);
-    message.startMessageRollbackDurationSec !== undefined &&
-      (obj.startMessageRollbackDurationSec = (
-        message.startMessageRollbackDurationSec || Long.UZERO
-      ).toString());
-    message.keySharedMeta !== undefined &&
-      (obj.keySharedMeta = message.keySharedMeta
-        ? KeySharedMeta.toJSON(message.keySharedMeta)
-        : undefined);
-    if (message.subscriptionProperties) {
-      obj.subscriptionProperties = message.subscriptionProperties.map((e) =>
-        e ? KeyValue.toJSON(e) : undefined
-      );
-    } else {
-      obj.subscriptionProperties = [];
+    if (message.subscription !== "") {
+      obj.subscription = message.subscription;
     }
-    message.consumerEpoch !== undefined &&
-      (obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString());
+    if (message.subType !== 0) {
+      obj.subType = commandSubscribe_SubTypeToJSON(message.subType);
+    }
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.consumerName !== "") {
+      obj.consumerName = message.consumerName;
+    }
+    if (message.priorityLevel !== 0) {
+      obj.priorityLevel = Math.round(message.priorityLevel);
+    }
+    if (message.durable === true) {
+      obj.durable = message.durable;
+    }
+    if (message.startMessageId !== undefined) {
+      obj.startMessageId = MessageIdData.toJSON(message.startMessageId);
+    }
+    if (message.metadata?.length) {
+      obj.metadata = message.metadata.map((e) => KeyValue.toJSON(e));
+    }
+    if (message.readCompacted === true) {
+      obj.readCompacted = message.readCompacted;
+    }
+    if (message.schema !== undefined) {
+      obj.schema = Schema.toJSON(message.schema);
+    }
+    if (message.initialPosition !== 0) {
+      obj.initialPosition = commandSubscribe_InitialPositionToJSON(message.initialPosition);
+    }
+    if (message.replicateSubscriptionState === true) {
+      obj.replicateSubscriptionState = message.replicateSubscriptionState;
+    }
+    if (message.forceTopicCreation === true) {
+      obj.forceTopicCreation = message.forceTopicCreation;
+    }
+    if (!message.startMessageRollbackDurationSec.isZero()) {
+      obj.startMessageRollbackDurationSec = (message.startMessageRollbackDurationSec || Long.UZERO).toString();
+    }
+    if (message.keySharedMeta !== undefined) {
+      obj.keySharedMeta = KeySharedMeta.toJSON(message.keySharedMeta);
+    }
+    if (message.subscriptionProperties?.length) {
+      obj.subscriptionProperties = message.subscriptionProperties.map((e) => KeyValue.toJSON(e));
+    }
+    if (!message.consumerEpoch.isZero()) {
+      obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandSubscribe>, I>>(
-    object: I
-  ): CommandSubscribe {
+  create<I extends Exact<DeepPartial<CommandSubscribe>, I>>(base?: I): CommandSubscribe {
+    return CommandSubscribe.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandSubscribe>, I>>(object: I): CommandSubscribe {
     const message = createBaseCommandSubscribe();
     message.topic = object.topic ?? "";
     message.subscription = object.subscription ?? "";
     message.subType = object.subType ?? 0;
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.consumerName = object.consumerName ?? "";
     message.priorityLevel = object.priorityLevel ?? 0;
     message.durable = object.durable ?? false;
-    message.startMessageId =
-      object.startMessageId !== undefined && object.startMessageId !== null
-        ? MessageIdData.fromPartial(object.startMessageId)
-        : undefined;
-    message.metadata =
-      object.metadata?.map((e) => KeyValue.fromPartial(e)) || [];
+    message.startMessageId = (object.startMessageId !== undefined && object.startMessageId !== null)
+      ? MessageIdData.fromPartial(object.startMessageId)
+      : undefined;
+    message.metadata = object.metadata?.map((e) => KeyValue.fromPartial(e)) || [];
     message.readCompacted = object.readCompacted ?? false;
-    message.schema =
-      object.schema !== undefined && object.schema !== null
-        ? Schema.fromPartial(object.schema)
-        : undefined;
+    message.schema = (object.schema !== undefined && object.schema !== null)
+      ? Schema.fromPartial(object.schema)
+      : undefined;
     message.initialPosition = object.initialPosition ?? 0;
-    message.replicateSubscriptionState =
-      object.replicateSubscriptionState ?? false;
+    message.replicateSubscriptionState = object.replicateSubscriptionState ?? false;
     message.forceTopicCreation = object.forceTopicCreation ?? false;
     message.startMessageRollbackDurationSec =
-      object.startMessageRollbackDurationSec !== undefined &&
-      object.startMessageRollbackDurationSec !== null
+      (object.startMessageRollbackDurationSec !== undefined && object.startMessageRollbackDurationSec !== null)
         ? Long.fromValue(object.startMessageRollbackDurationSec)
         : Long.UZERO;
-    message.keySharedMeta =
-      object.keySharedMeta !== undefined && object.keySharedMeta !== null
-        ? KeySharedMeta.fromPartial(object.keySharedMeta)
-        : undefined;
-    message.subscriptionProperties =
-      object.subscriptionProperties?.map((e) => KeyValue.fromPartial(e)) || [];
-    message.consumerEpoch =
-      object.consumerEpoch !== undefined && object.consumerEpoch !== null
-        ? Long.fromValue(object.consumerEpoch)
-        : Long.UZERO;
+    message.keySharedMeta = (object.keySharedMeta !== undefined && object.keySharedMeta !== null)
+      ? KeySharedMeta.fromPartial(object.keySharedMeta)
+      : undefined;
+    message.subscriptionProperties = object.subscriptionProperties?.map((e) => KeyValue.fromPartial(e)) || [];
+    message.consumerEpoch = (object.consumerEpoch !== undefined && object.consumerEpoch !== null)
+      ? Long.fromValue(object.consumerEpoch)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandPartitionedTopicMetadata(): CommandPartitionedTopicMetadata {
-  return {
-    topic: "",
-    requestId: Long.UZERO,
-    originalPrincipal: "",
-    originalAuthData: "",
-    originalAuthMethod: "",
-  };
+  return { topic: "", requestId: Long.UZERO, originalPrincipal: "", originalAuthData: "", originalAuthMethod: "" };
 }
 
 export const CommandPartitionedTopicMetadata = {
-  encode(
-    message: CommandPartitionedTopicMetadata,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandPartitionedTopicMetadata, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
@@ -4561,35 +4749,53 @@ export const CommandPartitionedTopicMetadata = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandPartitionedTopicMetadata {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandPartitionedTopicMetadata {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandPartitionedTopicMetadata();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.originalPrincipal = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.originalAuthData = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.originalAuthMethod = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -4597,44 +4803,44 @@ export const CommandPartitionedTopicMetadata = {
   fromJSON(object: any): CommandPartitionedTopicMetadata {
     return {
       topic: isSet(object.topic) ? String(object.topic) : "",
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      originalPrincipal: isSet(object.originalPrincipal)
-        ? String(object.originalPrincipal)
-        : "",
-      originalAuthData: isSet(object.originalAuthData)
-        ? String(object.originalAuthData)
-        : "",
-      originalAuthMethod: isSet(object.originalAuthMethod)
-        ? String(object.originalAuthMethod)
-        : "",
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      originalPrincipal: isSet(object.originalPrincipal) ? String(object.originalPrincipal) : "",
+      originalAuthData: isSet(object.originalAuthData) ? String(object.originalAuthData) : "",
+      originalAuthMethod: isSet(object.originalAuthMethod) ? String(object.originalAuthMethod) : "",
     };
   },
 
   toJSON(message: CommandPartitionedTopicMetadata): unknown {
     const obj: any = {};
-    message.topic !== undefined && (obj.topic = message.topic);
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.originalPrincipal !== undefined &&
-      (obj.originalPrincipal = message.originalPrincipal);
-    message.originalAuthData !== undefined &&
-      (obj.originalAuthData = message.originalAuthData);
-    message.originalAuthMethod !== undefined &&
-      (obj.originalAuthMethod = message.originalAuthMethod);
+    if (message.topic !== "") {
+      obj.topic = message.topic;
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.originalPrincipal !== "") {
+      obj.originalPrincipal = message.originalPrincipal;
+    }
+    if (message.originalAuthData !== "") {
+      obj.originalAuthData = message.originalAuthData;
+    }
+    if (message.originalAuthMethod !== "") {
+      obj.originalAuthMethod = message.originalAuthMethod;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<CommandPartitionedTopicMetadata>, I>>(base?: I): CommandPartitionedTopicMetadata {
+    return CommandPartitionedTopicMetadata.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<CommandPartitionedTopicMetadata>, I>>(
-    object: I
+    object: I,
   ): CommandPartitionedTopicMetadata {
     const message = createBaseCommandPartitionedTopicMetadata();
     message.topic = object.topic ?? "";
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.originalPrincipal = object.originalPrincipal ?? "";
     message.originalAuthData = object.originalAuthData ?? "";
     message.originalAuthMethod = object.originalAuthMethod ?? "";
@@ -4643,20 +4849,11 @@ export const CommandPartitionedTopicMetadata = {
 };
 
 function createBaseCommandPartitionedTopicMetadataResponse(): CommandPartitionedTopicMetadataResponse {
-  return {
-    partitions: 0,
-    requestId: Long.UZERO,
-    response: 0,
-    error: 0,
-    message: "",
-  };
+  return { partitions: 0, requestId: Long.UZERO, response: 0, error: 0, message: "" };
 }
 
 export const CommandPartitionedTopicMetadataResponse = {
-  encode(
-    message: CommandPartitionedTopicMetadataResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandPartitionedTopicMetadataResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.partitions !== 0) {
       writer.uint32(8).uint32(message.partitions);
     }
@@ -4675,35 +4872,53 @@ export const CommandPartitionedTopicMetadataResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandPartitionedTopicMetadataResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandPartitionedTopicMetadataResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandPartitionedTopicMetadataResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.partitions = reader.uint32();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.response = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -4711,13 +4926,9 @@ export const CommandPartitionedTopicMetadataResponse = {
   fromJSON(object: any): CommandPartitionedTopicMetadataResponse {
     return {
       partitions: isSet(object.partitions) ? Number(object.partitions) : 0,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       response: isSet(object.response)
-        ? commandPartitionedTopicMetadataResponse_LookupTypeFromJSON(
-            object.response
-          )
+        ? commandPartitionedTopicMetadataResponse_LookupTypeFromJSON(object.response)
         : 0,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
@@ -4726,29 +4937,37 @@ export const CommandPartitionedTopicMetadataResponse = {
 
   toJSON(message: CommandPartitionedTopicMetadataResponse): unknown {
     const obj: any = {};
-    message.partitions !== undefined &&
-      (obj.partitions = Math.round(message.partitions));
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.response !== undefined &&
-      (obj.response = commandPartitionedTopicMetadataResponse_LookupTypeToJSON(
-        message.response
-      ));
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (message.partitions !== 0) {
+      obj.partitions = Math.round(message.partitions);
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.response !== 0) {
+      obj.response = commandPartitionedTopicMetadataResponse_LookupTypeToJSON(message.response);
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<
-    I extends Exact<DeepPartial<CommandPartitionedTopicMetadataResponse>, I>
-  >(object: I): CommandPartitionedTopicMetadataResponse {
+  create<I extends Exact<DeepPartial<CommandPartitionedTopicMetadataResponse>, I>>(
+    base?: I,
+  ): CommandPartitionedTopicMetadataResponse {
+    return CommandPartitionedTopicMetadataResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandPartitionedTopicMetadataResponse>, I>>(
+    object: I,
+  ): CommandPartitionedTopicMetadataResponse {
     const message = createBaseCommandPartitionedTopicMetadataResponse();
     message.partitions = object.partitions ?? 0;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.response = object.response ?? 0;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
@@ -4769,10 +4988,7 @@ function createBaseCommandLookupTopic(): CommandLookupTopic {
 }
 
 export const CommandLookupTopic = {
-  encode(
-    message: CommandLookupTopic,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandLookupTopic, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
@@ -4798,37 +5014,66 @@ export const CommandLookupTopic = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandLookupTopic {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandLookupTopic();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.authoritative = reader.bool();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.originalPrincipal = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.originalAuthData = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.originalAuthMethod = reader.string();
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.advertisedListenerName = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -4836,54 +5081,50 @@ export const CommandLookupTopic = {
   fromJSON(object: any): CommandLookupTopic {
     return {
       topic: isSet(object.topic) ? String(object.topic) : "",
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      authoritative: isSet(object.authoritative)
-        ? Boolean(object.authoritative)
-        : false,
-      originalPrincipal: isSet(object.originalPrincipal)
-        ? String(object.originalPrincipal)
-        : "",
-      originalAuthData: isSet(object.originalAuthData)
-        ? String(object.originalAuthData)
-        : "",
-      originalAuthMethod: isSet(object.originalAuthMethod)
-        ? String(object.originalAuthMethod)
-        : "",
-      advertisedListenerName: isSet(object.advertisedListenerName)
-        ? String(object.advertisedListenerName)
-        : "",
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      authoritative: isSet(object.authoritative) ? Boolean(object.authoritative) : false,
+      originalPrincipal: isSet(object.originalPrincipal) ? String(object.originalPrincipal) : "",
+      originalAuthData: isSet(object.originalAuthData) ? String(object.originalAuthData) : "",
+      originalAuthMethod: isSet(object.originalAuthMethod) ? String(object.originalAuthMethod) : "",
+      advertisedListenerName: isSet(object.advertisedListenerName) ? String(object.advertisedListenerName) : "",
     };
   },
 
   toJSON(message: CommandLookupTopic): unknown {
     const obj: any = {};
-    message.topic !== undefined && (obj.topic = message.topic);
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.authoritative !== undefined &&
-      (obj.authoritative = message.authoritative);
-    message.originalPrincipal !== undefined &&
-      (obj.originalPrincipal = message.originalPrincipal);
-    message.originalAuthData !== undefined &&
-      (obj.originalAuthData = message.originalAuthData);
-    message.originalAuthMethod !== undefined &&
-      (obj.originalAuthMethod = message.originalAuthMethod);
-    message.advertisedListenerName !== undefined &&
-      (obj.advertisedListenerName = message.advertisedListenerName);
+    if (message.topic !== "") {
+      obj.topic = message.topic;
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.authoritative === true) {
+      obj.authoritative = message.authoritative;
+    }
+    if (message.originalPrincipal !== "") {
+      obj.originalPrincipal = message.originalPrincipal;
+    }
+    if (message.originalAuthData !== "") {
+      obj.originalAuthData = message.originalAuthData;
+    }
+    if (message.originalAuthMethod !== "") {
+      obj.originalAuthMethod = message.originalAuthMethod;
+    }
+    if (message.advertisedListenerName !== "") {
+      obj.advertisedListenerName = message.advertisedListenerName;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandLookupTopic>, I>>(
-    object: I
-  ): CommandLookupTopic {
+  create<I extends Exact<DeepPartial<CommandLookupTopic>, I>>(base?: I): CommandLookupTopic {
+    return CommandLookupTopic.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandLookupTopic>, I>>(object: I): CommandLookupTopic {
     const message = createBaseCommandLookupTopic();
     message.topic = object.topic ?? "";
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.authoritative = object.authoritative ?? false;
     message.originalPrincipal = object.originalPrincipal ?? "";
     message.originalAuthData = object.originalAuthData ?? "";
@@ -4907,10 +5148,7 @@ function createBaseCommandLookupTopicResponse(): CommandLookupTopicResponse {
 }
 
 export const CommandLookupTopicResponse = {
-  encode(
-    message: CommandLookupTopicResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandLookupTopicResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.brokerServiceUrl !== "") {
       writer.uint32(10).string(message.brokerServiceUrl);
     }
@@ -4938,106 +5176,131 @@ export const CommandLookupTopicResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandLookupTopicResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandLookupTopicResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandLookupTopicResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.brokerServiceUrl = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.brokerServiceUrlTls = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.response = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.authoritative = reader.bool();
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.proxyThroughServiceUrl = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandLookupTopicResponse {
     return {
-      brokerServiceUrl: isSet(object.brokerServiceUrl)
-        ? String(object.brokerServiceUrl)
-        : "",
-      brokerServiceUrlTls: isSet(object.brokerServiceUrlTls)
-        ? String(object.brokerServiceUrlTls)
-        : "",
-      response: isSet(object.response)
-        ? commandLookupTopicResponse_LookupTypeFromJSON(object.response)
-        : 0,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      authoritative: isSet(object.authoritative)
-        ? Boolean(object.authoritative)
-        : false,
+      brokerServiceUrl: isSet(object.brokerServiceUrl) ? String(object.brokerServiceUrl) : "",
+      brokerServiceUrlTls: isSet(object.brokerServiceUrlTls) ? String(object.brokerServiceUrlTls) : "",
+      response: isSet(object.response) ? commandLookupTopicResponse_LookupTypeFromJSON(object.response) : 0,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      authoritative: isSet(object.authoritative) ? Boolean(object.authoritative) : false,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
-      proxyThroughServiceUrl: isSet(object.proxyThroughServiceUrl)
-        ? Boolean(object.proxyThroughServiceUrl)
-        : false,
+      proxyThroughServiceUrl: isSet(object.proxyThroughServiceUrl) ? Boolean(object.proxyThroughServiceUrl) : false,
     };
   },
 
   toJSON(message: CommandLookupTopicResponse): unknown {
     const obj: any = {};
-    message.brokerServiceUrl !== undefined &&
-      (obj.brokerServiceUrl = message.brokerServiceUrl);
-    message.brokerServiceUrlTls !== undefined &&
-      (obj.brokerServiceUrlTls = message.brokerServiceUrlTls);
-    message.response !== undefined &&
-      (obj.response = commandLookupTopicResponse_LookupTypeToJSON(
-        message.response
-      ));
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.authoritative !== undefined &&
-      (obj.authoritative = message.authoritative);
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
-    message.proxyThroughServiceUrl !== undefined &&
-      (obj.proxyThroughServiceUrl = message.proxyThroughServiceUrl);
+    if (message.brokerServiceUrl !== "") {
+      obj.brokerServiceUrl = message.brokerServiceUrl;
+    }
+    if (message.brokerServiceUrlTls !== "") {
+      obj.brokerServiceUrlTls = message.brokerServiceUrlTls;
+    }
+    if (message.response !== 0) {
+      obj.response = commandLookupTopicResponse_LookupTypeToJSON(message.response);
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.authoritative === true) {
+      obj.authoritative = message.authoritative;
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
+    if (message.proxyThroughServiceUrl === true) {
+      obj.proxyThroughServiceUrl = message.proxyThroughServiceUrl;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandLookupTopicResponse>, I>>(
-    object: I
-  ): CommandLookupTopicResponse {
+  create<I extends Exact<DeepPartial<CommandLookupTopicResponse>, I>>(base?: I): CommandLookupTopicResponse {
+    return CommandLookupTopicResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandLookupTopicResponse>, I>>(object: I): CommandLookupTopicResponse {
     const message = createBaseCommandLookupTopicResponse();
     message.brokerServiceUrl = object.brokerServiceUrl ?? "";
     message.brokerServiceUrlTls = object.brokerServiceUrlTls ?? "";
     message.response = object.response ?? 0;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.authoritative = object.authoritative ?? false;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
@@ -5065,10 +5328,7 @@ function createBaseCommandProducer(): CommandProducer {
 }
 
 export const CommandProducer = {
-  encode(
-    message: CommandProducer,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandProducer, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
@@ -5112,55 +5372,108 @@ export const CommandProducer = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandProducer {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandProducer();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.producerId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.producerName = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.encrypted = reader.bool();
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.metadata.push(KeyValue.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.schema = Schema.decode(reader, reader.uint32());
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.epoch = reader.uint64() as Long;
-          break;
+          continue;
         case 9:
+          if (tag !== 72) {
+            break;
+          }
+
           message.userProvidedProducerName = reader.bool();
-          break;
+          continue;
         case 10:
+          if (tag !== 80) {
+            break;
+          }
+
           message.producerAccessMode = reader.int32() as any;
-          break;
+          continue;
         case 11:
+          if (tag !== 88) {
+            break;
+          }
+
           message.topicEpoch = reader.uint64() as Long;
-          break;
+          continue;
         case 12:
+          if (tag !== 96) {
+            break;
+          }
+
           message.txnEnabled = reader.bool();
-          break;
+          continue;
         case 13:
+          if (tag !== 106) {
+            break;
+          }
+
           message.initialSubscriptionName = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -5168,103 +5481,91 @@ export const CommandProducer = {
   fromJSON(object: any): CommandProducer {
     return {
       topic: isSet(object.topic) ? String(object.topic) : "",
-      producerId: isSet(object.producerId)
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      producerName: isSet(object.producerName)
-        ? String(object.producerName)
-        : "",
+      producerId: isSet(object.producerId) ? Long.fromValue(object.producerId) : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      producerName: isSet(object.producerName) ? String(object.producerName) : "",
       encrypted: isSet(object.encrypted) ? Boolean(object.encrypted) : false,
-      metadata: Array.isArray(object?.metadata)
-        ? object.metadata.map((e: any) => KeyValue.fromJSON(e))
-        : [],
+      metadata: Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
       epoch: isSet(object.epoch) ? Long.fromValue(object.epoch) : Long.UZERO,
       userProvidedProducerName: isSet(object.userProvidedProducerName)
         ? Boolean(object.userProvidedProducerName)
         : false,
-      producerAccessMode: isSet(object.producerAccessMode)
-        ? producerAccessModeFromJSON(object.producerAccessMode)
-        : 0,
-      topicEpoch: isSet(object.topicEpoch)
-        ? Long.fromValue(object.topicEpoch)
-        : Long.UZERO,
+      producerAccessMode: isSet(object.producerAccessMode) ? producerAccessModeFromJSON(object.producerAccessMode) : 0,
+      topicEpoch: isSet(object.topicEpoch) ? Long.fromValue(object.topicEpoch) : Long.UZERO,
       txnEnabled: isSet(object.txnEnabled) ? Boolean(object.txnEnabled) : false,
-      initialSubscriptionName: isSet(object.initialSubscriptionName)
-        ? String(object.initialSubscriptionName)
-        : "",
+      initialSubscriptionName: isSet(object.initialSubscriptionName) ? String(object.initialSubscriptionName) : "",
     };
   },
 
   toJSON(message: CommandProducer): unknown {
     const obj: any = {};
-    message.topic !== undefined && (obj.topic = message.topic);
-    message.producerId !== undefined &&
-      (obj.producerId = (message.producerId || Long.UZERO).toString());
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.producerName !== undefined &&
-      (obj.producerName = message.producerName);
-    message.encrypted !== undefined && (obj.encrypted = message.encrypted);
-    if (message.metadata) {
-      obj.metadata = message.metadata.map((e) =>
-        e ? KeyValue.toJSON(e) : undefined
-      );
-    } else {
-      obj.metadata = [];
+    if (message.topic !== "") {
+      obj.topic = message.topic;
     }
-    message.schema !== undefined &&
-      (obj.schema = message.schema ? Schema.toJSON(message.schema) : undefined);
-    message.epoch !== undefined &&
-      (obj.epoch = (message.epoch || Long.UZERO).toString());
-    message.userProvidedProducerName !== undefined &&
-      (obj.userProvidedProducerName = message.userProvidedProducerName);
-    message.producerAccessMode !== undefined &&
-      (obj.producerAccessMode = producerAccessModeToJSON(
-        message.producerAccessMode
-      ));
-    message.topicEpoch !== undefined &&
-      (obj.topicEpoch = (message.topicEpoch || Long.UZERO).toString());
-    message.txnEnabled !== undefined && (obj.txnEnabled = message.txnEnabled);
-    message.initialSubscriptionName !== undefined &&
-      (obj.initialSubscriptionName = message.initialSubscriptionName);
+    if (!message.producerId.isZero()) {
+      obj.producerId = (message.producerId || Long.UZERO).toString();
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.producerName !== "") {
+      obj.producerName = message.producerName;
+    }
+    if (message.encrypted === true) {
+      obj.encrypted = message.encrypted;
+    }
+    if (message.metadata?.length) {
+      obj.metadata = message.metadata.map((e) => KeyValue.toJSON(e));
+    }
+    if (message.schema !== undefined) {
+      obj.schema = Schema.toJSON(message.schema);
+    }
+    if (!message.epoch.isZero()) {
+      obj.epoch = (message.epoch || Long.UZERO).toString();
+    }
+    if (message.userProvidedProducerName === true) {
+      obj.userProvidedProducerName = message.userProvidedProducerName;
+    }
+    if (message.producerAccessMode !== 0) {
+      obj.producerAccessMode = producerAccessModeToJSON(message.producerAccessMode);
+    }
+    if (!message.topicEpoch.isZero()) {
+      obj.topicEpoch = (message.topicEpoch || Long.UZERO).toString();
+    }
+    if (message.txnEnabled === true) {
+      obj.txnEnabled = message.txnEnabled;
+    }
+    if (message.initialSubscriptionName !== "") {
+      obj.initialSubscriptionName = message.initialSubscriptionName;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandProducer>, I>>(
-    object: I
-  ): CommandProducer {
+  create<I extends Exact<DeepPartial<CommandProducer>, I>>(base?: I): CommandProducer {
+    return CommandProducer.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandProducer>, I>>(object: I): CommandProducer {
     const message = createBaseCommandProducer();
     message.topic = object.topic ?? "";
-    message.producerId =
-      object.producerId !== undefined && object.producerId !== null
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.producerId = (object.producerId !== undefined && object.producerId !== null)
+      ? Long.fromValue(object.producerId)
+      : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.producerName = object.producerName ?? "";
     message.encrypted = object.encrypted ?? false;
-    message.metadata =
-      object.metadata?.map((e) => KeyValue.fromPartial(e)) || [];
-    message.schema =
-      object.schema !== undefined && object.schema !== null
-        ? Schema.fromPartial(object.schema)
-        : undefined;
-    message.epoch =
-      object.epoch !== undefined && object.epoch !== null
-        ? Long.fromValue(object.epoch)
-        : Long.UZERO;
+    message.metadata = object.metadata?.map((e) => KeyValue.fromPartial(e)) || [];
+    message.schema = (object.schema !== undefined && object.schema !== null)
+      ? Schema.fromPartial(object.schema)
+      : undefined;
+    message.epoch = (object.epoch !== undefined && object.epoch !== null) ? Long.fromValue(object.epoch) : Long.UZERO;
     message.userProvidedProducerName = object.userProvidedProducerName ?? false;
     message.producerAccessMode = object.producerAccessMode ?? 0;
-    message.topicEpoch =
-      object.topicEpoch !== undefined && object.topicEpoch !== null
-        ? Long.fromValue(object.topicEpoch)
-        : Long.UZERO;
+    message.topicEpoch = (object.topicEpoch !== undefined && object.topicEpoch !== null)
+      ? Long.fromValue(object.topicEpoch)
+      : Long.UZERO;
     message.txnEnabled = object.txnEnabled ?? false;
     message.initialSubscriptionName = object.initialSubscriptionName ?? "";
     return message;
@@ -5285,10 +5586,7 @@ function createBaseCommandSend(): CommandSend {
 }
 
 export const CommandSend = {
-  encode(
-    message: CommandSend,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandSend, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
@@ -5317,62 +5615,85 @@ export const CommandSend = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandSend {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandSend();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.producerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.sequenceId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.numMessages = reader.int32();
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.highestSequenceId = reader.uint64() as Long;
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.isChunk = reader.bool();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.marker = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandSend {
     return {
-      producerId: isSet(object.producerId)
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO,
-      sequenceId: isSet(object.sequenceId)
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO,
+      producerId: isSet(object.producerId) ? Long.fromValue(object.producerId) : Long.UZERO,
+      sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
       numMessages: isSet(object.numMessages) ? Number(object.numMessages) : 0,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
-      highestSequenceId: isSet(object.highestSequenceId)
-        ? Long.fromValue(object.highestSequenceId)
-        : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
+      highestSequenceId: isSet(object.highestSequenceId) ? Long.fromValue(object.highestSequenceId) : Long.UZERO,
       isChunk: isSet(object.isChunk) ? Boolean(object.isChunk) : false,
       marker: isSet(object.marker) ? Boolean(object.marker) : false,
     };
@@ -5380,51 +5701,54 @@ export const CommandSend = {
 
   toJSON(message: CommandSend): unknown {
     const obj: any = {};
-    message.producerId !== undefined &&
-      (obj.producerId = (message.producerId || Long.UZERO).toString());
-    message.sequenceId !== undefined &&
-      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
-    message.numMessages !== undefined &&
-      (obj.numMessages = Math.round(message.numMessages));
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.highestSequenceId !== undefined &&
-      (obj.highestSequenceId = (
-        message.highestSequenceId || Long.UZERO
-      ).toString());
-    message.isChunk !== undefined && (obj.isChunk = message.isChunk);
-    message.marker !== undefined && (obj.marker = message.marker);
+    if (!message.producerId.isZero()) {
+      obj.producerId = (message.producerId || Long.UZERO).toString();
+    }
+    if (!message.sequenceId.isZero()) {
+      obj.sequenceId = (message.sequenceId || Long.UZERO).toString();
+    }
+    if (message.numMessages !== 0) {
+      obj.numMessages = Math.round(message.numMessages);
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (!message.highestSequenceId.isZero()) {
+      obj.highestSequenceId = (message.highestSequenceId || Long.UZERO).toString();
+    }
+    if (message.isChunk === true) {
+      obj.isChunk = message.isChunk;
+    }
+    if (message.marker === true) {
+      obj.marker = message.marker;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandSend>, I>>(
-    object: I
-  ): CommandSend {
+  create<I extends Exact<DeepPartial<CommandSend>, I>>(base?: I): CommandSend {
+    return CommandSend.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandSend>, I>>(object: I): CommandSend {
     const message = createBaseCommandSend();
-    message.producerId =
-      object.producerId !== undefined && object.producerId !== null
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO;
-    message.sequenceId =
-      object.sequenceId !== undefined && object.sequenceId !== null
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO;
+    message.producerId = (object.producerId !== undefined && object.producerId !== null)
+      ? Long.fromValue(object.producerId)
+      : Long.UZERO;
+    message.sequenceId = (object.sequenceId !== undefined && object.sequenceId !== null)
+      ? Long.fromValue(object.sequenceId)
+      : Long.UZERO;
     message.numMessages = object.numMessages ?? 0;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
-    message.highestSequenceId =
-      object.highestSequenceId !== undefined &&
-      object.highestSequenceId !== null
-        ? Long.fromValue(object.highestSequenceId)
-        : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
+    message.highestSequenceId = (object.highestSequenceId !== undefined && object.highestSequenceId !== null)
+      ? Long.fromValue(object.highestSequenceId)
+      : Long.UZERO;
     message.isChunk = object.isChunk ?? false;
     message.marker = object.marker ?? false;
     return message;
@@ -5432,19 +5756,11 @@ export const CommandSend = {
 };
 
 function createBaseCommandSendReceipt(): CommandSendReceipt {
-  return {
-    producerId: Long.UZERO,
-    sequenceId: Long.UZERO,
-    messageId: undefined,
-    highestSequenceId: Long.UZERO,
-  };
+  return { producerId: Long.UZERO, sequenceId: Long.UZERO, messageId: undefined, highestSequenceId: Long.UZERO };
 }
 
 export const CommandSendReceipt = {
-  encode(
-    message: CommandSendReceipt,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandSendReceipt, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
@@ -5452,10 +5768,7 @@ export const CommandSendReceipt = {
       writer.uint32(16).uint64(message.sequenceId);
     }
     if (message.messageId !== undefined) {
-      MessageIdData.encode(
-        message.messageId,
-        writer.uint32(26).fork()
-      ).ldelim();
+      MessageIdData.encode(message.messageId, writer.uint32(26).fork()).ldelim();
     }
     if (!message.highestSequenceId.isZero()) {
       writer.uint32(32).uint64(message.highestSequenceId);
@@ -5464,105 +5777,102 @@ export const CommandSendReceipt = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandSendReceipt {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandSendReceipt();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.producerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.sequenceId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.messageId = MessageIdData.decode(reader, reader.uint32());
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.highestSequenceId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandSendReceipt {
     return {
-      producerId: isSet(object.producerId)
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO,
-      sequenceId: isSet(object.sequenceId)
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO,
-      messageId: isSet(object.messageId)
-        ? MessageIdData.fromJSON(object.messageId)
-        : undefined,
-      highestSequenceId: isSet(object.highestSequenceId)
-        ? Long.fromValue(object.highestSequenceId)
-        : Long.UZERO,
+      producerId: isSet(object.producerId) ? Long.fromValue(object.producerId) : Long.UZERO,
+      sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
+      messageId: isSet(object.messageId) ? MessageIdData.fromJSON(object.messageId) : undefined,
+      highestSequenceId: isSet(object.highestSequenceId) ? Long.fromValue(object.highestSequenceId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandSendReceipt): unknown {
     const obj: any = {};
-    message.producerId !== undefined &&
-      (obj.producerId = (message.producerId || Long.UZERO).toString());
-    message.sequenceId !== undefined &&
-      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
-    message.messageId !== undefined &&
-      (obj.messageId = message.messageId
-        ? MessageIdData.toJSON(message.messageId)
-        : undefined);
-    message.highestSequenceId !== undefined &&
-      (obj.highestSequenceId = (
-        message.highestSequenceId || Long.UZERO
-      ).toString());
+    if (!message.producerId.isZero()) {
+      obj.producerId = (message.producerId || Long.UZERO).toString();
+    }
+    if (!message.sequenceId.isZero()) {
+      obj.sequenceId = (message.sequenceId || Long.UZERO).toString();
+    }
+    if (message.messageId !== undefined) {
+      obj.messageId = MessageIdData.toJSON(message.messageId);
+    }
+    if (!message.highestSequenceId.isZero()) {
+      obj.highestSequenceId = (message.highestSequenceId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandSendReceipt>, I>>(
-    object: I
-  ): CommandSendReceipt {
+  create<I extends Exact<DeepPartial<CommandSendReceipt>, I>>(base?: I): CommandSendReceipt {
+    return CommandSendReceipt.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandSendReceipt>, I>>(object: I): CommandSendReceipt {
     const message = createBaseCommandSendReceipt();
-    message.producerId =
-      object.producerId !== undefined && object.producerId !== null
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO;
-    message.sequenceId =
-      object.sequenceId !== undefined && object.sequenceId !== null
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO;
-    message.messageId =
-      object.messageId !== undefined && object.messageId !== null
-        ? MessageIdData.fromPartial(object.messageId)
-        : undefined;
-    message.highestSequenceId =
-      object.highestSequenceId !== undefined &&
-      object.highestSequenceId !== null
-        ? Long.fromValue(object.highestSequenceId)
-        : Long.UZERO;
+    message.producerId = (object.producerId !== undefined && object.producerId !== null)
+      ? Long.fromValue(object.producerId)
+      : Long.UZERO;
+    message.sequenceId = (object.sequenceId !== undefined && object.sequenceId !== null)
+      ? Long.fromValue(object.sequenceId)
+      : Long.UZERO;
+    message.messageId = (object.messageId !== undefined && object.messageId !== null)
+      ? MessageIdData.fromPartial(object.messageId)
+      : undefined;
+    message.highestSequenceId = (object.highestSequenceId !== undefined && object.highestSequenceId !== null)
+      ? Long.fromValue(object.highestSequenceId)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandSendError(): CommandSendError {
-  return {
-    producerId: Long.UZERO,
-    sequenceId: Long.UZERO,
-    error: 0,
-    message: "",
-  };
+  return { producerId: Long.UZERO, sequenceId: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandSendError = {
-  encode(
-    message: CommandSendError,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandSendError, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
@@ -5579,40 +5889,53 @@ export const CommandSendError = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandSendError {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandSendError();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.producerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.sequenceId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandSendError {
     return {
-      producerId: isSet(object.producerId)
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO,
-      sequenceId: isSet(object.sequenceId)
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO,
+      producerId: isSet(object.producerId) ? Long.fromValue(object.producerId) : Long.UZERO,
+      sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -5620,28 +5943,32 @@ export const CommandSendError = {
 
   toJSON(message: CommandSendError): unknown {
     const obj: any = {};
-    message.producerId !== undefined &&
-      (obj.producerId = (message.producerId || Long.UZERO).toString());
-    message.sequenceId !== undefined &&
-      (obj.sequenceId = (message.sequenceId || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.producerId.isZero()) {
+      obj.producerId = (message.producerId || Long.UZERO).toString();
+    }
+    if (!message.sequenceId.isZero()) {
+      obj.sequenceId = (message.sequenceId || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandSendError>, I>>(
-    object: I
-  ): CommandSendError {
+  create<I extends Exact<DeepPartial<CommandSendError>, I>>(base?: I): CommandSendError {
+    return CommandSendError.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandSendError>, I>>(object: I): CommandSendError {
     const message = createBaseCommandSendError();
-    message.producerId =
-      object.producerId !== undefined && object.producerId !== null
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO;
-    message.sequenceId =
-      object.sequenceId !== undefined && object.sequenceId !== null
-        ? Long.fromValue(object.sequenceId)
-        : Long.UZERO;
+    message.producerId = (object.producerId !== undefined && object.producerId !== null)
+      ? Long.fromValue(object.producerId)
+      : Long.UZERO;
+    message.sequenceId = (object.sequenceId !== undefined && object.sequenceId !== null)
+      ? Long.fromValue(object.sequenceId)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -5649,28 +5976,16 @@ export const CommandSendError = {
 };
 
 function createBaseCommandMessage(): CommandMessage {
-  return {
-    consumerId: Long.UZERO,
-    messageId: undefined,
-    redeliveryCount: 0,
-    ackSet: [],
-    consumerEpoch: Long.UZERO,
-  };
+  return { consumerId: Long.UZERO, messageId: undefined, redeliveryCount: 0, ackSet: [], consumerEpoch: Long.UZERO };
 }
 
 export const CommandMessage = {
-  encode(
-    message: CommandMessage,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandMessage, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
     if (message.messageId !== undefined) {
-      MessageIdData.encode(
-        message.messageId,
-        writer.uint32(18).fork()
-      ).ldelim();
+      MessageIdData.encode(message.messageId, writer.uint32(18).fork()).ldelim();
     }
     if (message.redeliveryCount !== 0) {
       writer.uint32(24).uint32(message.redeliveryCount);
@@ -5687,100 +6002,112 @@ export const CommandMessage = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandMessage {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandMessage();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.messageId = MessageIdData.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.redeliveryCount = reader.uint32();
-          break;
+          continue;
         case 4:
-          if ((tag & 7) === 2) {
+          if (tag === 32) {
+            message.ackSet.push(reader.int64() as Long);
+
+            continue;
+          }
+
+          if (tag === 34) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
               message.ackSet.push(reader.int64() as Long);
             }
-          } else {
-            message.ackSet.push(reader.int64() as Long);
+
+            continue;
           }
+
           break;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.consumerEpoch = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandMessage {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      messageId: isSet(object.messageId)
-        ? MessageIdData.fromJSON(object.messageId)
-        : undefined,
-      redeliveryCount: isSet(object.redeliveryCount)
-        ? Number(object.redeliveryCount)
-        : 0,
-      ackSet: Array.isArray(object?.ackSet)
-        ? object.ackSet.map((e: any) => Long.fromValue(e))
-        : [],
-      consumerEpoch: isSet(object.consumerEpoch)
-        ? Long.fromValue(object.consumerEpoch)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      messageId: isSet(object.messageId) ? MessageIdData.fromJSON(object.messageId) : undefined,
+      redeliveryCount: isSet(object.redeliveryCount) ? Number(object.redeliveryCount) : 0,
+      ackSet: Array.isArray(object?.ackSet) ? object.ackSet.map((e: any) => Long.fromValue(e)) : [],
+      consumerEpoch: isSet(object.consumerEpoch) ? Long.fromValue(object.consumerEpoch) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandMessage): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.messageId !== undefined &&
-      (obj.messageId = message.messageId
-        ? MessageIdData.toJSON(message.messageId)
-        : undefined);
-    message.redeliveryCount !== undefined &&
-      (obj.redeliveryCount = Math.round(message.redeliveryCount));
-    if (message.ackSet) {
-      obj.ackSet = message.ackSet.map((e) => (e || Long.ZERO).toString());
-    } else {
-      obj.ackSet = [];
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
     }
-    message.consumerEpoch !== undefined &&
-      (obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString());
+    if (message.messageId !== undefined) {
+      obj.messageId = MessageIdData.toJSON(message.messageId);
+    }
+    if (message.redeliveryCount !== 0) {
+      obj.redeliveryCount = Math.round(message.redeliveryCount);
+    }
+    if (message.ackSet?.length) {
+      obj.ackSet = message.ackSet.map((e) => (e || Long.ZERO).toString());
+    }
+    if (!message.consumerEpoch.isZero()) {
+      obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandMessage>, I>>(
-    object: I
-  ): CommandMessage {
+  create<I extends Exact<DeepPartial<CommandMessage>, I>>(base?: I): CommandMessage {
+    return CommandMessage.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandMessage>, I>>(object: I): CommandMessage {
     const message = createBaseCommandMessage();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
-    message.messageId =
-      object.messageId !== undefined && object.messageId !== null
-        ? MessageIdData.fromPartial(object.messageId)
-        : undefined;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
+    message.messageId = (object.messageId !== undefined && object.messageId !== null)
+      ? MessageIdData.fromPartial(object.messageId)
+      : undefined;
     message.redeliveryCount = object.redeliveryCount ?? 0;
     message.ackSet = object.ackSet?.map((e) => Long.fromValue(e)) || [];
-    message.consumerEpoch =
-      object.consumerEpoch !== undefined && object.consumerEpoch !== null
-        ? Long.fromValue(object.consumerEpoch)
-        : Long.UZERO;
+    message.consumerEpoch = (object.consumerEpoch !== undefined && object.consumerEpoch !== null)
+      ? Long.fromValue(object.consumerEpoch)
+      : Long.UZERO;
     return message;
   },
 };
@@ -5799,10 +6126,7 @@ function createBaseCommandAck(): CommandAck {
 }
 
 export const CommandAck = {
-  encode(
-    message: CommandAck,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandAck, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -5831,132 +6155,140 @@ export const CommandAck = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandAck {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandAck();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.ackType = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.messageId.push(MessageIdData.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.validationError = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.properties.push(KeyLongValue.decode(reader, reader.uint32()));
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 7:
+          if (tag !== 56) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandAck {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      ackType: isSet(object.ackType)
-        ? commandAck_AckTypeFromJSON(object.ackType)
-        : 0,
-      messageId: Array.isArray(object?.messageId)
-        ? object.messageId.map((e: any) => MessageIdData.fromJSON(e))
-        : [],
-      validationError: isSet(object.validationError)
-        ? commandAck_ValidationErrorFromJSON(object.validationError)
-        : 0,
-      properties: Array.isArray(object?.properties)
-        ? object.properties.map((e: any) => KeyLongValue.fromJSON(e))
-        : [],
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      ackType: isSet(object.ackType) ? commandAck_AckTypeFromJSON(object.ackType) : 0,
+      messageId: Array.isArray(object?.messageId) ? object.messageId.map((e: any) => MessageIdData.fromJSON(e)) : [],
+      validationError: isSet(object.validationError) ? commandAck_ValidationErrorFromJSON(object.validationError) : 0,
+      properties: Array.isArray(object?.properties) ? object.properties.map((e: any) => KeyLongValue.fromJSON(e)) : [],
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandAck): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.ackType !== undefined &&
-      (obj.ackType = commandAck_AckTypeToJSON(message.ackType));
-    if (message.messageId) {
-      obj.messageId = message.messageId.map((e) =>
-        e ? MessageIdData.toJSON(e) : undefined
-      );
-    } else {
-      obj.messageId = [];
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
     }
-    message.validationError !== undefined &&
-      (obj.validationError = commandAck_ValidationErrorToJSON(
-        message.validationError
-      ));
-    if (message.properties) {
-      obj.properties = message.properties.map((e) =>
-        e ? KeyLongValue.toJSON(e) : undefined
-      );
-    } else {
-      obj.properties = [];
+    if (message.ackType !== 0) {
+      obj.ackType = commandAck_AckTypeToJSON(message.ackType);
     }
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
+    if (message.messageId?.length) {
+      obj.messageId = message.messageId.map((e) => MessageIdData.toJSON(e));
+    }
+    if (message.validationError !== 0) {
+      obj.validationError = commandAck_ValidationErrorToJSON(message.validationError);
+    }
+    if (message.properties?.length) {
+      obj.properties = message.properties.map((e) => KeyLongValue.toJSON(e));
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandAck>, I>>(
-    object: I
-  ): CommandAck {
+  create<I extends Exact<DeepPartial<CommandAck>, I>>(base?: I): CommandAck {
+    return CommandAck.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandAck>, I>>(object: I): CommandAck {
     const message = createBaseCommandAck();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
     message.ackType = object.ackType ?? 0;
-    message.messageId =
-      object.messageId?.map((e) => MessageIdData.fromPartial(e)) || [];
+    message.messageId = object.messageId?.map((e) => MessageIdData.fromPartial(e)) || [];
     message.validationError = object.validationError ?? 0;
-    message.properties =
-      object.properties?.map((e) => KeyLongValue.fromPartial(e)) || [];
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.properties = object.properties?.map((e) => KeyLongValue.fromPartial(e)) || [];
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -5973,10 +6305,7 @@ function createBaseCommandAckResponse(): CommandAckResponse {
 }
 
 export const CommandAckResponse = {
-  encode(
-    message: CommandAckResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandAckResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -5999,95 +6328,116 @@ export const CommandAckResponse = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandAckResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandAckResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandAckResponse {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandAckResponse): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandAckResponse>, I>>(
-    object: I
-  ): CommandAckResponse {
+  create<I extends Exact<DeepPartial<CommandAckResponse>, I>>(base?: I): CommandAckResponse {
+    return CommandAckResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandAckResponse>, I>>(object: I): CommandAckResponse {
     const message = createBaseCommandAckResponse();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -6097,10 +6447,7 @@ function createBaseCommandActiveConsumerChange(): CommandActiveConsumerChange {
 }
 
 export const CommandActiveConsumerChange = {
-  encode(
-    message: CommandActiveConsumerChange,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandActiveConsumerChange, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -6110,55 +6457,62 @@ export const CommandActiveConsumerChange = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandActiveConsumerChange {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandActiveConsumerChange {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandActiveConsumerChange();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.isActive = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandActiveConsumerChange {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
       isActive: isSet(object.isActive) ? Boolean(object.isActive) : false,
     };
   },
 
   toJSON(message: CommandActiveConsumerChange): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.isActive !== undefined && (obj.isActive = message.isActive);
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
+    if (message.isActive === true) {
+      obj.isActive = message.isActive;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandActiveConsumerChange>, I>>(
-    object: I
-  ): CommandActiveConsumerChange {
+  create<I extends Exact<DeepPartial<CommandActiveConsumerChange>, I>>(base?: I): CommandActiveConsumerChange {
+    return CommandActiveConsumerChange.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandActiveConsumerChange>, I>>(object: I): CommandActiveConsumerChange {
     const message = createBaseCommandActiveConsumerChange();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
     message.isActive = object.isActive ?? false;
     return message;
   },
@@ -6169,10 +6523,7 @@ function createBaseCommandFlow(): CommandFlow {
 }
 
 export const CommandFlow = {
-  encode(
-    message: CommandFlow,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandFlow, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -6183,54 +6534,61 @@ export const CommandFlow = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandFlow {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandFlow();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.messagePermits = reader.uint32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandFlow {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      messagePermits: isSet(object.messagePermits)
-        ? Number(object.messagePermits)
-        : 0,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      messagePermits: isSet(object.messagePermits) ? Number(object.messagePermits) : 0,
     };
   },
 
   toJSON(message: CommandFlow): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.messagePermits !== undefined &&
-      (obj.messagePermits = Math.round(message.messagePermits));
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
+    if (message.messagePermits !== 0) {
+      obj.messagePermits = Math.round(message.messagePermits);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandFlow>, I>>(
-    object: I
-  ): CommandFlow {
+  create<I extends Exact<DeepPartial<CommandFlow>, I>>(base?: I): CommandFlow {
+    return CommandFlow.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandFlow>, I>>(object: I): CommandFlow {
     const message = createBaseCommandFlow();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
     message.messagePermits = object.messagePermits ?? 0;
     return message;
   },
@@ -6241,10 +6599,7 @@ function createBaseCommandUnsubscribe(): CommandUnsubscribe {
 }
 
 export const CommandUnsubscribe = {
-  encode(
-    message: CommandUnsubscribe,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandUnsubscribe, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -6255,76 +6610,74 @@ export const CommandUnsubscribe = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandUnsubscribe {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandUnsubscribe();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandUnsubscribe {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandUnsubscribe): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandUnsubscribe>, I>>(
-    object: I
-  ): CommandUnsubscribe {
+  create<I extends Exact<DeepPartial<CommandUnsubscribe>, I>>(base?: I): CommandUnsubscribe {
+    return CommandUnsubscribe.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandUnsubscribe>, I>>(object: I): CommandUnsubscribe {
     const message = createBaseCommandUnsubscribe();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandSeek(): CommandSeek {
-  return {
-    consumerId: Long.UZERO,
-    requestId: Long.UZERO,
-    messageId: undefined,
-    messagePublishTime: Long.UZERO,
-  };
+  return { consumerId: Long.UZERO, requestId: Long.UZERO, messageId: undefined, messagePublishTime: Long.UZERO };
 }
 
 export const CommandSeek = {
-  encode(
-    message: CommandSeek,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandSeek, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -6332,10 +6685,7 @@ export const CommandSeek = {
       writer.uint32(16).uint64(message.requestId);
     }
     if (message.messageId !== undefined) {
-      MessageIdData.encode(
-        message.messageId,
-        writer.uint32(26).fork()
-      ).ldelim();
+      MessageIdData.encode(message.messageId, writer.uint32(26).fork()).ldelim();
     }
     if (!message.messagePublishTime.isZero()) {
       writer.uint32(32).uint64(message.messagePublishTime);
@@ -6344,87 +6694,92 @@ export const CommandSeek = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandSeek {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandSeek();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.messageId = MessageIdData.decode(reader, reader.uint32());
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.messagePublishTime = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandSeek {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      messageId: isSet(object.messageId)
-        ? MessageIdData.fromJSON(object.messageId)
-        : undefined,
-      messagePublishTime: isSet(object.messagePublishTime)
-        ? Long.fromValue(object.messagePublishTime)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      messageId: isSet(object.messageId) ? MessageIdData.fromJSON(object.messageId) : undefined,
+      messagePublishTime: isSet(object.messagePublishTime) ? Long.fromValue(object.messagePublishTime) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandSeek): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.messageId !== undefined &&
-      (obj.messageId = message.messageId
-        ? MessageIdData.toJSON(message.messageId)
-        : undefined);
-    message.messagePublishTime !== undefined &&
-      (obj.messagePublishTime = (
-        message.messagePublishTime || Long.UZERO
-      ).toString());
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.messageId !== undefined) {
+      obj.messageId = MessageIdData.toJSON(message.messageId);
+    }
+    if (!message.messagePublishTime.isZero()) {
+      obj.messagePublishTime = (message.messagePublishTime || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandSeek>, I>>(
-    object: I
-  ): CommandSeek {
+  create<I extends Exact<DeepPartial<CommandSeek>, I>>(base?: I): CommandSeek {
+    return CommandSeek.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandSeek>, I>>(object: I): CommandSeek {
     const message = createBaseCommandSeek();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.messageId =
-      object.messageId !== undefined && object.messageId !== null
-        ? MessageIdData.fromPartial(object.messageId)
-        : undefined;
-    message.messagePublishTime =
-      object.messagePublishTime !== undefined &&
-      object.messagePublishTime !== null
-        ? Long.fromValue(object.messagePublishTime)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.messageId = (object.messageId !== undefined && object.messageId !== null)
+      ? MessageIdData.fromPartial(object.messageId)
+      : undefined;
+    message.messagePublishTime = (object.messagePublishTime !== undefined && object.messagePublishTime !== null)
+      ? Long.fromValue(object.messagePublishTime)
+      : Long.UZERO;
     return message;
   },
 };
@@ -6434,60 +6789,56 @@ function createBaseCommandReachedEndOfTopic(): CommandReachedEndOfTopic {
 }
 
 export const CommandReachedEndOfTopic = {
-  encode(
-    message: CommandReachedEndOfTopic,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandReachedEndOfTopic, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandReachedEndOfTopic {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandReachedEndOfTopic {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandReachedEndOfTopic();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandReachedEndOfTopic {
-    return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-    };
+    return { consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO };
   },
 
   toJSON(message: CommandReachedEndOfTopic): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandReachedEndOfTopic>, I>>(
-    object: I
-  ): CommandReachedEndOfTopic {
+  create<I extends Exact<DeepPartial<CommandReachedEndOfTopic>, I>>(base?: I): CommandReachedEndOfTopic {
+    return CommandReachedEndOfTopic.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandReachedEndOfTopic>, I>>(object: I): CommandReachedEndOfTopic {
     const message = createBaseCommandReachedEndOfTopic();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -6497,10 +6848,7 @@ function createBaseCommandCloseProducer(): CommandCloseProducer {
 }
 
 export const CommandCloseProducer = {
-  encode(
-    message: CommandCloseProducer,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandCloseProducer, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
@@ -6510,62 +6858,65 @@ export const CommandCloseProducer = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandCloseProducer {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandCloseProducer {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandCloseProducer();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.producerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandCloseProducer {
     return {
-      producerId: isSet(object.producerId)
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      producerId: isSet(object.producerId) ? Long.fromValue(object.producerId) : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandCloseProducer): unknown {
     const obj: any = {};
-    message.producerId !== undefined &&
-      (obj.producerId = (message.producerId || Long.UZERO).toString());
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
+    if (!message.producerId.isZero()) {
+      obj.producerId = (message.producerId || Long.UZERO).toString();
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandCloseProducer>, I>>(
-    object: I
-  ): CommandCloseProducer {
+  create<I extends Exact<DeepPartial<CommandCloseProducer>, I>>(base?: I): CommandCloseProducer {
+    return CommandCloseProducer.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandCloseProducer>, I>>(object: I): CommandCloseProducer {
     const message = createBaseCommandCloseProducer();
-    message.producerId =
-      object.producerId !== undefined && object.producerId !== null
-        ? Long.fromValue(object.producerId)
-        : Long.UZERO;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.producerId = (object.producerId !== undefined && object.producerId !== null)
+      ? Long.fromValue(object.producerId)
+      : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -6575,10 +6926,7 @@ function createBaseCommandCloseConsumer(): CommandCloseConsumer {
 }
 
 export const CommandCloseConsumer = {
-  encode(
-    message: CommandCloseConsumer,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandCloseConsumer, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -6588,62 +6936,65 @@ export const CommandCloseConsumer = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandCloseConsumer {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandCloseConsumer {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandCloseConsumer();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandCloseConsumer {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandCloseConsumer): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandCloseConsumer>, I>>(
-    object: I
-  ): CommandCloseConsumer {
+  create<I extends Exact<DeepPartial<CommandCloseConsumer>, I>>(base?: I): CommandCloseConsumer {
+    return CommandCloseConsumer.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandCloseConsumer>, I>>(object: I): CommandCloseConsumer {
     const message = createBaseCommandCloseConsumer();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -6653,10 +7004,7 @@ function createBaseCommandRedeliverUnacknowledgedMessages(): CommandRedeliverUna
 }
 
 export const CommandRedeliverUnacknowledgedMessages = {
-  encode(
-    message: CommandRedeliverUnacknowledgedMessages,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandRedeliverUnacknowledgedMessages, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -6669,79 +7017,81 @@ export const CommandRedeliverUnacknowledgedMessages = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandRedeliverUnacknowledgedMessages {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandRedeliverUnacknowledgedMessages {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandRedeliverUnacknowledgedMessages();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
-          message.messageIds.push(
-            MessageIdData.decode(reader, reader.uint32())
-          );
-          break;
+          if (tag !== 18) {
+            break;
+          }
+
+          message.messageIds.push(MessageIdData.decode(reader, reader.uint32()));
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.consumerEpoch = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandRedeliverUnacknowledgedMessages {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      messageIds: Array.isArray(object?.messageIds)
-        ? object.messageIds.map((e: any) => MessageIdData.fromJSON(e))
-        : [],
-      consumerEpoch: isSet(object.consumerEpoch)
-        ? Long.fromValue(object.consumerEpoch)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      messageIds: Array.isArray(object?.messageIds) ? object.messageIds.map((e: any) => MessageIdData.fromJSON(e)) : [],
+      consumerEpoch: isSet(object.consumerEpoch) ? Long.fromValue(object.consumerEpoch) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandRedeliverUnacknowledgedMessages): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    if (message.messageIds) {
-      obj.messageIds = message.messageIds.map((e) =>
-        e ? MessageIdData.toJSON(e) : undefined
-      );
-    } else {
-      obj.messageIds = [];
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
     }
-    message.consumerEpoch !== undefined &&
-      (obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString());
+    if (message.messageIds?.length) {
+      obj.messageIds = message.messageIds.map((e) => MessageIdData.toJSON(e));
+    }
+    if (!message.consumerEpoch.isZero()) {
+      obj.consumerEpoch = (message.consumerEpoch || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<
-    I extends Exact<DeepPartial<CommandRedeliverUnacknowledgedMessages>, I>
-  >(object: I): CommandRedeliverUnacknowledgedMessages {
+  create<I extends Exact<DeepPartial<CommandRedeliverUnacknowledgedMessages>, I>>(
+    base?: I,
+  ): CommandRedeliverUnacknowledgedMessages {
+    return CommandRedeliverUnacknowledgedMessages.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandRedeliverUnacknowledgedMessages>, I>>(
+    object: I,
+  ): CommandRedeliverUnacknowledgedMessages {
     const message = createBaseCommandRedeliverUnacknowledgedMessages();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
-    message.messageIds =
-      object.messageIds?.map((e) => MessageIdData.fromPartial(e)) || [];
-    message.consumerEpoch =
-      object.consumerEpoch !== undefined && object.consumerEpoch !== null
-        ? Long.fromValue(object.consumerEpoch)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
+    message.messageIds = object.messageIds?.map((e) => MessageIdData.fromPartial(e)) || [];
+    message.consumerEpoch = (object.consumerEpoch !== undefined && object.consumerEpoch !== null)
+      ? Long.fromValue(object.consumerEpoch)
+      : Long.UZERO;
     return message;
   },
 };
@@ -6751,10 +7101,7 @@ function createBaseCommandSuccess(): CommandSuccess {
 }
 
 export const CommandSuccess = {
-  encode(
-    message: CommandSuccess,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandSuccess, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -6765,56 +7112,64 @@ export const CommandSuccess = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandSuccess {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandSuccess();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.schema = Schema.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandSuccess {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
     };
   },
 
   toJSON(message: CommandSuccess): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.schema !== undefined &&
-      (obj.schema = message.schema ? Schema.toJSON(message.schema) : undefined);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.schema !== undefined) {
+      obj.schema = Schema.toJSON(message.schema);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandSuccess>, I>>(
-    object: I
-  ): CommandSuccess {
+  create<I extends Exact<DeepPartial<CommandSuccess>, I>>(base?: I): CommandSuccess {
+    return CommandSuccess.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandSuccess>, I>>(object: I): CommandSuccess {
     const message = createBaseCommandSuccess();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.schema =
-      object.schema !== undefined && object.schema !== null
-        ? Schema.fromPartial(object.schema)
-        : undefined;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.schema = (object.schema !== undefined && object.schema !== null)
+      ? Schema.fromPartial(object.schema)
+      : undefined;
     return message;
   },
 };
@@ -6824,17 +7179,14 @@ function createBaseCommandProducerSuccess(): CommandProducerSuccess {
     requestId: Long.UZERO,
     producerName: "",
     lastSequenceId: Long.ZERO,
-    schemaVersion: new Uint8Array(),
+    schemaVersion: new Uint8Array(0),
     topicEpoch: Long.UZERO,
     producerReady: false,
   };
 }
 
 export const CommandProducerSuccess = {
-  encode(
-    message: CommandProducerSuccess,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandProducerSuccess, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -6856,104 +7208,114 @@ export const CommandProducerSuccess = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandProducerSuccess {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandProducerSuccess {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandProducerSuccess();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.producerName = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.lastSequenceId = reader.int64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.schemaVersion = reader.bytes();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.topicEpoch = reader.uint64() as Long;
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.producerReady = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandProducerSuccess {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      producerName: isSet(object.producerName)
-        ? String(object.producerName)
-        : "",
-      lastSequenceId: isSet(object.lastSequenceId)
-        ? Long.fromValue(object.lastSequenceId)
-        : Long.ZERO,
-      schemaVersion: isSet(object.schemaVersion)
-        ? bytesFromBase64(object.schemaVersion)
-        : new Uint8Array(),
-      topicEpoch: isSet(object.topicEpoch)
-        ? Long.fromValue(object.topicEpoch)
-        : Long.UZERO,
-      producerReady: isSet(object.producerReady)
-        ? Boolean(object.producerReady)
-        : false,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      producerName: isSet(object.producerName) ? String(object.producerName) : "",
+      lastSequenceId: isSet(object.lastSequenceId) ? Long.fromValue(object.lastSequenceId) : Long.ZERO,
+      schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
+      topicEpoch: isSet(object.topicEpoch) ? Long.fromValue(object.topicEpoch) : Long.UZERO,
+      producerReady: isSet(object.producerReady) ? Boolean(object.producerReady) : false,
     };
   },
 
   toJSON(message: CommandProducerSuccess): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.producerName !== undefined &&
-      (obj.producerName = message.producerName);
-    message.lastSequenceId !== undefined &&
-      (obj.lastSequenceId = (message.lastSequenceId || Long.ZERO).toString());
-    message.schemaVersion !== undefined &&
-      (obj.schemaVersion = base64FromBytes(
-        message.schemaVersion !== undefined
-          ? message.schemaVersion
-          : new Uint8Array()
-      ));
-    message.topicEpoch !== undefined &&
-      (obj.topicEpoch = (message.topicEpoch || Long.UZERO).toString());
-    message.producerReady !== undefined &&
-      (obj.producerReady = message.producerReady);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.producerName !== "") {
+      obj.producerName = message.producerName;
+    }
+    if (!message.lastSequenceId.isZero()) {
+      obj.lastSequenceId = (message.lastSequenceId || Long.ZERO).toString();
+    }
+    if (message.schemaVersion.length !== 0) {
+      obj.schemaVersion = base64FromBytes(message.schemaVersion);
+    }
+    if (!message.topicEpoch.isZero()) {
+      obj.topicEpoch = (message.topicEpoch || Long.UZERO).toString();
+    }
+    if (message.producerReady === true) {
+      obj.producerReady = message.producerReady;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandProducerSuccess>, I>>(
-    object: I
-  ): CommandProducerSuccess {
+  create<I extends Exact<DeepPartial<CommandProducerSuccess>, I>>(base?: I): CommandProducerSuccess {
+    return CommandProducerSuccess.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandProducerSuccess>, I>>(object: I): CommandProducerSuccess {
     const message = createBaseCommandProducerSuccess();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.producerName = object.producerName ?? "";
-    message.lastSequenceId =
-      object.lastSequenceId !== undefined && object.lastSequenceId !== null
-        ? Long.fromValue(object.lastSequenceId)
-        : Long.ZERO;
-    message.schemaVersion = object.schemaVersion ?? new Uint8Array();
-    message.topicEpoch =
-      object.topicEpoch !== undefined && object.topicEpoch !== null
-        ? Long.fromValue(object.topicEpoch)
-        : Long.UZERO;
+    message.lastSequenceId = (object.lastSequenceId !== undefined && object.lastSequenceId !== null)
+      ? Long.fromValue(object.lastSequenceId)
+      : Long.ZERO;
+    message.schemaVersion = object.schemaVersion ?? new Uint8Array(0);
+    message.topicEpoch = (object.topicEpoch !== undefined && object.topicEpoch !== null)
+      ? Long.fromValue(object.topicEpoch)
+      : Long.UZERO;
     message.producerReady = object.producerReady ?? false;
     return message;
   },
@@ -6964,10 +7326,7 @@ function createBaseCommandError(): CommandError {
 }
 
 export const CommandError = {
-  encode(
-    message: CommandError,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandError, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -6981,34 +7340,45 @@ export const CommandError = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandError {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandError();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandError {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -7016,22 +7386,26 @@ export const CommandError = {
 
   toJSON(message: CommandError): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandError>, I>>(
-    object: I
-  ): CommandError {
+  create<I extends Exact<DeepPartial<CommandError>, I>>(base?: I): CommandError {
+    return CommandError.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandError>, I>>(object: I): CommandError {
     const message = createBaseCommandError();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -7048,16 +7422,17 @@ export const CommandPing = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandPing {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandPing();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        default:
-          reader.skipType(tag & 7);
-          break;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -7071,6 +7446,9 @@ export const CommandPing = {
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<CommandPing>, I>>(base?: I): CommandPing {
+    return CommandPing.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<CommandPing>, I>>(_: I): CommandPing {
     const message = createBaseCommandPing();
     return message;
@@ -7087,16 +7465,17 @@ export const CommandPong = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandPong {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandPong();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        default:
-          reader.skipType(tag & 7);
-          break;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -7110,6 +7489,9 @@ export const CommandPong = {
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<CommandPong>, I>>(base?: I): CommandPong {
+    return CommandPong.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<CommandPong>, I>>(_: I): CommandPong {
     const message = createBaseCommandPong();
     return message;
@@ -7121,10 +7503,7 @@ function createBaseCommandConsumerStats(): CommandConsumerStats {
 }
 
 export const CommandConsumerStats = {
-  encode(
-    message: CommandConsumerStats,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandConsumerStats, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -7134,62 +7513,65 @@ export const CommandConsumerStats = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandConsumerStats {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandConsumerStats {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandConsumerStats();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandConsumerStats {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandConsumerStats): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandConsumerStats>, I>>(
-    object: I
-  ): CommandConsumerStats {
+  create<I extends Exact<DeepPartial<CommandConsumerStats>, I>>(base?: I): CommandConsumerStats {
+    return CommandConsumerStats.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandConsumerStats>, I>>(object: I): CommandConsumerStats {
     const message = createBaseCommandConsumerStats();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -7216,10 +7598,7 @@ function createBaseCommandConsumerStatsResponse(): CommandConsumerStatsResponse 
 }
 
 export const CommandConsumerStatsResponse = {
-  encode(
-    message: CommandConsumerStatsResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandConsumerStatsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -7271,189 +7650,238 @@ export const CommandConsumerStatsResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandConsumerStatsResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandConsumerStatsResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandConsumerStatsResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.errorCode = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.errorMessage = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 33) {
+            break;
+          }
+
           message.msgRateOut = reader.double();
-          break;
+          continue;
         case 5:
+          if (tag !== 41) {
+            break;
+          }
+
           message.msgThroughputOut = reader.double();
-          break;
+          continue;
         case 6:
+          if (tag !== 49) {
+            break;
+          }
+
           message.msgRateRedeliver = reader.double();
-          break;
+          continue;
         case 7:
+          if (tag !== 58) {
+            break;
+          }
+
           message.consumerName = reader.string();
-          break;
+          continue;
         case 8:
+          if (tag !== 64) {
+            break;
+          }
+
           message.availablePermits = reader.uint64() as Long;
-          break;
+          continue;
         case 9:
+          if (tag !== 72) {
+            break;
+          }
+
           message.unackedMessages = reader.uint64() as Long;
-          break;
+          continue;
         case 10:
+          if (tag !== 80) {
+            break;
+          }
+
           message.blockedConsumerOnUnackedMsgs = reader.bool();
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.address = reader.string();
-          break;
+          continue;
         case 12:
+          if (tag !== 98) {
+            break;
+          }
+
           message.connectedSince = reader.string();
-          break;
+          continue;
         case 13:
+          if (tag !== 106) {
+            break;
+          }
+
           message.type = reader.string();
-          break;
+          continue;
         case 14:
+          if (tag !== 113) {
+            break;
+          }
+
           message.msgRateExpired = reader.double();
-          break;
+          continue;
         case 15:
+          if (tag !== 120) {
+            break;
+          }
+
           message.msgBacklog = reader.uint64() as Long;
-          break;
+          continue;
         case 16:
+          if (tag !== 129) {
+            break;
+          }
+
           message.messageAckRate = reader.double();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandConsumerStatsResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      errorCode: isSet(object.errorCode)
-        ? serverErrorFromJSON(object.errorCode)
-        : 0,
-      errorMessage: isSet(object.errorMessage)
-        ? String(object.errorMessage)
-        : "",
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      errorCode: isSet(object.errorCode) ? serverErrorFromJSON(object.errorCode) : 0,
+      errorMessage: isSet(object.errorMessage) ? String(object.errorMessage) : "",
       msgRateOut: isSet(object.msgRateOut) ? Number(object.msgRateOut) : 0,
-      msgThroughputOut: isSet(object.msgThroughputOut)
-        ? Number(object.msgThroughputOut)
-        : 0,
-      msgRateRedeliver: isSet(object.msgRateRedeliver)
-        ? Number(object.msgRateRedeliver)
-        : 0,
-      consumerName: isSet(object.consumerName)
-        ? String(object.consumerName)
-        : "",
-      availablePermits: isSet(object.availablePermits)
-        ? Long.fromValue(object.availablePermits)
-        : Long.UZERO,
-      unackedMessages: isSet(object.unackedMessages)
-        ? Long.fromValue(object.unackedMessages)
-        : Long.UZERO,
+      msgThroughputOut: isSet(object.msgThroughputOut) ? Number(object.msgThroughputOut) : 0,
+      msgRateRedeliver: isSet(object.msgRateRedeliver) ? Number(object.msgRateRedeliver) : 0,
+      consumerName: isSet(object.consumerName) ? String(object.consumerName) : "",
+      availablePermits: isSet(object.availablePermits) ? Long.fromValue(object.availablePermits) : Long.UZERO,
+      unackedMessages: isSet(object.unackedMessages) ? Long.fromValue(object.unackedMessages) : Long.UZERO,
       blockedConsumerOnUnackedMsgs: isSet(object.blockedConsumerOnUnackedMsgs)
         ? Boolean(object.blockedConsumerOnUnackedMsgs)
         : false,
       address: isSet(object.address) ? String(object.address) : "",
-      connectedSince: isSet(object.connectedSince)
-        ? String(object.connectedSince)
-        : "",
+      connectedSince: isSet(object.connectedSince) ? String(object.connectedSince) : "",
       type: isSet(object.type) ? String(object.type) : "",
-      msgRateExpired: isSet(object.msgRateExpired)
-        ? Number(object.msgRateExpired)
-        : 0,
-      msgBacklog: isSet(object.msgBacklog)
-        ? Long.fromValue(object.msgBacklog)
-        : Long.UZERO,
-      messageAckRate: isSet(object.messageAckRate)
-        ? Number(object.messageAckRate)
-        : 0,
+      msgRateExpired: isSet(object.msgRateExpired) ? Number(object.msgRateExpired) : 0,
+      msgBacklog: isSet(object.msgBacklog) ? Long.fromValue(object.msgBacklog) : Long.UZERO,
+      messageAckRate: isSet(object.messageAckRate) ? Number(object.messageAckRate) : 0,
     };
   },
 
   toJSON(message: CommandConsumerStatsResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.errorCode !== undefined &&
-      (obj.errorCode = serverErrorToJSON(message.errorCode));
-    message.errorMessage !== undefined &&
-      (obj.errorMessage = message.errorMessage);
-    message.msgRateOut !== undefined && (obj.msgRateOut = message.msgRateOut);
-    message.msgThroughputOut !== undefined &&
-      (obj.msgThroughputOut = message.msgThroughputOut);
-    message.msgRateRedeliver !== undefined &&
-      (obj.msgRateRedeliver = message.msgRateRedeliver);
-    message.consumerName !== undefined &&
-      (obj.consumerName = message.consumerName);
-    message.availablePermits !== undefined &&
-      (obj.availablePermits = (
-        message.availablePermits || Long.UZERO
-      ).toString());
-    message.unackedMessages !== undefined &&
-      (obj.unackedMessages = (
-        message.unackedMessages || Long.UZERO
-      ).toString());
-    message.blockedConsumerOnUnackedMsgs !== undefined &&
-      (obj.blockedConsumerOnUnackedMsgs = message.blockedConsumerOnUnackedMsgs);
-    message.address !== undefined && (obj.address = message.address);
-    message.connectedSince !== undefined &&
-      (obj.connectedSince = message.connectedSince);
-    message.type !== undefined && (obj.type = message.type);
-    message.msgRateExpired !== undefined &&
-      (obj.msgRateExpired = message.msgRateExpired);
-    message.msgBacklog !== undefined &&
-      (obj.msgBacklog = (message.msgBacklog || Long.UZERO).toString());
-    message.messageAckRate !== undefined &&
-      (obj.messageAckRate = message.messageAckRate);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.errorCode !== 0) {
+      obj.errorCode = serverErrorToJSON(message.errorCode);
+    }
+    if (message.errorMessage !== "") {
+      obj.errorMessage = message.errorMessage;
+    }
+    if (message.msgRateOut !== 0) {
+      obj.msgRateOut = message.msgRateOut;
+    }
+    if (message.msgThroughputOut !== 0) {
+      obj.msgThroughputOut = message.msgThroughputOut;
+    }
+    if (message.msgRateRedeliver !== 0) {
+      obj.msgRateRedeliver = message.msgRateRedeliver;
+    }
+    if (message.consumerName !== "") {
+      obj.consumerName = message.consumerName;
+    }
+    if (!message.availablePermits.isZero()) {
+      obj.availablePermits = (message.availablePermits || Long.UZERO).toString();
+    }
+    if (!message.unackedMessages.isZero()) {
+      obj.unackedMessages = (message.unackedMessages || Long.UZERO).toString();
+    }
+    if (message.blockedConsumerOnUnackedMsgs === true) {
+      obj.blockedConsumerOnUnackedMsgs = message.blockedConsumerOnUnackedMsgs;
+    }
+    if (message.address !== "") {
+      obj.address = message.address;
+    }
+    if (message.connectedSince !== "") {
+      obj.connectedSince = message.connectedSince;
+    }
+    if (message.type !== "") {
+      obj.type = message.type;
+    }
+    if (message.msgRateExpired !== 0) {
+      obj.msgRateExpired = message.msgRateExpired;
+    }
+    if (!message.msgBacklog.isZero()) {
+      obj.msgBacklog = (message.msgBacklog || Long.UZERO).toString();
+    }
+    if (message.messageAckRate !== 0) {
+      obj.messageAckRate = message.messageAckRate;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandConsumerStatsResponse>, I>>(
-    object: I
-  ): CommandConsumerStatsResponse {
+  create<I extends Exact<DeepPartial<CommandConsumerStatsResponse>, I>>(base?: I): CommandConsumerStatsResponse {
+    return CommandConsumerStatsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandConsumerStatsResponse>, I>>(object: I): CommandConsumerStatsResponse {
     const message = createBaseCommandConsumerStatsResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.errorCode = object.errorCode ?? 0;
     message.errorMessage = object.errorMessage ?? "";
     message.msgRateOut = object.msgRateOut ?? 0;
     message.msgThroughputOut = object.msgThroughputOut ?? 0;
     message.msgRateRedeliver = object.msgRateRedeliver ?? 0;
     message.consumerName = object.consumerName ?? "";
-    message.availablePermits =
-      object.availablePermits !== undefined && object.availablePermits !== null
-        ? Long.fromValue(object.availablePermits)
-        : Long.UZERO;
-    message.unackedMessages =
-      object.unackedMessages !== undefined && object.unackedMessages !== null
-        ? Long.fromValue(object.unackedMessages)
-        : Long.UZERO;
-    message.blockedConsumerOnUnackedMsgs =
-      object.blockedConsumerOnUnackedMsgs ?? false;
+    message.availablePermits = (object.availablePermits !== undefined && object.availablePermits !== null)
+      ? Long.fromValue(object.availablePermits)
+      : Long.UZERO;
+    message.unackedMessages = (object.unackedMessages !== undefined && object.unackedMessages !== null)
+      ? Long.fromValue(object.unackedMessages)
+      : Long.UZERO;
+    message.blockedConsumerOnUnackedMsgs = object.blockedConsumerOnUnackedMsgs ?? false;
     message.address = object.address ?? "";
     message.connectedSince = object.connectedSince ?? "";
     message.type = object.type ?? "";
     message.msgRateExpired = object.msgRateExpired ?? 0;
-    message.msgBacklog =
-      object.msgBacklog !== undefined && object.msgBacklog !== null
-        ? Long.fromValue(object.msgBacklog)
-        : Long.UZERO;
+    message.msgBacklog = (object.msgBacklog !== undefined && object.msgBacklog !== null)
+      ? Long.fromValue(object.msgBacklog)
+      : Long.UZERO;
     message.messageAckRate = object.messageAckRate ?? 0;
     return message;
   },
@@ -7464,10 +7892,7 @@ function createBaseCommandGetLastMessageId(): CommandGetLastMessageId {
 }
 
 export const CommandGetLastMessageId = {
-  encode(
-    message: CommandGetLastMessageId,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandGetLastMessageId, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.consumerId.isZero()) {
       writer.uint32(8).uint64(message.consumerId);
     }
@@ -7477,135 +7902,128 @@ export const CommandGetLastMessageId = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandGetLastMessageId {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandGetLastMessageId {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandGetLastMessageId();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.consumerId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandGetLastMessageId {
     return {
-      consumerId: isSet(object.consumerId)
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandGetLastMessageId): unknown {
     const obj: any = {};
-    message.consumerId !== undefined &&
-      (obj.consumerId = (message.consumerId || Long.UZERO).toString());
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
+    if (!message.consumerId.isZero()) {
+      obj.consumerId = (message.consumerId || Long.UZERO).toString();
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandGetLastMessageId>, I>>(
-    object: I
-  ): CommandGetLastMessageId {
+  create<I extends Exact<DeepPartial<CommandGetLastMessageId>, I>>(base?: I): CommandGetLastMessageId {
+    return CommandGetLastMessageId.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandGetLastMessageId>, I>>(object: I): CommandGetLastMessageId {
     const message = createBaseCommandGetLastMessageId();
-    message.consumerId =
-      object.consumerId !== undefined && object.consumerId !== null
-        ? Long.fromValue(object.consumerId)
-        : Long.UZERO;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
+      ? Long.fromValue(object.consumerId)
+      : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandGetLastMessageIdResponse(): CommandGetLastMessageIdResponse {
-  return {
-    lastMessageId: undefined,
-    requestId: Long.UZERO,
-    consumerMarkDeletePosition: undefined,
-  };
+  return { lastMessageId: undefined, requestId: Long.UZERO, consumerMarkDeletePosition: undefined };
 }
 
 export const CommandGetLastMessageIdResponse = {
-  encode(
-    message: CommandGetLastMessageIdResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandGetLastMessageIdResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.lastMessageId !== undefined) {
-      MessageIdData.encode(
-        message.lastMessageId,
-        writer.uint32(10).fork()
-      ).ldelim();
+      MessageIdData.encode(message.lastMessageId, writer.uint32(10).fork()).ldelim();
     }
     if (!message.requestId.isZero()) {
       writer.uint32(16).uint64(message.requestId);
     }
     if (message.consumerMarkDeletePosition !== undefined) {
-      MessageIdData.encode(
-        message.consumerMarkDeletePosition,
-        writer.uint32(26).fork()
-      ).ldelim();
+      MessageIdData.encode(message.consumerMarkDeletePosition, writer.uint32(26).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandGetLastMessageIdResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandGetLastMessageIdResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandGetLastMessageIdResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.lastMessageId = MessageIdData.decode(reader, reader.uint32());
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
-          message.consumerMarkDeletePosition = MessageIdData.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          if (tag !== 26) {
+            break;
+          }
+
+          message.consumerMarkDeletePosition = MessageIdData.decode(reader, reader.uint32());
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandGetLastMessageIdResponse {
     return {
-      lastMessageId: isSet(object.lastMessageId)
-        ? MessageIdData.fromJSON(object.lastMessageId)
-        : undefined,
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      lastMessageId: isSet(object.lastMessageId) ? MessageIdData.fromJSON(object.lastMessageId) : undefined,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       consumerMarkDeletePosition: isSet(object.consumerMarkDeletePosition)
         ? MessageIdData.fromJSON(object.consumerMarkDeletePosition)
         : undefined,
@@ -7614,34 +8032,33 @@ export const CommandGetLastMessageIdResponse = {
 
   toJSON(message: CommandGetLastMessageIdResponse): unknown {
     const obj: any = {};
-    message.lastMessageId !== undefined &&
-      (obj.lastMessageId = message.lastMessageId
-        ? MessageIdData.toJSON(message.lastMessageId)
-        : undefined);
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.consumerMarkDeletePosition !== undefined &&
-      (obj.consumerMarkDeletePosition = message.consumerMarkDeletePosition
-        ? MessageIdData.toJSON(message.consumerMarkDeletePosition)
-        : undefined);
+    if (message.lastMessageId !== undefined) {
+      obj.lastMessageId = MessageIdData.toJSON(message.lastMessageId);
+    }
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.consumerMarkDeletePosition !== undefined) {
+      obj.consumerMarkDeletePosition = MessageIdData.toJSON(message.consumerMarkDeletePosition);
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<CommandGetLastMessageIdResponse>, I>>(base?: I): CommandGetLastMessageIdResponse {
+    return CommandGetLastMessageIdResponse.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<CommandGetLastMessageIdResponse>, I>>(
-    object: I
+    object: I,
   ): CommandGetLastMessageIdResponse {
     const message = createBaseCommandGetLastMessageIdResponse();
-    message.lastMessageId =
-      object.lastMessageId !== undefined && object.lastMessageId !== null
-        ? MessageIdData.fromPartial(object.lastMessageId)
-        : undefined;
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.lastMessageId = (object.lastMessageId !== undefined && object.lastMessageId !== null)
+      ? MessageIdData.fromPartial(object.lastMessageId)
+      : undefined;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.consumerMarkDeletePosition =
-      object.consumerMarkDeletePosition !== undefined &&
-      object.consumerMarkDeletePosition !== null
+      (object.consumerMarkDeletePosition !== undefined && object.consumerMarkDeletePosition !== null)
         ? MessageIdData.fromPartial(object.consumerMarkDeletePosition)
         : undefined;
     return message;
@@ -7649,20 +8066,11 @@ export const CommandGetLastMessageIdResponse = {
 };
 
 function createBaseCommandGetTopicsOfNamespace(): CommandGetTopicsOfNamespace {
-  return {
-    requestId: Long.UZERO,
-    namespace: "",
-    mode: 0,
-    topicsPattern: "",
-    topicsHash: "",
-  };
+  return { requestId: Long.UZERO, namespace: "", mode: 0, topicsPattern: "", topicsHash: "" };
 }
 
 export const CommandGetTopicsOfNamespace = {
-  encode(
-    message: CommandGetTopicsOfNamespace,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandGetTopicsOfNamespace, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -7681,76 +8089,95 @@ export const CommandGetTopicsOfNamespace = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandGetTopicsOfNamespace {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandGetTopicsOfNamespace {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandGetTopicsOfNamespace();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.namespace = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.mode = reader.int32() as any;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.topicsPattern = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.topicsHash = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandGetTopicsOfNamespace {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       namespace: isSet(object.namespace) ? String(object.namespace) : "",
-      mode: isSet(object.mode)
-        ? commandGetTopicsOfNamespace_ModeFromJSON(object.mode)
-        : 0,
-      topicsPattern: isSet(object.topicsPattern)
-        ? String(object.topicsPattern)
-        : "",
+      mode: isSet(object.mode) ? commandGetTopicsOfNamespace_ModeFromJSON(object.mode) : 0,
+      topicsPattern: isSet(object.topicsPattern) ? String(object.topicsPattern) : "",
       topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
     };
   },
 
   toJSON(message: CommandGetTopicsOfNamespace): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.namespace !== undefined && (obj.namespace = message.namespace);
-    message.mode !== undefined &&
-      (obj.mode = commandGetTopicsOfNamespace_ModeToJSON(message.mode));
-    message.topicsPattern !== undefined &&
-      (obj.topicsPattern = message.topicsPattern);
-    message.topicsHash !== undefined && (obj.topicsHash = message.topicsHash);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.namespace !== "") {
+      obj.namespace = message.namespace;
+    }
+    if (message.mode !== 0) {
+      obj.mode = commandGetTopicsOfNamespace_ModeToJSON(message.mode);
+    }
+    if (message.topicsPattern !== "") {
+      obj.topicsPattern = message.topicsPattern;
+    }
+    if (message.topicsHash !== "") {
+      obj.topicsHash = message.topicsHash;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandGetTopicsOfNamespace>, I>>(
-    object: I
-  ): CommandGetTopicsOfNamespace {
+  create<I extends Exact<DeepPartial<CommandGetTopicsOfNamespace>, I>>(base?: I): CommandGetTopicsOfNamespace {
+    return CommandGetTopicsOfNamespace.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandGetTopicsOfNamespace>, I>>(object: I): CommandGetTopicsOfNamespace {
     const message = createBaseCommandGetTopicsOfNamespace();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.namespace = object.namespace ?? "";
     message.mode = object.mode ?? 0;
     message.topicsPattern = object.topicsPattern ?? "";
@@ -7760,20 +8187,11 @@ export const CommandGetTopicsOfNamespace = {
 };
 
 function createBaseCommandGetTopicsOfNamespaceResponse(): CommandGetTopicsOfNamespaceResponse {
-  return {
-    requestId: Long.UZERO,
-    topics: [],
-    filtered: false,
-    topicsHash: "",
-    changed: false,
-  };
+  return { requestId: Long.UZERO, topics: [], filtered: false, topicsHash: "", changed: false };
 }
 
 export const CommandGetTopicsOfNamespaceResponse = {
-  encode(
-    message: CommandGetTopicsOfNamespaceResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandGetTopicsOfNamespaceResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -7792,47 +8210,61 @@ export const CommandGetTopicsOfNamespaceResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandGetTopicsOfNamespaceResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandGetTopicsOfNamespaceResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandGetTopicsOfNamespaceResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.topics.push(reader.string());
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.filtered = reader.bool();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.topicsHash = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.changed = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandGetTopicsOfNamespaceResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      topics: Array.isArray(object?.topics)
-        ? object.topics.map((e: any) => String(e))
-        : [],
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      topics: Array.isArray(object?.topics) ? object.topics.map((e: any) => String(e)) : [],
       filtered: isSet(object.filtered) ? Boolean(object.filtered) : false,
       topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
       changed: isSet(object.changed) ? Boolean(object.changed) : false,
@@ -7841,27 +8273,36 @@ export const CommandGetTopicsOfNamespaceResponse = {
 
   toJSON(message: CommandGetTopicsOfNamespaceResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    if (message.topics) {
-      obj.topics = message.topics.map((e) => e);
-    } else {
-      obj.topics = [];
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
     }
-    message.filtered !== undefined && (obj.filtered = message.filtered);
-    message.topicsHash !== undefined && (obj.topicsHash = message.topicsHash);
-    message.changed !== undefined && (obj.changed = message.changed);
+    if (message.topics?.length) {
+      obj.topics = message.topics;
+    }
+    if (message.filtered === true) {
+      obj.filtered = message.filtered;
+    }
+    if (message.topicsHash !== "") {
+      obj.topicsHash = message.topicsHash;
+    }
+    if (message.changed === true) {
+      obj.changed = message.changed;
+    }
     return obj;
   },
 
-  fromPartial<
-    I extends Exact<DeepPartial<CommandGetTopicsOfNamespaceResponse>, I>
-  >(object: I): CommandGetTopicsOfNamespaceResponse {
+  create<I extends Exact<DeepPartial<CommandGetTopicsOfNamespaceResponse>, I>>(
+    base?: I,
+  ): CommandGetTopicsOfNamespaceResponse {
+    return CommandGetTopicsOfNamespaceResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandGetTopicsOfNamespaceResponse>, I>>(
+    object: I,
+  ): CommandGetTopicsOfNamespaceResponse {
     const message = createBaseCommandGetTopicsOfNamespaceResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.topics = object.topics?.map((e) => e) || [];
     message.filtered = object.filtered ?? false;
     message.topicsHash = object.topicsHash ?? "";
@@ -7871,20 +8312,11 @@ export const CommandGetTopicsOfNamespaceResponse = {
 };
 
 function createBaseCommandWatchTopicList(): CommandWatchTopicList {
-  return {
-    requestId: Long.UZERO,
-    watcherId: Long.UZERO,
-    namespace: "",
-    topicsPattern: "",
-    topicsHash: "",
-  };
+  return { requestId: Long.UZERO, watcherId: Long.UZERO, namespace: "", topicsPattern: "", topicsHash: "" };
 }
 
 export const CommandWatchTopicList = {
-  encode(
-    message: CommandWatchTopicList,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandWatchTopicList, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -7903,80 +8335,98 @@ export const CommandWatchTopicList = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandWatchTopicList {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandWatchTopicList {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandWatchTopicList();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.watcherId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.namespace = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.topicsPattern = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.topicsHash = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandWatchTopicList {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      watcherId: isSet(object.watcherId)
-        ? Long.fromValue(object.watcherId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      watcherId: isSet(object.watcherId) ? Long.fromValue(object.watcherId) : Long.UZERO,
       namespace: isSet(object.namespace) ? String(object.namespace) : "",
-      topicsPattern: isSet(object.topicsPattern)
-        ? String(object.topicsPattern)
-        : "",
+      topicsPattern: isSet(object.topicsPattern) ? String(object.topicsPattern) : "",
       topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
     };
   },
 
   toJSON(message: CommandWatchTopicList): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.watcherId !== undefined &&
-      (obj.watcherId = (message.watcherId || Long.UZERO).toString());
-    message.namespace !== undefined && (obj.namespace = message.namespace);
-    message.topicsPattern !== undefined &&
-      (obj.topicsPattern = message.topicsPattern);
-    message.topicsHash !== undefined && (obj.topicsHash = message.topicsHash);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.watcherId.isZero()) {
+      obj.watcherId = (message.watcherId || Long.UZERO).toString();
+    }
+    if (message.namespace !== "") {
+      obj.namespace = message.namespace;
+    }
+    if (message.topicsPattern !== "") {
+      obj.topicsPattern = message.topicsPattern;
+    }
+    if (message.topicsHash !== "") {
+      obj.topicsHash = message.topicsHash;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicList>, I>>(
-    object: I
-  ): CommandWatchTopicList {
+  create<I extends Exact<DeepPartial<CommandWatchTopicList>, I>>(base?: I): CommandWatchTopicList {
+    return CommandWatchTopicList.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicList>, I>>(object: I): CommandWatchTopicList {
     const message = createBaseCommandWatchTopicList();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.watcherId =
-      object.watcherId !== undefined && object.watcherId !== null
-        ? Long.fromValue(object.watcherId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.watcherId = (object.watcherId !== undefined && object.watcherId !== null)
+      ? Long.fromValue(object.watcherId)
+      : Long.UZERO;
     message.namespace = object.namespace ?? "";
     message.topicsPattern = object.topicsPattern ?? "";
     message.topicsHash = object.topicsHash ?? "";
@@ -7985,19 +8435,11 @@ export const CommandWatchTopicList = {
 };
 
 function createBaseCommandWatchTopicListSuccess(): CommandWatchTopicListSuccess {
-  return {
-    requestId: Long.UZERO,
-    watcherId: Long.UZERO,
-    topic: [],
-    topicsHash: "",
-  };
+  return { requestId: Long.UZERO, watcherId: Long.UZERO, topic: [], topicsHash: "" };
 }
 
 export const CommandWatchTopicListSuccess = {
-  encode(
-    message: CommandWatchTopicListSuccess,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandWatchTopicListSuccess, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8013,78 +8455,87 @@ export const CommandWatchTopicListSuccess = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandWatchTopicListSuccess {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandWatchTopicListSuccess {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandWatchTopicListSuccess();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.watcherId = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.topic.push(reader.string());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.topicsHash = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandWatchTopicListSuccess {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      watcherId: isSet(object.watcherId)
-        ? Long.fromValue(object.watcherId)
-        : Long.UZERO,
-      topic: Array.isArray(object?.topic)
-        ? object.topic.map((e: any) => String(e))
-        : [],
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      watcherId: isSet(object.watcherId) ? Long.fromValue(object.watcherId) : Long.UZERO,
+      topic: Array.isArray(object?.topic) ? object.topic.map((e: any) => String(e)) : [],
       topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
     };
   },
 
   toJSON(message: CommandWatchTopicListSuccess): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.watcherId !== undefined &&
-      (obj.watcherId = (message.watcherId || Long.UZERO).toString());
-    if (message.topic) {
-      obj.topic = message.topic.map((e) => e);
-    } else {
-      obj.topic = [];
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
     }
-    message.topicsHash !== undefined && (obj.topicsHash = message.topicsHash);
+    if (!message.watcherId.isZero()) {
+      obj.watcherId = (message.watcherId || Long.UZERO).toString();
+    }
+    if (message.topic?.length) {
+      obj.topic = message.topic;
+    }
+    if (message.topicsHash !== "") {
+      obj.topicsHash = message.topicsHash;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicListSuccess>, I>>(
-    object: I
-  ): CommandWatchTopicListSuccess {
+  create<I extends Exact<DeepPartial<CommandWatchTopicListSuccess>, I>>(base?: I): CommandWatchTopicListSuccess {
+    return CommandWatchTopicListSuccess.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicListSuccess>, I>>(object: I): CommandWatchTopicListSuccess {
     const message = createBaseCommandWatchTopicListSuccess();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.watcherId =
-      object.watcherId !== undefined && object.watcherId !== null
-        ? Long.fromValue(object.watcherId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.watcherId = (object.watcherId !== undefined && object.watcherId !== null)
+      ? Long.fromValue(object.watcherId)
+      : Long.UZERO;
     message.topic = object.topic?.map((e) => e) || [];
     message.topicsHash = object.topicsHash ?? "";
     return message;
@@ -8092,19 +8543,11 @@ export const CommandWatchTopicListSuccess = {
 };
 
 function createBaseCommandWatchTopicUpdate(): CommandWatchTopicUpdate {
-  return {
-    watcherId: Long.UZERO,
-    newTopics: [],
-    deletedTopics: [],
-    topicsHash: "",
-  };
+  return { watcherId: Long.UZERO, newTopics: [], deletedTopics: [], topicsHash: "" };
 }
 
 export const CommandWatchTopicUpdate = {
-  encode(
-    message: CommandWatchTopicUpdate,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandWatchTopicUpdate, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.watcherId.isZero()) {
       writer.uint32(8).uint64(message.watcherId);
     }
@@ -8120,77 +8563,84 @@ export const CommandWatchTopicUpdate = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandWatchTopicUpdate {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandWatchTopicUpdate {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandWatchTopicUpdate();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.watcherId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.newTopics.push(reader.string());
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.deletedTopics.push(reader.string());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.topicsHash = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandWatchTopicUpdate {
     return {
-      watcherId: isSet(object.watcherId)
-        ? Long.fromValue(object.watcherId)
-        : Long.UZERO,
-      newTopics: Array.isArray(object?.newTopics)
-        ? object.newTopics.map((e: any) => String(e))
-        : [],
-      deletedTopics: Array.isArray(object?.deletedTopics)
-        ? object.deletedTopics.map((e: any) => String(e))
-        : [],
+      watcherId: isSet(object.watcherId) ? Long.fromValue(object.watcherId) : Long.UZERO,
+      newTopics: Array.isArray(object?.newTopics) ? object.newTopics.map((e: any) => String(e)) : [],
+      deletedTopics: Array.isArray(object?.deletedTopics) ? object.deletedTopics.map((e: any) => String(e)) : [],
       topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
     };
   },
 
   toJSON(message: CommandWatchTopicUpdate): unknown {
     const obj: any = {};
-    message.watcherId !== undefined &&
-      (obj.watcherId = (message.watcherId || Long.UZERO).toString());
-    if (message.newTopics) {
-      obj.newTopics = message.newTopics.map((e) => e);
-    } else {
-      obj.newTopics = [];
+    if (!message.watcherId.isZero()) {
+      obj.watcherId = (message.watcherId || Long.UZERO).toString();
     }
-    if (message.deletedTopics) {
-      obj.deletedTopics = message.deletedTopics.map((e) => e);
-    } else {
-      obj.deletedTopics = [];
+    if (message.newTopics?.length) {
+      obj.newTopics = message.newTopics;
     }
-    message.topicsHash !== undefined && (obj.topicsHash = message.topicsHash);
+    if (message.deletedTopics?.length) {
+      obj.deletedTopics = message.deletedTopics;
+    }
+    if (message.topicsHash !== "") {
+      obj.topicsHash = message.topicsHash;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicUpdate>, I>>(
-    object: I
-  ): CommandWatchTopicUpdate {
+  create<I extends Exact<DeepPartial<CommandWatchTopicUpdate>, I>>(base?: I): CommandWatchTopicUpdate {
+    return CommandWatchTopicUpdate.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicUpdate>, I>>(object: I): CommandWatchTopicUpdate {
     const message = createBaseCommandWatchTopicUpdate();
-    message.watcherId =
-      object.watcherId !== undefined && object.watcherId !== null
-        ? Long.fromValue(object.watcherId)
-        : Long.UZERO;
+    message.watcherId = (object.watcherId !== undefined && object.watcherId !== null)
+      ? Long.fromValue(object.watcherId)
+      : Long.UZERO;
     message.newTopics = object.newTopics?.map((e) => e) || [];
     message.deletedTopics = object.deletedTopics?.map((e) => e) || [];
     message.topicsHash = object.topicsHash ?? "";
@@ -8203,10 +8653,7 @@ function createBaseCommandWatchTopicListClose(): CommandWatchTopicListClose {
 }
 
 export const CommandWatchTopicListClose = {
-  encode(
-    message: CommandWatchTopicListClose,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandWatchTopicListClose, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8216,75 +8663,75 @@ export const CommandWatchTopicListClose = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandWatchTopicListClose {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandWatchTopicListClose {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandWatchTopicListClose();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.watcherId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandWatchTopicListClose {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      watcherId: isSet(object.watcherId)
-        ? Long.fromValue(object.watcherId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      watcherId: isSet(object.watcherId) ? Long.fromValue(object.watcherId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandWatchTopicListClose): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.watcherId !== undefined &&
-      (obj.watcherId = (message.watcherId || Long.UZERO).toString());
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.watcherId.isZero()) {
+      obj.watcherId = (message.watcherId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicListClose>, I>>(
-    object: I
-  ): CommandWatchTopicListClose {
+  create<I extends Exact<DeepPartial<CommandWatchTopicListClose>, I>>(base?: I): CommandWatchTopicListClose {
+    return CommandWatchTopicListClose.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicListClose>, I>>(object: I): CommandWatchTopicListClose {
     const message = createBaseCommandWatchTopicListClose();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.watcherId =
-      object.watcherId !== undefined && object.watcherId !== null
-        ? Long.fromValue(object.watcherId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.watcherId = (object.watcherId !== undefined && object.watcherId !== null)
+      ? Long.fromValue(object.watcherId)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandGetSchema(): CommandGetSchema {
-  return { requestId: Long.UZERO, topic: "", schemaVersion: new Uint8Array() };
+  return { requestId: Long.UZERO, topic: "", schemaVersion: new Uint8Array(0) };
 }
 
 export const CommandGetSchema = {
-  encode(
-    message: CommandGetSchema,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandGetSchema, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8298,84 +8745,84 @@ export const CommandGetSchema = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandGetSchema {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandGetSchema();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.schemaVersion = reader.bytes();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandGetSchema {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       topic: isSet(object.topic) ? String(object.topic) : "",
-      schemaVersion: isSet(object.schemaVersion)
-        ? bytesFromBase64(object.schemaVersion)
-        : new Uint8Array(),
+      schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
     };
   },
 
   toJSON(message: CommandGetSchema): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.topic !== undefined && (obj.topic = message.topic);
-    message.schemaVersion !== undefined &&
-      (obj.schemaVersion = base64FromBytes(
-        message.schemaVersion !== undefined
-          ? message.schemaVersion
-          : new Uint8Array()
-      ));
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.topic !== "") {
+      obj.topic = message.topic;
+    }
+    if (message.schemaVersion.length !== 0) {
+      obj.schemaVersion = base64FromBytes(message.schemaVersion);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandGetSchema>, I>>(
-    object: I
-  ): CommandGetSchema {
+  create<I extends Exact<DeepPartial<CommandGetSchema>, I>>(base?: I): CommandGetSchema {
+    return CommandGetSchema.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandGetSchema>, I>>(object: I): CommandGetSchema {
     const message = createBaseCommandGetSchema();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.topic = object.topic ?? "";
-    message.schemaVersion = object.schemaVersion ?? new Uint8Array();
+    message.schemaVersion = object.schemaVersion ?? new Uint8Array(0);
     return message;
   },
 };
 
 function createBaseCommandGetSchemaResponse(): CommandGetSchemaResponse {
-  return {
-    requestId: Long.UZERO,
-    errorCode: 0,
-    errorMessage: "",
-    schema: undefined,
-    schemaVersion: new Uint8Array(),
-  };
+  return { requestId: Long.UZERO, errorCode: 0, errorMessage: "", schema: undefined, schemaVersion: new Uint8Array(0) };
 }
 
 export const CommandGetSchemaResponse = {
-  encode(
-    message: CommandGetSchemaResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandGetSchemaResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8394,91 +8841,101 @@ export const CommandGetSchemaResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandGetSchemaResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandGetSchemaResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandGetSchemaResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.errorCode = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.errorMessage = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.schema = Schema.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.schemaVersion = reader.bytes();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandGetSchemaResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      errorCode: isSet(object.errorCode)
-        ? serverErrorFromJSON(object.errorCode)
-        : 0,
-      errorMessage: isSet(object.errorMessage)
-        ? String(object.errorMessage)
-        : "",
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      errorCode: isSet(object.errorCode) ? serverErrorFromJSON(object.errorCode) : 0,
+      errorMessage: isSet(object.errorMessage) ? String(object.errorMessage) : "",
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
-      schemaVersion: isSet(object.schemaVersion)
-        ? bytesFromBase64(object.schemaVersion)
-        : new Uint8Array(),
+      schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
     };
   },
 
   toJSON(message: CommandGetSchemaResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.errorCode !== undefined &&
-      (obj.errorCode = serverErrorToJSON(message.errorCode));
-    message.errorMessage !== undefined &&
-      (obj.errorMessage = message.errorMessage);
-    message.schema !== undefined &&
-      (obj.schema = message.schema ? Schema.toJSON(message.schema) : undefined);
-    message.schemaVersion !== undefined &&
-      (obj.schemaVersion = base64FromBytes(
-        message.schemaVersion !== undefined
-          ? message.schemaVersion
-          : new Uint8Array()
-      ));
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.errorCode !== 0) {
+      obj.errorCode = serverErrorToJSON(message.errorCode);
+    }
+    if (message.errorMessage !== "") {
+      obj.errorMessage = message.errorMessage;
+    }
+    if (message.schema !== undefined) {
+      obj.schema = Schema.toJSON(message.schema);
+    }
+    if (message.schemaVersion.length !== 0) {
+      obj.schemaVersion = base64FromBytes(message.schemaVersion);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandGetSchemaResponse>, I>>(
-    object: I
-  ): CommandGetSchemaResponse {
+  create<I extends Exact<DeepPartial<CommandGetSchemaResponse>, I>>(base?: I): CommandGetSchemaResponse {
+    return CommandGetSchemaResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandGetSchemaResponse>, I>>(object: I): CommandGetSchemaResponse {
     const message = createBaseCommandGetSchemaResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.errorCode = object.errorCode ?? 0;
     message.errorMessage = object.errorMessage ?? "";
-    message.schema =
-      object.schema !== undefined && object.schema !== null
-        ? Schema.fromPartial(object.schema)
-        : undefined;
-    message.schemaVersion = object.schemaVersion ?? new Uint8Array();
+    message.schema = (object.schema !== undefined && object.schema !== null)
+      ? Schema.fromPartial(object.schema)
+      : undefined;
+    message.schemaVersion = object.schemaVersion ?? new Uint8Array(0);
     return message;
   },
 };
@@ -8488,10 +8945,7 @@ function createBaseCommandGetOrCreateSchema(): CommandGetOrCreateSchema {
 }
 
 export const CommandGetOrCreateSchema = {
-  encode(
-    message: CommandGetOrCreateSchema,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandGetOrCreateSchema, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8504,38 +8958,46 @@ export const CommandGetOrCreateSchema = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandGetOrCreateSchema {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandGetOrCreateSchema {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandGetOrCreateSchema();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.schema = Schema.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandGetOrCreateSchema {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       topic: isSet(object.topic) ? String(object.topic) : "",
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
     };
@@ -8543,45 +9005,40 @@ export const CommandGetOrCreateSchema = {
 
   toJSON(message: CommandGetOrCreateSchema): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.topic !== undefined && (obj.topic = message.topic);
-    message.schema !== undefined &&
-      (obj.schema = message.schema ? Schema.toJSON(message.schema) : undefined);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.topic !== "") {
+      obj.topic = message.topic;
+    }
+    if (message.schema !== undefined) {
+      obj.schema = Schema.toJSON(message.schema);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandGetOrCreateSchema>, I>>(
-    object: I
-  ): CommandGetOrCreateSchema {
+  create<I extends Exact<DeepPartial<CommandGetOrCreateSchema>, I>>(base?: I): CommandGetOrCreateSchema {
+    return CommandGetOrCreateSchema.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandGetOrCreateSchema>, I>>(object: I): CommandGetOrCreateSchema {
     const message = createBaseCommandGetOrCreateSchema();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.topic = object.topic ?? "";
-    message.schema =
-      object.schema !== undefined && object.schema !== null
-        ? Schema.fromPartial(object.schema)
-        : undefined;
+    message.schema = (object.schema !== undefined && object.schema !== null)
+      ? Schema.fromPartial(object.schema)
+      : undefined;
     return message;
   },
 };
 
 function createBaseCommandGetOrCreateSchemaResponse(): CommandGetOrCreateSchemaResponse {
-  return {
-    requestId: Long.UZERO,
-    errorCode: 0,
-    errorMessage: "",
-    schemaVersion: new Uint8Array(),
-  };
+  return { requestId: Long.UZERO, errorCode: 0, errorMessage: "", schemaVersion: new Uint8Array(0) };
 }
 
 export const CommandGetOrCreateSchemaResponse = {
-  encode(
-    message: CommandGetOrCreateSchemaResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandGetOrCreateSchemaResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8597,81 +9054,91 @@ export const CommandGetOrCreateSchemaResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandGetOrCreateSchemaResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandGetOrCreateSchemaResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandGetOrCreateSchemaResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.errorCode = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.errorMessage = reader.string();
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.schemaVersion = reader.bytes();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandGetOrCreateSchemaResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      errorCode: isSet(object.errorCode)
-        ? serverErrorFromJSON(object.errorCode)
-        : 0,
-      errorMessage: isSet(object.errorMessage)
-        ? String(object.errorMessage)
-        : "",
-      schemaVersion: isSet(object.schemaVersion)
-        ? bytesFromBase64(object.schemaVersion)
-        : new Uint8Array(),
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      errorCode: isSet(object.errorCode) ? serverErrorFromJSON(object.errorCode) : 0,
+      errorMessage: isSet(object.errorMessage) ? String(object.errorMessage) : "",
+      schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
     };
   },
 
   toJSON(message: CommandGetOrCreateSchemaResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.errorCode !== undefined &&
-      (obj.errorCode = serverErrorToJSON(message.errorCode));
-    message.errorMessage !== undefined &&
-      (obj.errorMessage = message.errorMessage);
-    message.schemaVersion !== undefined &&
-      (obj.schemaVersion = base64FromBytes(
-        message.schemaVersion !== undefined
-          ? message.schemaVersion
-          : new Uint8Array()
-      ));
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.errorCode !== 0) {
+      obj.errorCode = serverErrorToJSON(message.errorCode);
+    }
+    if (message.errorMessage !== "") {
+      obj.errorMessage = message.errorMessage;
+    }
+    if (message.schemaVersion.length !== 0) {
+      obj.schemaVersion = base64FromBytes(message.schemaVersion);
+    }
     return obj;
   },
 
-  fromPartial<
-    I extends Exact<DeepPartial<CommandGetOrCreateSchemaResponse>, I>
-  >(object: I): CommandGetOrCreateSchemaResponse {
+  create<I extends Exact<DeepPartial<CommandGetOrCreateSchemaResponse>, I>>(
+    base?: I,
+  ): CommandGetOrCreateSchemaResponse {
+    return CommandGetOrCreateSchemaResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandGetOrCreateSchemaResponse>, I>>(
+    object: I,
+  ): CommandGetOrCreateSchemaResponse {
     const message = createBaseCommandGetOrCreateSchemaResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.errorCode = object.errorCode ?? 0;
     message.errorMessage = object.errorMessage ?? "";
-    message.schemaVersion = object.schemaVersion ?? new Uint8Array();
+    message.schemaVersion = object.schemaVersion ?? new Uint8Array(0);
     return message;
   },
 };
@@ -8681,10 +9148,7 @@ function createBaseCommandTcClientConnectRequest(): CommandTcClientConnectReques
 }
 
 export const CommandTcClientConnectRequest = {
-  encode(
-    message: CommandTcClientConnectRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandTcClientConnectRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8694,60 +9158,65 @@ export const CommandTcClientConnectRequest = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandTcClientConnectRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandTcClientConnectRequest {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandTcClientConnectRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.tcId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandTcClientConnectRequest {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       tcId: isSet(object.tcId) ? Long.fromValue(object.tcId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandTcClientConnectRequest): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.tcId !== undefined &&
-      (obj.tcId = (message.tcId || Long.UZERO).toString());
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.tcId.isZero()) {
+      obj.tcId = (message.tcId || Long.UZERO).toString();
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<CommandTcClientConnectRequest>, I>>(base?: I): CommandTcClientConnectRequest {
+    return CommandTcClientConnectRequest.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<CommandTcClientConnectRequest>, I>>(
-    object: I
+    object: I,
   ): CommandTcClientConnectRequest {
     const message = createBaseCommandTcClientConnectRequest();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.tcId =
-      object.tcId !== undefined && object.tcId !== null
-        ? Long.fromValue(object.tcId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.tcId = (object.tcId !== undefined && object.tcId !== null) ? Long.fromValue(object.tcId) : Long.UZERO;
     return message;
   },
 };
@@ -8757,10 +9226,7 @@ function createBaseCommandTcClientConnectResponse(): CommandTcClientConnectRespo
 }
 
 export const CommandTcClientConnectResponse = {
-  encode(
-    message: CommandTcClientConnectResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandTcClientConnectResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8773,38 +9239,46 @@ export const CommandTcClientConnectResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandTcClientConnectResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandTcClientConnectResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandTcClientConnectResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandTcClientConnectResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -8812,22 +9286,28 @@ export const CommandTcClientConnectResponse = {
 
   toJSON(message: CommandTcClientConnectResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
+  create<I extends Exact<DeepPartial<CommandTcClientConnectResponse>, I>>(base?: I): CommandTcClientConnectResponse {
+    return CommandTcClientConnectResponse.fromPartial(base ?? ({} as any));
+  },
   fromPartial<I extends Exact<DeepPartial<CommandTcClientConnectResponse>, I>>(
-    object: I
+    object: I,
   ): CommandTcClientConnectResponse {
     const message = createBaseCommandTcClientConnectResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -8839,10 +9319,7 @@ function createBaseCommandNewTxn(): CommandNewTxn {
 }
 
 export const CommandNewTxn = {
-  encode(
-    message: CommandNewTxn,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandNewTxn, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8856,87 +9333,86 @@ export const CommandNewTxn = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandNewTxn {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandNewTxn();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnTtlSeconds = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.tcId = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandNewTxn {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnTtlSeconds: isSet(object.txnTtlSeconds)
-        ? Long.fromValue(object.txnTtlSeconds)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnTtlSeconds: isSet(object.txnTtlSeconds) ? Long.fromValue(object.txnTtlSeconds) : Long.UZERO,
       tcId: isSet(object.tcId) ? Long.fromValue(object.tcId) : Long.UZERO,
     };
   },
 
   toJSON(message: CommandNewTxn): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnTtlSeconds !== undefined &&
-      (obj.txnTtlSeconds = (message.txnTtlSeconds || Long.UZERO).toString());
-    message.tcId !== undefined &&
-      (obj.tcId = (message.tcId || Long.UZERO).toString());
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnTtlSeconds.isZero()) {
+      obj.txnTtlSeconds = (message.txnTtlSeconds || Long.UZERO).toString();
+    }
+    if (!message.tcId.isZero()) {
+      obj.tcId = (message.tcId || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandNewTxn>, I>>(
-    object: I
-  ): CommandNewTxn {
+  create<I extends Exact<DeepPartial<CommandNewTxn>, I>>(base?: I): CommandNewTxn {
+    return CommandNewTxn.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandNewTxn>, I>>(object: I): CommandNewTxn {
     const message = createBaseCommandNewTxn();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnTtlSeconds =
-      object.txnTtlSeconds !== undefined && object.txnTtlSeconds !== null
-        ? Long.fromValue(object.txnTtlSeconds)
-        : Long.UZERO;
-    message.tcId =
-      object.tcId !== undefined && object.tcId !== null
-        ? Long.fromValue(object.tcId)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnTtlSeconds = (object.txnTtlSeconds !== undefined && object.txnTtlSeconds !== null)
+      ? Long.fromValue(object.txnTtlSeconds)
+      : Long.UZERO;
+    message.tcId = (object.tcId !== undefined && object.tcId !== null) ? Long.fromValue(object.tcId) : Long.UZERO;
     return message;
   },
 };
 
 function createBaseCommandNewTxnResponse(): CommandNewTxnResponse {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    error: 0,
-    message: "",
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandNewTxnResponse = {
-  encode(
-    message: CommandNewTxnResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandNewTxnResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -8955,50 +9431,62 @@ export const CommandNewTxnResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandNewTxnResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandNewTxnResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandNewTxnResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandNewTxnResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -9006,34 +9494,38 @@ export const CommandNewTxnResponse = {
 
   toJSON(message: CommandNewTxnResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandNewTxnResponse>, I>>(
-    object: I
-  ): CommandNewTxnResponse {
+  create<I extends Exact<DeepPartial<CommandNewTxnResponse>, I>>(base?: I): CommandNewTxnResponse {
+    return CommandNewTxnResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandNewTxnResponse>, I>>(object: I): CommandNewTxnResponse {
     const message = createBaseCommandNewTxnResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -9041,19 +9533,11 @@ export const CommandNewTxnResponse = {
 };
 
 function createBaseCommandAddPartitionToTxn(): CommandAddPartitionToTxn {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    partitions: [],
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, partitions: [] };
 }
 
 export const CommandAddPartitionToTxn = {
-  encode(
-    message: CommandAddPartitionToTxn,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandAddPartitionToTxn, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -9069,105 +9553,101 @@ export const CommandAddPartitionToTxn = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandAddPartitionToTxn {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandAddPartitionToTxn {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandAddPartitionToTxn();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.partitions.push(reader.string());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandAddPartitionToTxn {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
-      partitions: Array.isArray(object?.partitions)
-        ? object.partitions.map((e: any) => String(e))
-        : [],
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
+      partitions: Array.isArray(object?.partitions) ? object.partitions.map((e: any) => String(e)) : [],
     };
   },
 
   toJSON(message: CommandAddPartitionToTxn): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    if (message.partitions) {
-      obj.partitions = message.partitions.map((e) => e);
-    } else {
-      obj.partitions = [];
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.partitions?.length) {
+      obj.partitions = message.partitions;
     }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandAddPartitionToTxn>, I>>(
-    object: I
-  ): CommandAddPartitionToTxn {
+  create<I extends Exact<DeepPartial<CommandAddPartitionToTxn>, I>>(base?: I): CommandAddPartitionToTxn {
+    return CommandAddPartitionToTxn.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandAddPartitionToTxn>, I>>(object: I): CommandAddPartitionToTxn {
     const message = createBaseCommandAddPartitionToTxn();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.partitions = object.partitions?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseCommandAddPartitionToTxnResponse(): CommandAddPartitionToTxnResponse {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    error: 0,
-    message: "",
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandAddPartitionToTxnResponse = {
-  encode(
-    message: CommandAddPartitionToTxnResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandAddPartitionToTxnResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -9186,50 +9666,62 @@ export const CommandAddPartitionToTxnResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandAddPartitionToTxnResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandAddPartitionToTxnResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandAddPartitionToTxnResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandAddPartitionToTxnResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -9237,34 +9729,42 @@ export const CommandAddPartitionToTxnResponse = {
 
   toJSON(message: CommandAddPartitionToTxnResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<
-    I extends Exact<DeepPartial<CommandAddPartitionToTxnResponse>, I>
-  >(object: I): CommandAddPartitionToTxnResponse {
+  create<I extends Exact<DeepPartial<CommandAddPartitionToTxnResponse>, I>>(
+    base?: I,
+  ): CommandAddPartitionToTxnResponse {
+    return CommandAddPartitionToTxnResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandAddPartitionToTxnResponse>, I>>(
+    object: I,
+  ): CommandAddPartitionToTxnResponse {
     const message = createBaseCommandAddPartitionToTxnResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -9276,10 +9776,7 @@ function createBaseSubscription(): Subscription {
 }
 
 export const Subscription = {
-  encode(
-    message: Subscription,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: Subscription, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
@@ -9290,22 +9787,31 @@ export const Subscription = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Subscription {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSubscription();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 10) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.subscription = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -9313,23 +9819,25 @@ export const Subscription = {
   fromJSON(object: any): Subscription {
     return {
       topic: isSet(object.topic) ? String(object.topic) : "",
-      subscription: isSet(object.subscription)
-        ? String(object.subscription)
-        : "",
+      subscription: isSet(object.subscription) ? String(object.subscription) : "",
     };
   },
 
   toJSON(message: Subscription): unknown {
     const obj: any = {};
-    message.topic !== undefined && (obj.topic = message.topic);
-    message.subscription !== undefined &&
-      (obj.subscription = message.subscription);
+    if (message.topic !== "") {
+      obj.topic = message.topic;
+    }
+    if (message.subscription !== "") {
+      obj.subscription = message.subscription;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<Subscription>, I>>(
-    object: I
-  ): Subscription {
+  create<I extends Exact<DeepPartial<Subscription>, I>>(base?: I): Subscription {
+    return Subscription.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Subscription>, I>>(object: I): Subscription {
     const message = createBaseSubscription();
     message.topic = object.topic ?? "";
     message.subscription = object.subscription ?? "";
@@ -9338,19 +9846,11 @@ export const Subscription = {
 };
 
 function createBaseCommandAddSubscriptionToTxn(): CommandAddSubscriptionToTxn {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    subscription: [],
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, subscription: [] };
 }
 
 export const CommandAddSubscriptionToTxn = {
-  encode(
-    message: CommandAddSubscriptionToTxn,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandAddSubscriptionToTxn, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -9366,49 +9866,55 @@ export const CommandAddSubscriptionToTxn = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandAddSubscriptionToTxn {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandAddSubscriptionToTxn {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandAddSubscriptionToTxn();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
-          message.subscription.push(
-            Subscription.decode(reader, reader.uint32())
-          );
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          if (tag !== 34) {
+            break;
+          }
+
+          message.subscription.push(Subscription.decode(reader, reader.uint32()));
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandAddSubscriptionToTxn {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       subscription: Array.isArray(object?.subscription)
         ? object.subscription.map((e: any) => Subscription.fromJSON(e))
         : [],
@@ -9417,59 +9923,46 @@ export const CommandAddSubscriptionToTxn = {
 
   toJSON(message: CommandAddSubscriptionToTxn): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    if (message.subscription) {
-      obj.subscription = message.subscription.map((e) =>
-        e ? Subscription.toJSON(e) : undefined
-      );
-    } else {
-      obj.subscription = [];
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.subscription?.length) {
+      obj.subscription = message.subscription.map((e) => Subscription.toJSON(e));
     }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandAddSubscriptionToTxn>, I>>(
-    object: I
-  ): CommandAddSubscriptionToTxn {
+  create<I extends Exact<DeepPartial<CommandAddSubscriptionToTxn>, I>>(base?: I): CommandAddSubscriptionToTxn {
+    return CommandAddSubscriptionToTxn.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandAddSubscriptionToTxn>, I>>(object: I): CommandAddSubscriptionToTxn {
     const message = createBaseCommandAddSubscriptionToTxn();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
-    message.subscription =
-      object.subscription?.map((e) => Subscription.fromPartial(e)) || [];
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
+    message.subscription = object.subscription?.map((e) => Subscription.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseCommandAddSubscriptionToTxnResponse(): CommandAddSubscriptionToTxnResponse {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    error: 0,
-    message: "",
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandAddSubscriptionToTxnResponse = {
-  encode(
-    message: CommandAddSubscriptionToTxnResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandAddSubscriptionToTxnResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -9488,50 +9981,62 @@ export const CommandAddSubscriptionToTxnResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandAddSubscriptionToTxnResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandAddSubscriptionToTxnResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandAddSubscriptionToTxnResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandAddSubscriptionToTxnResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -9539,34 +10044,42 @@ export const CommandAddSubscriptionToTxnResponse = {
 
   toJSON(message: CommandAddSubscriptionToTxnResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<
-    I extends Exact<DeepPartial<CommandAddSubscriptionToTxnResponse>, I>
-  >(object: I): CommandAddSubscriptionToTxnResponse {
+  create<I extends Exact<DeepPartial<CommandAddSubscriptionToTxnResponse>, I>>(
+    base?: I,
+  ): CommandAddSubscriptionToTxnResponse {
+    return CommandAddSubscriptionToTxnResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandAddSubscriptionToTxnResponse>, I>>(
+    object: I,
+  ): CommandAddSubscriptionToTxnResponse {
     const message = createBaseCommandAddSubscriptionToTxnResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -9574,19 +10087,11 @@ export const CommandAddSubscriptionToTxnResponse = {
 };
 
 function createBaseCommandEndTxn(): CommandEndTxn {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    txnAction: 0,
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, txnAction: 0 };
 }
 
 export const CommandEndTxn = {
-  encode(
-    message: CommandEndTxn,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandEndTxn, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -9603,98 +10108,100 @@ export const CommandEndTxn = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommandEndTxn {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandEndTxn();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.txnAction = reader.int32() as any;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandEndTxn {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
-      txnAction: isSet(object.txnAction)
-        ? txnActionFromJSON(object.txnAction)
-        : 0,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
+      txnAction: isSet(object.txnAction) ? txnActionFromJSON(object.txnAction) : 0,
     };
   },
 
   toJSON(message: CommandEndTxn): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.txnAction !== undefined &&
-      (obj.txnAction = txnActionToJSON(message.txnAction));
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.txnAction !== 0) {
+      obj.txnAction = txnActionToJSON(message.txnAction);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxn>, I>>(
-    object: I
-  ): CommandEndTxn {
+  create<I extends Exact<DeepPartial<CommandEndTxn>, I>>(base?: I): CommandEndTxn {
+    return CommandEndTxn.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandEndTxn>, I>>(object: I): CommandEndTxn {
     const message = createBaseCommandEndTxn();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.txnAction = object.txnAction ?? 0;
     return message;
   },
 };
 
 function createBaseCommandEndTxnResponse(): CommandEndTxnResponse {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    error: 0,
-    message: "",
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandEndTxnResponse = {
-  encode(
-    message: CommandEndTxnResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandEndTxnResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -9713,50 +10220,62 @@ export const CommandEndTxnResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandEndTxnResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandEndTxnResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandEndTxnResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandEndTxnResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -9764,34 +10283,38 @@ export const CommandEndTxnResponse = {
 
   toJSON(message: CommandEndTxnResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxnResponse>, I>>(
-    object: I
-  ): CommandEndTxnResponse {
+  create<I extends Exact<DeepPartial<CommandEndTxnResponse>, I>>(base?: I): CommandEndTxnResponse {
+    return CommandEndTxnResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandEndTxnResponse>, I>>(object: I): CommandEndTxnResponse {
     const message = createBaseCommandEndTxnResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -9810,10 +10333,7 @@ function createBaseCommandEndTxnOnPartition(): CommandEndTxnOnPartition {
 }
 
 export const CommandEndTxnOnPartition = {
-  encode(
-    message: CommandEndTxnOnPartition,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandEndTxnOnPartition, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -9835,57 +10355,71 @@ export const CommandEndTxnOnPartition = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandEndTxnOnPartition {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandEndTxnOnPartition {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandEndTxnOnPartition();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.topic = reader.string();
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.txnAction = reader.int32() as any;
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.txnidLeastBitsOfLowWatermark = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandEndTxnOnPartition {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       topic: isSet(object.topic) ? String(object.topic) : "",
-      txnAction: isSet(object.txnAction)
-        ? txnActionFromJSON(object.txnAction)
-        : 0,
+      txnAction: isSet(object.txnAction) ? txnActionFromJSON(object.txnAction) : 0,
       txnidLeastBitsOfLowWatermark: isSet(object.txnidLeastBitsOfLowWatermark)
         ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
         : Long.UZERO,
@@ -9894,43 +10428,45 @@ export const CommandEndTxnOnPartition = {
 
   toJSON(message: CommandEndTxnOnPartition): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.topic !== undefined && (obj.topic = message.topic);
-    message.txnAction !== undefined &&
-      (obj.txnAction = txnActionToJSON(message.txnAction));
-    message.txnidLeastBitsOfLowWatermark !== undefined &&
-      (obj.txnidLeastBitsOfLowWatermark = (
-        message.txnidLeastBitsOfLowWatermark || Long.UZERO
-      ).toString());
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.topic !== "") {
+      obj.topic = message.topic;
+    }
+    if (message.txnAction !== 0) {
+      obj.txnAction = txnActionToJSON(message.txnAction);
+    }
+    if (!message.txnidLeastBitsOfLowWatermark.isZero()) {
+      obj.txnidLeastBitsOfLowWatermark = (message.txnidLeastBitsOfLowWatermark || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnPartition>, I>>(
-    object: I
-  ): CommandEndTxnOnPartition {
+  create<I extends Exact<DeepPartial<CommandEndTxnOnPartition>, I>>(base?: I): CommandEndTxnOnPartition {
+    return CommandEndTxnOnPartition.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnPartition>, I>>(object: I): CommandEndTxnOnPartition {
     const message = createBaseCommandEndTxnOnPartition();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.topic = object.topic ?? "";
     message.txnAction = object.txnAction ?? 0;
     message.txnidLeastBitsOfLowWatermark =
-      object.txnidLeastBitsOfLowWatermark !== undefined &&
-      object.txnidLeastBitsOfLowWatermark !== null
+      (object.txnidLeastBitsOfLowWatermark !== undefined && object.txnidLeastBitsOfLowWatermark !== null)
         ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
         : Long.UZERO;
     return message;
@@ -9938,20 +10474,11 @@ export const CommandEndTxnOnPartition = {
 };
 
 function createBaseCommandEndTxnOnPartitionResponse(): CommandEndTxnOnPartitionResponse {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    error: 0,
-    message: "",
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandEndTxnOnPartitionResponse = {
-  encode(
-    message: CommandEndTxnOnPartitionResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandEndTxnOnPartitionResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -9970,50 +10497,62 @@ export const CommandEndTxnOnPartitionResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandEndTxnOnPartitionResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandEndTxnOnPartitionResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandEndTxnOnPartitionResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandEndTxnOnPartitionResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -10021,34 +10560,42 @@ export const CommandEndTxnOnPartitionResponse = {
 
   toJSON(message: CommandEndTxnOnPartitionResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<
-    I extends Exact<DeepPartial<CommandEndTxnOnPartitionResponse>, I>
-  >(object: I): CommandEndTxnOnPartitionResponse {
+  create<I extends Exact<DeepPartial<CommandEndTxnOnPartitionResponse>, I>>(
+    base?: I,
+  ): CommandEndTxnOnPartitionResponse {
+    return CommandEndTxnOnPartitionResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnPartitionResponse>, I>>(
+    object: I,
+  ): CommandEndTxnOnPartitionResponse {
     const message = createBaseCommandEndTxnOnPartitionResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -10067,10 +10614,7 @@ function createBaseCommandEndTxnOnSubscription(): CommandEndTxnOnSubscription {
 }
 
 export const CommandEndTxnOnSubscription = {
-  encode(
-    message: CommandEndTxnOnSubscription,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandEndTxnOnSubscription, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -10081,10 +10625,7 @@ export const CommandEndTxnOnSubscription = {
       writer.uint32(24).uint64(message.txnidMostBits);
     }
     if (message.subscription !== undefined) {
-      Subscription.encode(
-        message.subscription,
-        writer.uint32(34).fork()
-      ).ldelim();
+      Subscription.encode(message.subscription, writer.uint32(34).fork()).ldelim();
     }
     if (message.txnAction !== 0) {
       writer.uint32(40).int32(message.txnAction);
@@ -10095,59 +10636,71 @@ export const CommandEndTxnOnSubscription = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandEndTxnOnSubscription {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandEndTxnOnSubscription {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandEndTxnOnSubscription();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.subscription = Subscription.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 40) {
+            break;
+          }
+
           message.txnAction = reader.int32() as any;
-          break;
+          continue;
         case 6:
+          if (tag !== 48) {
+            break;
+          }
+
           message.txnidLeastBitsOfLowWatermark = reader.uint64() as Long;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandEndTxnOnSubscription {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
-      subscription: isSet(object.subscription)
-        ? Subscription.fromJSON(object.subscription)
-        : undefined,
-      txnAction: isSet(object.txnAction)
-        ? txnActionFromJSON(object.txnAction)
-        : 0,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
+      subscription: isSet(object.subscription) ? Subscription.fromJSON(object.subscription) : undefined,
+      txnAction: isSet(object.txnAction) ? txnActionFromJSON(object.txnAction) : 0,
       txnidLeastBitsOfLowWatermark: isSet(object.txnidLeastBitsOfLowWatermark)
         ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
         : Long.UZERO,
@@ -10156,49 +10709,47 @@ export const CommandEndTxnOnSubscription = {
 
   toJSON(message: CommandEndTxnOnSubscription): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.subscription !== undefined &&
-      (obj.subscription = message.subscription
-        ? Subscription.toJSON(message.subscription)
-        : undefined);
-    message.txnAction !== undefined &&
-      (obj.txnAction = txnActionToJSON(message.txnAction));
-    message.txnidLeastBitsOfLowWatermark !== undefined &&
-      (obj.txnidLeastBitsOfLowWatermark = (
-        message.txnidLeastBitsOfLowWatermark || Long.UZERO
-      ).toString());
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.subscription !== undefined) {
+      obj.subscription = Subscription.toJSON(message.subscription);
+    }
+    if (message.txnAction !== 0) {
+      obj.txnAction = txnActionToJSON(message.txnAction);
+    }
+    if (!message.txnidLeastBitsOfLowWatermark.isZero()) {
+      obj.txnidLeastBitsOfLowWatermark = (message.txnidLeastBitsOfLowWatermark || Long.UZERO).toString();
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnSubscription>, I>>(
-    object: I
-  ): CommandEndTxnOnSubscription {
+  create<I extends Exact<DeepPartial<CommandEndTxnOnSubscription>, I>>(base?: I): CommandEndTxnOnSubscription {
+    return CommandEndTxnOnSubscription.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnSubscription>, I>>(object: I): CommandEndTxnOnSubscription {
     const message = createBaseCommandEndTxnOnSubscription();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
-    message.subscription =
-      object.subscription !== undefined && object.subscription !== null
-        ? Subscription.fromPartial(object.subscription)
-        : undefined;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
+    message.subscription = (object.subscription !== undefined && object.subscription !== null)
+      ? Subscription.fromPartial(object.subscription)
+      : undefined;
     message.txnAction = object.txnAction ?? 0;
     message.txnidLeastBitsOfLowWatermark =
-      object.txnidLeastBitsOfLowWatermark !== undefined &&
-      object.txnidLeastBitsOfLowWatermark !== null
+      (object.txnidLeastBitsOfLowWatermark !== undefined && object.txnidLeastBitsOfLowWatermark !== null)
         ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
         : Long.UZERO;
     return message;
@@ -10206,20 +10757,11 @@ export const CommandEndTxnOnSubscription = {
 };
 
 function createBaseCommandEndTxnOnSubscriptionResponse(): CommandEndTxnOnSubscriptionResponse {
-  return {
-    requestId: Long.UZERO,
-    txnidLeastBits: Long.UZERO,
-    txnidMostBits: Long.UZERO,
-    error: 0,
-    message: "",
-  };
+  return { requestId: Long.UZERO, txnidLeastBits: Long.UZERO, txnidMostBits: Long.UZERO, error: 0, message: "" };
 }
 
 export const CommandEndTxnOnSubscriptionResponse = {
-  encode(
-    message: CommandEndTxnOnSubscriptionResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: CommandEndTxnOnSubscriptionResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.requestId.isZero()) {
       writer.uint32(8).uint64(message.requestId);
     }
@@ -10238,50 +10780,62 @@ export const CommandEndTxnOnSubscriptionResponse = {
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): CommandEndTxnOnSubscriptionResponse {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: _m0.Reader | Uint8Array, length?: number): CommandEndTxnOnSubscriptionResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCommandEndTxnOnSubscriptionResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.requestId = reader.uint64() as Long;
-          break;
+          continue;
         case 2:
+          if (tag !== 16) {
+            break;
+          }
+
           message.txnidLeastBits = reader.uint64() as Long;
-          break;
+          continue;
         case 3:
+          if (tag !== 24) {
+            break;
+          }
+
           message.txnidMostBits = reader.uint64() as Long;
-          break;
+          continue;
         case 4:
+          if (tag !== 32) {
+            break;
+          }
+
           message.error = reader.int32() as any;
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.message = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
 
   fromJSON(object: any): CommandEndTxnOnSubscriptionResponse {
     return {
-      requestId: isSet(object.requestId)
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO,
-      txnidLeastBits: isSet(object.txnidLeastBits)
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO,
-      txnidMostBits: isSet(object.txnidMostBits)
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO,
+      requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
+      txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
+      txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
       message: isSet(object.message) ? String(object.message) : "",
     };
@@ -10289,34 +10843,42 @@ export const CommandEndTxnOnSubscriptionResponse = {
 
   toJSON(message: CommandEndTxnOnSubscriptionResponse): unknown {
     const obj: any = {};
-    message.requestId !== undefined &&
-      (obj.requestId = (message.requestId || Long.UZERO).toString());
-    message.txnidLeastBits !== undefined &&
-      (obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString());
-    message.txnidMostBits !== undefined &&
-      (obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString());
-    message.error !== undefined &&
-      (obj.error = serverErrorToJSON(message.error));
-    message.message !== undefined && (obj.message = message.message);
+    if (!message.requestId.isZero()) {
+      obj.requestId = (message.requestId || Long.UZERO).toString();
+    }
+    if (!message.txnidLeastBits.isZero()) {
+      obj.txnidLeastBits = (message.txnidLeastBits || Long.UZERO).toString();
+    }
+    if (!message.txnidMostBits.isZero()) {
+      obj.txnidMostBits = (message.txnidMostBits || Long.UZERO).toString();
+    }
+    if (message.error !== 0) {
+      obj.error = serverErrorToJSON(message.error);
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
     return obj;
   },
 
-  fromPartial<
-    I extends Exact<DeepPartial<CommandEndTxnOnSubscriptionResponse>, I>
-  >(object: I): CommandEndTxnOnSubscriptionResponse {
+  create<I extends Exact<DeepPartial<CommandEndTxnOnSubscriptionResponse>, I>>(
+    base?: I,
+  ): CommandEndTxnOnSubscriptionResponse {
+    return CommandEndTxnOnSubscriptionResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnSubscriptionResponse>, I>>(
+    object: I,
+  ): CommandEndTxnOnSubscriptionResponse {
     const message = createBaseCommandEndTxnOnSubscriptionResponse();
-    message.requestId =
-      object.requestId !== undefined && object.requestId !== null
-        ? Long.fromValue(object.requestId)
-        : Long.UZERO;
-    message.txnidLeastBits =
-      object.txnidLeastBits !== undefined && object.txnidLeastBits !== null
-        ? Long.fromValue(object.txnidLeastBits)
-        : Long.UZERO;
-    message.txnidMostBits =
-      object.txnidMostBits !== undefined && object.txnidMostBits !== null
-        ? Long.fromValue(object.txnidMostBits)
-        : Long.UZERO;
+    message.requestId = (object.requestId !== undefined && object.requestId !== null)
+      ? Long.fromValue(object.requestId)
+      : Long.UZERO;
+    message.txnidLeastBits = (object.txnidLeastBits !== undefined && object.txnidLeastBits !== null)
+      ? Long.fromValue(object.txnidLeastBits)
+      : Long.UZERO;
+    message.txnidMostBits = (object.txnidMostBits !== undefined && object.txnidMostBits !== null)
+      ? Long.fromValue(object.txnidMostBits)
+      : Long.UZERO;
     message.error = object.error ?? 0;
     message.message = object.message ?? "";
     return message;
@@ -10387,10 +10949,7 @@ function createBaseBaseCommand(): BaseCommand {
 }
 
 export const BaseCommand = {
-  encode(
-    message: BaseCommand,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  encode(message: BaseCommand, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     // if (message.type !== 2) {
       writer.uint32(8).int32(message.type);
     // }
@@ -10398,37 +10957,22 @@ export const BaseCommand = {
       CommandConnect.encode(message.connect, writer.uint32(18).fork()).ldelim();
     }
     if (message.connected !== undefined) {
-      CommandConnected.encode(
-        message.connected,
-        writer.uint32(26).fork()
-      ).ldelim();
+      CommandConnected.encode(message.connected, writer.uint32(26).fork()).ldelim();
     }
     if (message.subscribe !== undefined) {
-      CommandSubscribe.encode(
-        message.subscribe,
-        writer.uint32(34).fork()
-      ).ldelim();
+      CommandSubscribe.encode(message.subscribe, writer.uint32(34).fork()).ldelim();
     }
     if (message.producer !== undefined) {
-      CommandProducer.encode(
-        message.producer,
-        writer.uint32(42).fork()
-      ).ldelim();
+      CommandProducer.encode(message.producer, writer.uint32(42).fork()).ldelim();
     }
     if (message.send !== undefined) {
       CommandSend.encode(message.send, writer.uint32(50).fork()).ldelim();
     }
     if (message.sendReceipt !== undefined) {
-      CommandSendReceipt.encode(
-        message.sendReceipt,
-        writer.uint32(58).fork()
-      ).ldelim();
+      CommandSendReceipt.encode(message.sendReceipt, writer.uint32(58).fork()).ldelim();
     }
     if (message.sendError !== undefined) {
-      CommandSendError.encode(
-        message.sendError,
-        writer.uint32(66).fork()
-      ).ldelim();
+      CommandSendError.encode(message.sendError, writer.uint32(66).fork()).ldelim();
     }
     if (message.message !== undefined) {
       CommandMessage.encode(message.message, writer.uint32(74).fork()).ldelim();
@@ -10440,37 +10984,22 @@ export const BaseCommand = {
       CommandFlow.encode(message.flow, writer.uint32(90).fork()).ldelim();
     }
     if (message.unsubscribe !== undefined) {
-      CommandUnsubscribe.encode(
-        message.unsubscribe,
-        writer.uint32(98).fork()
-      ).ldelim();
+      CommandUnsubscribe.encode(message.unsubscribe, writer.uint32(98).fork()).ldelim();
     }
     if (message.success !== undefined) {
-      CommandSuccess.encode(
-        message.success,
-        writer.uint32(106).fork()
-      ).ldelim();
+      CommandSuccess.encode(message.success, writer.uint32(106).fork()).ldelim();
     }
     if (message.error !== undefined) {
       CommandError.encode(message.error, writer.uint32(114).fork()).ldelim();
     }
     if (message.closeProducer !== undefined) {
-      CommandCloseProducer.encode(
-        message.closeProducer,
-        writer.uint32(122).fork()
-      ).ldelim();
+      CommandCloseProducer.encode(message.closeProducer, writer.uint32(122).fork()).ldelim();
     }
     if (message.closeConsumer !== undefined) {
-      CommandCloseConsumer.encode(
-        message.closeConsumer,
-        writer.uint32(130).fork()
-      ).ldelim();
+      CommandCloseConsumer.encode(message.closeConsumer, writer.uint32(130).fork()).ldelim();
     }
     if (message.producerSuccess !== undefined) {
-      CommandProducerSuccess.encode(
-        message.producerSuccess,
-        writer.uint32(138).fork()
-      ).ldelim();
+      CommandProducerSuccess.encode(message.producerSuccess, writer.uint32(138).fork()).ldelim();
     }
     if (message.ping !== undefined) {
       CommandPing.encode(message.ping, writer.uint32(146).fork()).ldelim();
@@ -10479,524 +11008,551 @@ export const BaseCommand = {
       CommandPong.encode(message.pong, writer.uint32(154).fork()).ldelim();
     }
     if (message.redeliverUnacknowledgedMessages !== undefined) {
-      CommandRedeliverUnacknowledgedMessages.encode(
-        message.redeliverUnacknowledgedMessages,
-        writer.uint32(162).fork()
-      ).ldelim();
+      CommandRedeliverUnacknowledgedMessages.encode(message.redeliverUnacknowledgedMessages, writer.uint32(162).fork())
+        .ldelim();
     }
     if (message.partitionMetadata !== undefined) {
-      CommandPartitionedTopicMetadata.encode(
-        message.partitionMetadata,
-        writer.uint32(170).fork()
-      ).ldelim();
+      CommandPartitionedTopicMetadata.encode(message.partitionMetadata, writer.uint32(170).fork()).ldelim();
     }
     if (message.partitionMetadataResponse !== undefined) {
-      CommandPartitionedTopicMetadataResponse.encode(
-        message.partitionMetadataResponse,
-        writer.uint32(178).fork()
-      ).ldelim();
+      CommandPartitionedTopicMetadataResponse.encode(message.partitionMetadataResponse, writer.uint32(178).fork())
+        .ldelim();
     }
     if (message.lookupTopic !== undefined) {
-      CommandLookupTopic.encode(
-        message.lookupTopic,
-        writer.uint32(186).fork()
-      ).ldelim();
+      CommandLookupTopic.encode(message.lookupTopic, writer.uint32(186).fork()).ldelim();
     }
     if (message.lookupTopicResponse !== undefined) {
-      CommandLookupTopicResponse.encode(
-        message.lookupTopicResponse,
-        writer.uint32(194).fork()
-      ).ldelim();
+      CommandLookupTopicResponse.encode(message.lookupTopicResponse, writer.uint32(194).fork()).ldelim();
     }
     if (message.consumerStats !== undefined) {
-      CommandConsumerStats.encode(
-        message.consumerStats,
-        writer.uint32(202).fork()
-      ).ldelim();
+      CommandConsumerStats.encode(message.consumerStats, writer.uint32(202).fork()).ldelim();
     }
     if (message.consumerStatsResponse !== undefined) {
-      CommandConsumerStatsResponse.encode(
-        message.consumerStatsResponse,
-        writer.uint32(210).fork()
-      ).ldelim();
+      CommandConsumerStatsResponse.encode(message.consumerStatsResponse, writer.uint32(210).fork()).ldelim();
     }
     if (message.reachedEndOfTopic !== undefined) {
-      CommandReachedEndOfTopic.encode(
-        message.reachedEndOfTopic,
-        writer.uint32(218).fork()
-      ).ldelim();
+      CommandReachedEndOfTopic.encode(message.reachedEndOfTopic, writer.uint32(218).fork()).ldelim();
     }
     if (message.seek !== undefined) {
       CommandSeek.encode(message.seek, writer.uint32(226).fork()).ldelim();
     }
     if (message.getLastMessageId !== undefined) {
-      CommandGetLastMessageId.encode(
-        message.getLastMessageId,
-        writer.uint32(234).fork()
-      ).ldelim();
+      CommandGetLastMessageId.encode(message.getLastMessageId, writer.uint32(234).fork()).ldelim();
     }
     if (message.getLastMessageIdResponse !== undefined) {
-      CommandGetLastMessageIdResponse.encode(
-        message.getLastMessageIdResponse,
-        writer.uint32(242).fork()
-      ).ldelim();
+      CommandGetLastMessageIdResponse.encode(message.getLastMessageIdResponse, writer.uint32(242).fork()).ldelim();
     }
     if (message.activeConsumerChange !== undefined) {
-      CommandActiveConsumerChange.encode(
-        message.activeConsumerChange,
-        writer.uint32(250).fork()
-      ).ldelim();
+      CommandActiveConsumerChange.encode(message.activeConsumerChange, writer.uint32(250).fork()).ldelim();
     }
     if (message.getTopicsOfNamespace !== undefined) {
-      CommandGetTopicsOfNamespace.encode(
-        message.getTopicsOfNamespace,
-        writer.uint32(258).fork()
-      ).ldelim();
+      CommandGetTopicsOfNamespace.encode(message.getTopicsOfNamespace, writer.uint32(258).fork()).ldelim();
     }
     if (message.getTopicsOfNamespaceResponse !== undefined) {
-      CommandGetTopicsOfNamespaceResponse.encode(
-        message.getTopicsOfNamespaceResponse,
-        writer.uint32(266).fork()
-      ).ldelim();
+      CommandGetTopicsOfNamespaceResponse.encode(message.getTopicsOfNamespaceResponse, writer.uint32(266).fork())
+        .ldelim();
     }
     if (message.getSchema !== undefined) {
-      CommandGetSchema.encode(
-        message.getSchema,
-        writer.uint32(274).fork()
-      ).ldelim();
+      CommandGetSchema.encode(message.getSchema, writer.uint32(274).fork()).ldelim();
     }
     if (message.getSchemaResponse !== undefined) {
-      CommandGetSchemaResponse.encode(
-        message.getSchemaResponse,
-        writer.uint32(282).fork()
-      ).ldelim();
+      CommandGetSchemaResponse.encode(message.getSchemaResponse, writer.uint32(282).fork()).ldelim();
     }
     if (message.authChallenge !== undefined) {
-      CommandAuthChallenge.encode(
-        message.authChallenge,
-        writer.uint32(290).fork()
-      ).ldelim();
+      CommandAuthChallenge.encode(message.authChallenge, writer.uint32(290).fork()).ldelim();
     }
     if (message.authResponse !== undefined) {
-      CommandAuthResponse.encode(
-        message.authResponse,
-        writer.uint32(298).fork()
-      ).ldelim();
+      CommandAuthResponse.encode(message.authResponse, writer.uint32(298).fork()).ldelim();
     }
     if (message.ackResponse !== undefined) {
-      CommandAckResponse.encode(
-        message.ackResponse,
-        writer.uint32(306).fork()
-      ).ldelim();
+      CommandAckResponse.encode(message.ackResponse, writer.uint32(306).fork()).ldelim();
     }
     if (message.getOrCreateSchema !== undefined) {
-      CommandGetOrCreateSchema.encode(
-        message.getOrCreateSchema,
-        writer.uint32(314).fork()
-      ).ldelim();
+      CommandGetOrCreateSchema.encode(message.getOrCreateSchema, writer.uint32(314).fork()).ldelim();
     }
     if (message.getOrCreateSchemaResponse !== undefined) {
-      CommandGetOrCreateSchemaResponse.encode(
-        message.getOrCreateSchemaResponse,
-        writer.uint32(322).fork()
-      ).ldelim();
+      CommandGetOrCreateSchemaResponse.encode(message.getOrCreateSchemaResponse, writer.uint32(322).fork()).ldelim();
     }
     if (message.newTxn !== undefined) {
       CommandNewTxn.encode(message.newTxn, writer.uint32(402).fork()).ldelim();
     }
     if (message.newTxnResponse !== undefined) {
-      CommandNewTxnResponse.encode(
-        message.newTxnResponse,
-        writer.uint32(410).fork()
-      ).ldelim();
+      CommandNewTxnResponse.encode(message.newTxnResponse, writer.uint32(410).fork()).ldelim();
     }
     if (message.addPartitionToTxn !== undefined) {
-      CommandAddPartitionToTxn.encode(
-        message.addPartitionToTxn,
-        writer.uint32(418).fork()
-      ).ldelim();
+      CommandAddPartitionToTxn.encode(message.addPartitionToTxn, writer.uint32(418).fork()).ldelim();
     }
     if (message.addPartitionToTxnResponse !== undefined) {
-      CommandAddPartitionToTxnResponse.encode(
-        message.addPartitionToTxnResponse,
-        writer.uint32(426).fork()
-      ).ldelim();
+      CommandAddPartitionToTxnResponse.encode(message.addPartitionToTxnResponse, writer.uint32(426).fork()).ldelim();
     }
     if (message.addSubscriptionToTxn !== undefined) {
-      CommandAddSubscriptionToTxn.encode(
-        message.addSubscriptionToTxn,
-        writer.uint32(434).fork()
-      ).ldelim();
+      CommandAddSubscriptionToTxn.encode(message.addSubscriptionToTxn, writer.uint32(434).fork()).ldelim();
     }
     if (message.addSubscriptionToTxnResponse !== undefined) {
-      CommandAddSubscriptionToTxnResponse.encode(
-        message.addSubscriptionToTxnResponse,
-        writer.uint32(442).fork()
-      ).ldelim();
+      CommandAddSubscriptionToTxnResponse.encode(message.addSubscriptionToTxnResponse, writer.uint32(442).fork())
+        .ldelim();
     }
     if (message.endTxn !== undefined) {
       CommandEndTxn.encode(message.endTxn, writer.uint32(450).fork()).ldelim();
     }
     if (message.endTxnResponse !== undefined) {
-      CommandEndTxnResponse.encode(
-        message.endTxnResponse,
-        writer.uint32(458).fork()
-      ).ldelim();
+      CommandEndTxnResponse.encode(message.endTxnResponse, writer.uint32(458).fork()).ldelim();
     }
     if (message.endTxnOnPartition !== undefined) {
-      CommandEndTxnOnPartition.encode(
-        message.endTxnOnPartition,
-        writer.uint32(466).fork()
-      ).ldelim();
+      CommandEndTxnOnPartition.encode(message.endTxnOnPartition, writer.uint32(466).fork()).ldelim();
     }
     if (message.endTxnOnPartitionResponse !== undefined) {
-      CommandEndTxnOnPartitionResponse.encode(
-        message.endTxnOnPartitionResponse,
-        writer.uint32(474).fork()
-      ).ldelim();
+      CommandEndTxnOnPartitionResponse.encode(message.endTxnOnPartitionResponse, writer.uint32(474).fork()).ldelim();
     }
     if (message.endTxnOnSubscription !== undefined) {
-      CommandEndTxnOnSubscription.encode(
-        message.endTxnOnSubscription,
-        writer.uint32(482).fork()
-      ).ldelim();
+      CommandEndTxnOnSubscription.encode(message.endTxnOnSubscription, writer.uint32(482).fork()).ldelim();
     }
     if (message.endTxnOnSubscriptionResponse !== undefined) {
-      CommandEndTxnOnSubscriptionResponse.encode(
-        message.endTxnOnSubscriptionResponse,
-        writer.uint32(490).fork()
-      ).ldelim();
+      CommandEndTxnOnSubscriptionResponse.encode(message.endTxnOnSubscriptionResponse, writer.uint32(490).fork())
+        .ldelim();
     }
     if (message.tcClientConnectRequest !== undefined) {
-      CommandTcClientConnectRequest.encode(
-        message.tcClientConnectRequest,
-        writer.uint32(498).fork()
-      ).ldelim();
+      CommandTcClientConnectRequest.encode(message.tcClientConnectRequest, writer.uint32(498).fork()).ldelim();
     }
     if (message.tcClientConnectResponse !== undefined) {
-      CommandTcClientConnectResponse.encode(
-        message.tcClientConnectResponse,
-        writer.uint32(506).fork()
-      ).ldelim();
+      CommandTcClientConnectResponse.encode(message.tcClientConnectResponse, writer.uint32(506).fork()).ldelim();
     }
     if (message.watchTopicList !== undefined) {
-      CommandWatchTopicList.encode(
-        message.watchTopicList,
-        writer.uint32(514).fork()
-      ).ldelim();
+      CommandWatchTopicList.encode(message.watchTopicList, writer.uint32(514).fork()).ldelim();
     }
     if (message.watchTopicListSuccess !== undefined) {
-      CommandWatchTopicListSuccess.encode(
-        message.watchTopicListSuccess,
-        writer.uint32(522).fork()
-      ).ldelim();
+      CommandWatchTopicListSuccess.encode(message.watchTopicListSuccess, writer.uint32(522).fork()).ldelim();
     }
     if (message.watchTopicUpdate !== undefined) {
-      CommandWatchTopicUpdate.encode(
-        message.watchTopicUpdate,
-        writer.uint32(530).fork()
-      ).ldelim();
+      CommandWatchTopicUpdate.encode(message.watchTopicUpdate, writer.uint32(530).fork()).ldelim();
     }
     if (message.watchTopicListClose !== undefined) {
-      CommandWatchTopicListClose.encode(
-        message.watchTopicListClose,
-        writer.uint32(538).fork()
-      ).ldelim();
+      CommandWatchTopicListClose.encode(message.watchTopicListClose, writer.uint32(538).fork()).ldelim();
     }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): BaseCommand {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseBaseCommand();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          if (tag !== 8) {
+            break;
+          }
+
           message.type = reader.int32() as any;
-          break;
+          continue;
         case 2:
+          if (tag !== 18) {
+            break;
+          }
+
           message.connect = CommandConnect.decode(reader, reader.uint32());
-          break;
+          continue;
         case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.connected = CommandConnected.decode(reader, reader.uint32());
-          break;
+          continue;
         case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.subscribe = CommandSubscribe.decode(reader, reader.uint32());
-          break;
+          continue;
         case 5:
+          if (tag !== 42) {
+            break;
+          }
+
           message.producer = CommandProducer.decode(reader, reader.uint32());
-          break;
+          continue;
         case 6:
+          if (tag !== 50) {
+            break;
+          }
+
           message.send = CommandSend.decode(reader, reader.uint32());
-          break;
+          continue;
         case 7:
-          message.sendReceipt = CommandSendReceipt.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 58) {
+            break;
+          }
+
+          message.sendReceipt = CommandSendReceipt.decode(reader, reader.uint32());
+          continue;
         case 8:
+          if (tag !== 66) {
+            break;
+          }
+
           message.sendError = CommandSendError.decode(reader, reader.uint32());
-          break;
+          continue;
         case 9:
+          if (tag !== 74) {
+            break;
+          }
+
           message.message = CommandMessage.decode(reader, reader.uint32());
-          break;
+          continue;
         case 10:
+          if (tag !== 82) {
+            break;
+          }
+
           message.ack = CommandAck.decode(reader, reader.uint32());
-          break;
+          continue;
         case 11:
+          if (tag !== 90) {
+            break;
+          }
+
           message.flow = CommandFlow.decode(reader, reader.uint32());
-          break;
+          continue;
         case 12:
-          message.unsubscribe = CommandUnsubscribe.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 98) {
+            break;
+          }
+
+          message.unsubscribe = CommandUnsubscribe.decode(reader, reader.uint32());
+          continue;
         case 13:
+          if (tag !== 106) {
+            break;
+          }
+
           message.success = CommandSuccess.decode(reader, reader.uint32());
-          break;
+          continue;
         case 14:
+          if (tag !== 114) {
+            break;
+          }
+
           message.error = CommandError.decode(reader, reader.uint32());
-          break;
+          continue;
         case 15:
-          message.closeProducer = CommandCloseProducer.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 122) {
+            break;
+          }
+
+          message.closeProducer = CommandCloseProducer.decode(reader, reader.uint32());
+          continue;
         case 16:
-          message.closeConsumer = CommandCloseConsumer.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 130) {
+            break;
+          }
+
+          message.closeConsumer = CommandCloseConsumer.decode(reader, reader.uint32());
+          continue;
         case 17:
-          message.producerSuccess = CommandProducerSuccess.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 138) {
+            break;
+          }
+
+          message.producerSuccess = CommandProducerSuccess.decode(reader, reader.uint32());
+          continue;
         case 18:
+          if (tag !== 146) {
+            break;
+          }
+
           message.ping = CommandPing.decode(reader, reader.uint32());
-          break;
+          continue;
         case 19:
+          if (tag !== 154) {
+            break;
+          }
+
           message.pong = CommandPong.decode(reader, reader.uint32());
-          break;
+          continue;
         case 20:
-          message.redeliverUnacknowledgedMessages =
-            CommandRedeliverUnacknowledgedMessages.decode(
-              reader,
-              reader.uint32()
-            );
-          break;
+          if (tag !== 162) {
+            break;
+          }
+
+          message.redeliverUnacknowledgedMessages = CommandRedeliverUnacknowledgedMessages.decode(
+            reader,
+            reader.uint32(),
+          );
+          continue;
         case 21:
-          message.partitionMetadata = CommandPartitionedTopicMetadata.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 170) {
+            break;
+          }
+
+          message.partitionMetadata = CommandPartitionedTopicMetadata.decode(reader, reader.uint32());
+          continue;
         case 22:
-          message.partitionMetadataResponse =
-            CommandPartitionedTopicMetadataResponse.decode(
-              reader,
-              reader.uint32()
-            );
-          break;
+          if (tag !== 178) {
+            break;
+          }
+
+          message.partitionMetadataResponse = CommandPartitionedTopicMetadataResponse.decode(reader, reader.uint32());
+          continue;
         case 23:
-          message.lookupTopic = CommandLookupTopic.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 186) {
+            break;
+          }
+
+          message.lookupTopic = CommandLookupTopic.decode(reader, reader.uint32());
+          continue;
         case 24:
-          message.lookupTopicResponse = CommandLookupTopicResponse.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 194) {
+            break;
+          }
+
+          message.lookupTopicResponse = CommandLookupTopicResponse.decode(reader, reader.uint32());
+          continue;
         case 25:
-          message.consumerStats = CommandConsumerStats.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 202) {
+            break;
+          }
+
+          message.consumerStats = CommandConsumerStats.decode(reader, reader.uint32());
+          continue;
         case 26:
-          message.consumerStatsResponse = CommandConsumerStatsResponse.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 210) {
+            break;
+          }
+
+          message.consumerStatsResponse = CommandConsumerStatsResponse.decode(reader, reader.uint32());
+          continue;
         case 27:
-          message.reachedEndOfTopic = CommandReachedEndOfTopic.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 218) {
+            break;
+          }
+
+          message.reachedEndOfTopic = CommandReachedEndOfTopic.decode(reader, reader.uint32());
+          continue;
         case 28:
+          if (tag !== 226) {
+            break;
+          }
+
           message.seek = CommandSeek.decode(reader, reader.uint32());
-          break;
+          continue;
         case 29:
-          message.getLastMessageId = CommandGetLastMessageId.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 234) {
+            break;
+          }
+
+          message.getLastMessageId = CommandGetLastMessageId.decode(reader, reader.uint32());
+          continue;
         case 30:
-          message.getLastMessageIdResponse =
-            CommandGetLastMessageIdResponse.decode(reader, reader.uint32());
-          break;
+          if (tag !== 242) {
+            break;
+          }
+
+          message.getLastMessageIdResponse = CommandGetLastMessageIdResponse.decode(reader, reader.uint32());
+          continue;
         case 31:
-          message.activeConsumerChange = CommandActiveConsumerChange.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 250) {
+            break;
+          }
+
+          message.activeConsumerChange = CommandActiveConsumerChange.decode(reader, reader.uint32());
+          continue;
         case 32:
-          message.getTopicsOfNamespace = CommandGetTopicsOfNamespace.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 258) {
+            break;
+          }
+
+          message.getTopicsOfNamespace = CommandGetTopicsOfNamespace.decode(reader, reader.uint32());
+          continue;
         case 33:
-          message.getTopicsOfNamespaceResponse =
-            CommandGetTopicsOfNamespaceResponse.decode(reader, reader.uint32());
-          break;
+          if (tag !== 266) {
+            break;
+          }
+
+          message.getTopicsOfNamespaceResponse = CommandGetTopicsOfNamespaceResponse.decode(reader, reader.uint32());
+          continue;
         case 34:
+          if (tag !== 274) {
+            break;
+          }
+
           message.getSchema = CommandGetSchema.decode(reader, reader.uint32());
-          break;
+          continue;
         case 35:
-          message.getSchemaResponse = CommandGetSchemaResponse.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 282) {
+            break;
+          }
+
+          message.getSchemaResponse = CommandGetSchemaResponse.decode(reader, reader.uint32());
+          continue;
         case 36:
-          message.authChallenge = CommandAuthChallenge.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 290) {
+            break;
+          }
+
+          message.authChallenge = CommandAuthChallenge.decode(reader, reader.uint32());
+          continue;
         case 37:
-          message.authResponse = CommandAuthResponse.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 298) {
+            break;
+          }
+
+          message.authResponse = CommandAuthResponse.decode(reader, reader.uint32());
+          continue;
         case 38:
-          message.ackResponse = CommandAckResponse.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 306) {
+            break;
+          }
+
+          message.ackResponse = CommandAckResponse.decode(reader, reader.uint32());
+          continue;
         case 39:
-          message.getOrCreateSchema = CommandGetOrCreateSchema.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 314) {
+            break;
+          }
+
+          message.getOrCreateSchema = CommandGetOrCreateSchema.decode(reader, reader.uint32());
+          continue;
         case 40:
-          message.getOrCreateSchemaResponse =
-            CommandGetOrCreateSchemaResponse.decode(reader, reader.uint32());
-          break;
+          if (tag !== 322) {
+            break;
+          }
+
+          message.getOrCreateSchemaResponse = CommandGetOrCreateSchemaResponse.decode(reader, reader.uint32());
+          continue;
         case 50:
+          if (tag !== 402) {
+            break;
+          }
+
           message.newTxn = CommandNewTxn.decode(reader, reader.uint32());
-          break;
+          continue;
         case 51:
-          message.newTxnResponse = CommandNewTxnResponse.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 410) {
+            break;
+          }
+
+          message.newTxnResponse = CommandNewTxnResponse.decode(reader, reader.uint32());
+          continue;
         case 52:
-          message.addPartitionToTxn = CommandAddPartitionToTxn.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 418) {
+            break;
+          }
+
+          message.addPartitionToTxn = CommandAddPartitionToTxn.decode(reader, reader.uint32());
+          continue;
         case 53:
-          message.addPartitionToTxnResponse =
-            CommandAddPartitionToTxnResponse.decode(reader, reader.uint32());
-          break;
+          if (tag !== 426) {
+            break;
+          }
+
+          message.addPartitionToTxnResponse = CommandAddPartitionToTxnResponse.decode(reader, reader.uint32());
+          continue;
         case 54:
-          message.addSubscriptionToTxn = CommandAddSubscriptionToTxn.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 434) {
+            break;
+          }
+
+          message.addSubscriptionToTxn = CommandAddSubscriptionToTxn.decode(reader, reader.uint32());
+          continue;
         case 55:
-          message.addSubscriptionToTxnResponse =
-            CommandAddSubscriptionToTxnResponse.decode(reader, reader.uint32());
-          break;
+          if (tag !== 442) {
+            break;
+          }
+
+          message.addSubscriptionToTxnResponse = CommandAddSubscriptionToTxnResponse.decode(reader, reader.uint32());
+          continue;
         case 56:
+          if (tag !== 450) {
+            break;
+          }
+
           message.endTxn = CommandEndTxn.decode(reader, reader.uint32());
-          break;
+          continue;
         case 57:
-          message.endTxnResponse = CommandEndTxnResponse.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 458) {
+            break;
+          }
+
+          message.endTxnResponse = CommandEndTxnResponse.decode(reader, reader.uint32());
+          continue;
         case 58:
-          message.endTxnOnPartition = CommandEndTxnOnPartition.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 466) {
+            break;
+          }
+
+          message.endTxnOnPartition = CommandEndTxnOnPartition.decode(reader, reader.uint32());
+          continue;
         case 59:
-          message.endTxnOnPartitionResponse =
-            CommandEndTxnOnPartitionResponse.decode(reader, reader.uint32());
-          break;
+          if (tag !== 474) {
+            break;
+          }
+
+          message.endTxnOnPartitionResponse = CommandEndTxnOnPartitionResponse.decode(reader, reader.uint32());
+          continue;
         case 60:
-          message.endTxnOnSubscription = CommandEndTxnOnSubscription.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 482) {
+            break;
+          }
+
+          message.endTxnOnSubscription = CommandEndTxnOnSubscription.decode(reader, reader.uint32());
+          continue;
         case 61:
-          message.endTxnOnSubscriptionResponse =
-            CommandEndTxnOnSubscriptionResponse.decode(reader, reader.uint32());
-          break;
+          if (tag !== 490) {
+            break;
+          }
+
+          message.endTxnOnSubscriptionResponse = CommandEndTxnOnSubscriptionResponse.decode(reader, reader.uint32());
+          continue;
         case 62:
-          message.tcClientConnectRequest = CommandTcClientConnectRequest.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 498) {
+            break;
+          }
+
+          message.tcClientConnectRequest = CommandTcClientConnectRequest.decode(reader, reader.uint32());
+          continue;
         case 63:
-          message.tcClientConnectResponse =
-            CommandTcClientConnectResponse.decode(reader, reader.uint32());
-          break;
+          if (tag !== 506) {
+            break;
+          }
+
+          message.tcClientConnectResponse = CommandTcClientConnectResponse.decode(reader, reader.uint32());
+          continue;
         case 64:
-          message.watchTopicList = CommandWatchTopicList.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 514) {
+            break;
+          }
+
+          message.watchTopicList = CommandWatchTopicList.decode(reader, reader.uint32());
+          continue;
         case 65:
-          message.watchTopicListSuccess = CommandWatchTopicListSuccess.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 522) {
+            break;
+          }
+
+          message.watchTopicListSuccess = CommandWatchTopicListSuccess.decode(reader, reader.uint32());
+          continue;
         case 66:
-          message.watchTopicUpdate = CommandWatchTopicUpdate.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
+          if (tag !== 530) {
+            break;
+          }
+
+          message.watchTopicUpdate = CommandWatchTopicUpdate.decode(reader, reader.uint32());
+          continue;
         case 67:
-          message.watchTopicListClose = CommandWatchTopicListClose.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+          if (tag !== 538) {
+            break;
+          }
+
+          message.watchTopicListClose = CommandWatchTopicListClose.decode(reader, reader.uint32());
+          continue;
       }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
     }
     return message;
   },
@@ -11004,74 +11560,40 @@ export const BaseCommand = {
   fromJSON(object: any): BaseCommand {
     return {
       type: isSet(object.type) ? baseCommand_TypeFromJSON(object.type) : 2,
-      connect: isSet(object.connect)
-        ? CommandConnect.fromJSON(object.connect)
-        : undefined,
-      connected: isSet(object.connected)
-        ? CommandConnected.fromJSON(object.connected)
-        : undefined,
-      subscribe: isSet(object.subscribe)
-        ? CommandSubscribe.fromJSON(object.subscribe)
-        : undefined,
-      producer: isSet(object.producer)
-        ? CommandProducer.fromJSON(object.producer)
-        : undefined,
+      connect: isSet(object.connect) ? CommandConnect.fromJSON(object.connect) : undefined,
+      connected: isSet(object.connected) ? CommandConnected.fromJSON(object.connected) : undefined,
+      subscribe: isSet(object.subscribe) ? CommandSubscribe.fromJSON(object.subscribe) : undefined,
+      producer: isSet(object.producer) ? CommandProducer.fromJSON(object.producer) : undefined,
       send: isSet(object.send) ? CommandSend.fromJSON(object.send) : undefined,
-      sendReceipt: isSet(object.sendReceipt)
-        ? CommandSendReceipt.fromJSON(object.sendReceipt)
-        : undefined,
-      sendError: isSet(object.sendError)
-        ? CommandSendError.fromJSON(object.sendError)
-        : undefined,
-      message: isSet(object.message)
-        ? CommandMessage.fromJSON(object.message)
-        : undefined,
+      sendReceipt: isSet(object.sendReceipt) ? CommandSendReceipt.fromJSON(object.sendReceipt) : undefined,
+      sendError: isSet(object.sendError) ? CommandSendError.fromJSON(object.sendError) : undefined,
+      message: isSet(object.message) ? CommandMessage.fromJSON(object.message) : undefined,
       ack: isSet(object.ack) ? CommandAck.fromJSON(object.ack) : undefined,
       flow: isSet(object.flow) ? CommandFlow.fromJSON(object.flow) : undefined,
-      unsubscribe: isSet(object.unsubscribe)
-        ? CommandUnsubscribe.fromJSON(object.unsubscribe)
-        : undefined,
-      success: isSet(object.success)
-        ? CommandSuccess.fromJSON(object.success)
-        : undefined,
-      error: isSet(object.error)
-        ? CommandError.fromJSON(object.error)
-        : undefined,
-      closeProducer: isSet(object.closeProducer)
-        ? CommandCloseProducer.fromJSON(object.closeProducer)
-        : undefined,
-      closeConsumer: isSet(object.closeConsumer)
-        ? CommandCloseConsumer.fromJSON(object.closeConsumer)
-        : undefined,
+      unsubscribe: isSet(object.unsubscribe) ? CommandUnsubscribe.fromJSON(object.unsubscribe) : undefined,
+      success: isSet(object.success) ? CommandSuccess.fromJSON(object.success) : undefined,
+      error: isSet(object.error) ? CommandError.fromJSON(object.error) : undefined,
+      closeProducer: isSet(object.closeProducer) ? CommandCloseProducer.fromJSON(object.closeProducer) : undefined,
+      closeConsumer: isSet(object.closeConsumer) ? CommandCloseConsumer.fromJSON(object.closeConsumer) : undefined,
       producerSuccess: isSet(object.producerSuccess)
         ? CommandProducerSuccess.fromJSON(object.producerSuccess)
         : undefined,
       ping: isSet(object.ping) ? CommandPing.fromJSON(object.ping) : undefined,
       pong: isSet(object.pong) ? CommandPong.fromJSON(object.pong) : undefined,
-      redeliverUnacknowledgedMessages: isSet(
-        object.redeliverUnacknowledgedMessages
-      )
-        ? CommandRedeliverUnacknowledgedMessages.fromJSON(
-            object.redeliverUnacknowledgedMessages
-          )
+      redeliverUnacknowledgedMessages: isSet(object.redeliverUnacknowledgedMessages)
+        ? CommandRedeliverUnacknowledgedMessages.fromJSON(object.redeliverUnacknowledgedMessages)
         : undefined,
       partitionMetadata: isSet(object.partitionMetadata)
         ? CommandPartitionedTopicMetadata.fromJSON(object.partitionMetadata)
         : undefined,
       partitionMetadataResponse: isSet(object.partitionMetadataResponse)
-        ? CommandPartitionedTopicMetadataResponse.fromJSON(
-            object.partitionMetadataResponse
-          )
+        ? CommandPartitionedTopicMetadataResponse.fromJSON(object.partitionMetadataResponse)
         : undefined,
-      lookupTopic: isSet(object.lookupTopic)
-        ? CommandLookupTopic.fromJSON(object.lookupTopic)
-        : undefined,
+      lookupTopic: isSet(object.lookupTopic) ? CommandLookupTopic.fromJSON(object.lookupTopic) : undefined,
       lookupTopicResponse: isSet(object.lookupTopicResponse)
         ? CommandLookupTopicResponse.fromJSON(object.lookupTopicResponse)
         : undefined,
-      consumerStats: isSet(object.consumerStats)
-        ? CommandConsumerStats.fromJSON(object.consumerStats)
-        : undefined,
+      consumerStats: isSet(object.consumerStats) ? CommandConsumerStats.fromJSON(object.consumerStats) : undefined,
       consumerStatsResponse: isSet(object.consumerStatsResponse)
         ? CommandConsumerStatsResponse.fromJSON(object.consumerStatsResponse)
         : undefined,
@@ -11083,9 +11605,7 @@ export const BaseCommand = {
         ? CommandGetLastMessageId.fromJSON(object.getLastMessageId)
         : undefined,
       getLastMessageIdResponse: isSet(object.getLastMessageIdResponse)
-        ? CommandGetLastMessageIdResponse.fromJSON(
-            object.getLastMessageIdResponse
-          )
+        ? CommandGetLastMessageIdResponse.fromJSON(object.getLastMessageIdResponse)
         : undefined,
       activeConsumerChange: isSet(object.activeConsumerChange)
         ? CommandActiveConsumerChange.fromJSON(object.activeConsumerChange)
@@ -11094,88 +11614,56 @@ export const BaseCommand = {
         ? CommandGetTopicsOfNamespace.fromJSON(object.getTopicsOfNamespace)
         : undefined,
       getTopicsOfNamespaceResponse: isSet(object.getTopicsOfNamespaceResponse)
-        ? CommandGetTopicsOfNamespaceResponse.fromJSON(
-            object.getTopicsOfNamespaceResponse
-          )
+        ? CommandGetTopicsOfNamespaceResponse.fromJSON(object.getTopicsOfNamespaceResponse)
         : undefined,
-      getSchema: isSet(object.getSchema)
-        ? CommandGetSchema.fromJSON(object.getSchema)
-        : undefined,
+      getSchema: isSet(object.getSchema) ? CommandGetSchema.fromJSON(object.getSchema) : undefined,
       getSchemaResponse: isSet(object.getSchemaResponse)
         ? CommandGetSchemaResponse.fromJSON(object.getSchemaResponse)
         : undefined,
-      authChallenge: isSet(object.authChallenge)
-        ? CommandAuthChallenge.fromJSON(object.authChallenge)
-        : undefined,
-      authResponse: isSet(object.authResponse)
-        ? CommandAuthResponse.fromJSON(object.authResponse)
-        : undefined,
-      ackResponse: isSet(object.ackResponse)
-        ? CommandAckResponse.fromJSON(object.ackResponse)
-        : undefined,
+      authChallenge: isSet(object.authChallenge) ? CommandAuthChallenge.fromJSON(object.authChallenge) : undefined,
+      authResponse: isSet(object.authResponse) ? CommandAuthResponse.fromJSON(object.authResponse) : undefined,
+      ackResponse: isSet(object.ackResponse) ? CommandAckResponse.fromJSON(object.ackResponse) : undefined,
       getOrCreateSchema: isSet(object.getOrCreateSchema)
         ? CommandGetOrCreateSchema.fromJSON(object.getOrCreateSchema)
         : undefined,
       getOrCreateSchemaResponse: isSet(object.getOrCreateSchemaResponse)
-        ? CommandGetOrCreateSchemaResponse.fromJSON(
-            object.getOrCreateSchemaResponse
-          )
+        ? CommandGetOrCreateSchemaResponse.fromJSON(object.getOrCreateSchemaResponse)
         : undefined,
-      newTxn: isSet(object.newTxn)
-        ? CommandNewTxn.fromJSON(object.newTxn)
-        : undefined,
-      newTxnResponse: isSet(object.newTxnResponse)
-        ? CommandNewTxnResponse.fromJSON(object.newTxnResponse)
-        : undefined,
+      newTxn: isSet(object.newTxn) ? CommandNewTxn.fromJSON(object.newTxn) : undefined,
+      newTxnResponse: isSet(object.newTxnResponse) ? CommandNewTxnResponse.fromJSON(object.newTxnResponse) : undefined,
       addPartitionToTxn: isSet(object.addPartitionToTxn)
         ? CommandAddPartitionToTxn.fromJSON(object.addPartitionToTxn)
         : undefined,
       addPartitionToTxnResponse: isSet(object.addPartitionToTxnResponse)
-        ? CommandAddPartitionToTxnResponse.fromJSON(
-            object.addPartitionToTxnResponse
-          )
+        ? CommandAddPartitionToTxnResponse.fromJSON(object.addPartitionToTxnResponse)
         : undefined,
       addSubscriptionToTxn: isSet(object.addSubscriptionToTxn)
         ? CommandAddSubscriptionToTxn.fromJSON(object.addSubscriptionToTxn)
         : undefined,
       addSubscriptionToTxnResponse: isSet(object.addSubscriptionToTxnResponse)
-        ? CommandAddSubscriptionToTxnResponse.fromJSON(
-            object.addSubscriptionToTxnResponse
-          )
+        ? CommandAddSubscriptionToTxnResponse.fromJSON(object.addSubscriptionToTxnResponse)
         : undefined,
-      endTxn: isSet(object.endTxn)
-        ? CommandEndTxn.fromJSON(object.endTxn)
-        : undefined,
-      endTxnResponse: isSet(object.endTxnResponse)
-        ? CommandEndTxnResponse.fromJSON(object.endTxnResponse)
-        : undefined,
+      endTxn: isSet(object.endTxn) ? CommandEndTxn.fromJSON(object.endTxn) : undefined,
+      endTxnResponse: isSet(object.endTxnResponse) ? CommandEndTxnResponse.fromJSON(object.endTxnResponse) : undefined,
       endTxnOnPartition: isSet(object.endTxnOnPartition)
         ? CommandEndTxnOnPartition.fromJSON(object.endTxnOnPartition)
         : undefined,
       endTxnOnPartitionResponse: isSet(object.endTxnOnPartitionResponse)
-        ? CommandEndTxnOnPartitionResponse.fromJSON(
-            object.endTxnOnPartitionResponse
-          )
+        ? CommandEndTxnOnPartitionResponse.fromJSON(object.endTxnOnPartitionResponse)
         : undefined,
       endTxnOnSubscription: isSet(object.endTxnOnSubscription)
         ? CommandEndTxnOnSubscription.fromJSON(object.endTxnOnSubscription)
         : undefined,
       endTxnOnSubscriptionResponse: isSet(object.endTxnOnSubscriptionResponse)
-        ? CommandEndTxnOnSubscriptionResponse.fromJSON(
-            object.endTxnOnSubscriptionResponse
-          )
+        ? CommandEndTxnOnSubscriptionResponse.fromJSON(object.endTxnOnSubscriptionResponse)
         : undefined,
       tcClientConnectRequest: isSet(object.tcClientConnectRequest)
         ? CommandTcClientConnectRequest.fromJSON(object.tcClientConnectRequest)
         : undefined,
       tcClientConnectResponse: isSet(object.tcClientConnectResponse)
-        ? CommandTcClientConnectResponse.fromJSON(
-            object.tcClientConnectResponse
-          )
+        ? CommandTcClientConnectResponse.fromJSON(object.tcClientConnectResponse)
         : undefined,
-      watchTopicList: isSet(object.watchTopicList)
-        ? CommandWatchTopicList.fromJSON(object.watchTopicList)
-        : undefined,
+      watchTopicList: isSet(object.watchTopicList) ? CommandWatchTopicList.fromJSON(object.watchTopicList) : undefined,
       watchTopicListSuccess: isSet(object.watchTopicListSuccess)
         ? CommandWatchTopicListSuccess.fromJSON(object.watchTopicListSuccess)
         : undefined,
@@ -11190,592 +11678,438 @@ export const BaseCommand = {
 
   toJSON(message: BaseCommand): unknown {
     const obj: any = {};
-    message.type !== undefined &&
-      (obj.type = baseCommand_TypeToJSON(message.type));
-    message.connect !== undefined &&
-      (obj.connect = message.connect
-        ? CommandConnect.toJSON(message.connect)
-        : undefined);
-    message.connected !== undefined &&
-      (obj.connected = message.connected
-        ? CommandConnected.toJSON(message.connected)
-        : undefined);
-    message.subscribe !== undefined &&
-      (obj.subscribe = message.subscribe
-        ? CommandSubscribe.toJSON(message.subscribe)
-        : undefined);
-    message.producer !== undefined &&
-      (obj.producer = message.producer
-        ? CommandProducer.toJSON(message.producer)
-        : undefined);
-    message.send !== undefined &&
-      (obj.send = message.send ? CommandSend.toJSON(message.send) : undefined);
-    message.sendReceipt !== undefined &&
-      (obj.sendReceipt = message.sendReceipt
-        ? CommandSendReceipt.toJSON(message.sendReceipt)
-        : undefined);
-    message.sendError !== undefined &&
-      (obj.sendError = message.sendError
-        ? CommandSendError.toJSON(message.sendError)
-        : undefined);
-    message.message !== undefined &&
-      (obj.message = message.message
-        ? CommandMessage.toJSON(message.message)
-        : undefined);
-    message.ack !== undefined &&
-      (obj.ack = message.ack ? CommandAck.toJSON(message.ack) : undefined);
-    message.flow !== undefined &&
-      (obj.flow = message.flow ? CommandFlow.toJSON(message.flow) : undefined);
-    message.unsubscribe !== undefined &&
-      (obj.unsubscribe = message.unsubscribe
-        ? CommandUnsubscribe.toJSON(message.unsubscribe)
-        : undefined);
-    message.success !== undefined &&
-      (obj.success = message.success
-        ? CommandSuccess.toJSON(message.success)
-        : undefined);
-    message.error !== undefined &&
-      (obj.error = message.error
-        ? CommandError.toJSON(message.error)
-        : undefined);
-    message.closeProducer !== undefined &&
-      (obj.closeProducer = message.closeProducer
-        ? CommandCloseProducer.toJSON(message.closeProducer)
-        : undefined);
-    message.closeConsumer !== undefined &&
-      (obj.closeConsumer = message.closeConsumer
-        ? CommandCloseConsumer.toJSON(message.closeConsumer)
-        : undefined);
-    message.producerSuccess !== undefined &&
-      (obj.producerSuccess = message.producerSuccess
-        ? CommandProducerSuccess.toJSON(message.producerSuccess)
-        : undefined);
-    message.ping !== undefined &&
-      (obj.ping = message.ping ? CommandPing.toJSON(message.ping) : undefined);
-    message.pong !== undefined &&
-      (obj.pong = message.pong ? CommandPong.toJSON(message.pong) : undefined);
-    message.redeliverUnacknowledgedMessages !== undefined &&
-      (obj.redeliverUnacknowledgedMessages =
-        message.redeliverUnacknowledgedMessages
-          ? CommandRedeliverUnacknowledgedMessages.toJSON(
-              message.redeliverUnacknowledgedMessages
-            )
-          : undefined);
-    message.partitionMetadata !== undefined &&
-      (obj.partitionMetadata = message.partitionMetadata
-        ? CommandPartitionedTopicMetadata.toJSON(message.partitionMetadata)
-        : undefined);
-    message.partitionMetadataResponse !== undefined &&
-      (obj.partitionMetadataResponse = message.partitionMetadataResponse
-        ? CommandPartitionedTopicMetadataResponse.toJSON(
-            message.partitionMetadataResponse
-          )
-        : undefined);
-    message.lookupTopic !== undefined &&
-      (obj.lookupTopic = message.lookupTopic
-        ? CommandLookupTopic.toJSON(message.lookupTopic)
-        : undefined);
-    message.lookupTopicResponse !== undefined &&
-      (obj.lookupTopicResponse = message.lookupTopicResponse
-        ? CommandLookupTopicResponse.toJSON(message.lookupTopicResponse)
-        : undefined);
-    message.consumerStats !== undefined &&
-      (obj.consumerStats = message.consumerStats
-        ? CommandConsumerStats.toJSON(message.consumerStats)
-        : undefined);
-    message.consumerStatsResponse !== undefined &&
-      (obj.consumerStatsResponse = message.consumerStatsResponse
-        ? CommandConsumerStatsResponse.toJSON(message.consumerStatsResponse)
-        : undefined);
-    message.reachedEndOfTopic !== undefined &&
-      (obj.reachedEndOfTopic = message.reachedEndOfTopic
-        ? CommandReachedEndOfTopic.toJSON(message.reachedEndOfTopic)
-        : undefined);
-    message.seek !== undefined &&
-      (obj.seek = message.seek ? CommandSeek.toJSON(message.seek) : undefined);
-    message.getLastMessageId !== undefined &&
-      (obj.getLastMessageId = message.getLastMessageId
-        ? CommandGetLastMessageId.toJSON(message.getLastMessageId)
-        : undefined);
-    message.getLastMessageIdResponse !== undefined &&
-      (obj.getLastMessageIdResponse = message.getLastMessageIdResponse
-        ? CommandGetLastMessageIdResponse.toJSON(
-            message.getLastMessageIdResponse
-          )
-        : undefined);
-    message.activeConsumerChange !== undefined &&
-      (obj.activeConsumerChange = message.activeConsumerChange
-        ? CommandActiveConsumerChange.toJSON(message.activeConsumerChange)
-        : undefined);
-    message.getTopicsOfNamespace !== undefined &&
-      (obj.getTopicsOfNamespace = message.getTopicsOfNamespace
-        ? CommandGetTopicsOfNamespace.toJSON(message.getTopicsOfNamespace)
-        : undefined);
-    message.getTopicsOfNamespaceResponse !== undefined &&
-      (obj.getTopicsOfNamespaceResponse = message.getTopicsOfNamespaceResponse
-        ? CommandGetTopicsOfNamespaceResponse.toJSON(
-            message.getTopicsOfNamespaceResponse
-          )
-        : undefined);
-    message.getSchema !== undefined &&
-      (obj.getSchema = message.getSchema
-        ? CommandGetSchema.toJSON(message.getSchema)
-        : undefined);
-    message.getSchemaResponse !== undefined &&
-      (obj.getSchemaResponse = message.getSchemaResponse
-        ? CommandGetSchemaResponse.toJSON(message.getSchemaResponse)
-        : undefined);
-    message.authChallenge !== undefined &&
-      (obj.authChallenge = message.authChallenge
-        ? CommandAuthChallenge.toJSON(message.authChallenge)
-        : undefined);
-    message.authResponse !== undefined &&
-      (obj.authResponse = message.authResponse
-        ? CommandAuthResponse.toJSON(message.authResponse)
-        : undefined);
-    message.ackResponse !== undefined &&
-      (obj.ackResponse = message.ackResponse
-        ? CommandAckResponse.toJSON(message.ackResponse)
-        : undefined);
-    message.getOrCreateSchema !== undefined &&
-      (obj.getOrCreateSchema = message.getOrCreateSchema
-        ? CommandGetOrCreateSchema.toJSON(message.getOrCreateSchema)
-        : undefined);
-    message.getOrCreateSchemaResponse !== undefined &&
-      (obj.getOrCreateSchemaResponse = message.getOrCreateSchemaResponse
-        ? CommandGetOrCreateSchemaResponse.toJSON(
-            message.getOrCreateSchemaResponse
-          )
-        : undefined);
-    message.newTxn !== undefined &&
-      (obj.newTxn = message.newTxn
-        ? CommandNewTxn.toJSON(message.newTxn)
-        : undefined);
-    message.newTxnResponse !== undefined &&
-      (obj.newTxnResponse = message.newTxnResponse
-        ? CommandNewTxnResponse.toJSON(message.newTxnResponse)
-        : undefined);
-    message.addPartitionToTxn !== undefined &&
-      (obj.addPartitionToTxn = message.addPartitionToTxn
-        ? CommandAddPartitionToTxn.toJSON(message.addPartitionToTxn)
-        : undefined);
-    message.addPartitionToTxnResponse !== undefined &&
-      (obj.addPartitionToTxnResponse = message.addPartitionToTxnResponse
-        ? CommandAddPartitionToTxnResponse.toJSON(
-            message.addPartitionToTxnResponse
-          )
-        : undefined);
-    message.addSubscriptionToTxn !== undefined &&
-      (obj.addSubscriptionToTxn = message.addSubscriptionToTxn
-        ? CommandAddSubscriptionToTxn.toJSON(message.addSubscriptionToTxn)
-        : undefined);
-    message.addSubscriptionToTxnResponse !== undefined &&
-      (obj.addSubscriptionToTxnResponse = message.addSubscriptionToTxnResponse
-        ? CommandAddSubscriptionToTxnResponse.toJSON(
-            message.addSubscriptionToTxnResponse
-          )
-        : undefined);
-    message.endTxn !== undefined &&
-      (obj.endTxn = message.endTxn
-        ? CommandEndTxn.toJSON(message.endTxn)
-        : undefined);
-    message.endTxnResponse !== undefined &&
-      (obj.endTxnResponse = message.endTxnResponse
-        ? CommandEndTxnResponse.toJSON(message.endTxnResponse)
-        : undefined);
-    message.endTxnOnPartition !== undefined &&
-      (obj.endTxnOnPartition = message.endTxnOnPartition
-        ? CommandEndTxnOnPartition.toJSON(message.endTxnOnPartition)
-        : undefined);
-    message.endTxnOnPartitionResponse !== undefined &&
-      (obj.endTxnOnPartitionResponse = message.endTxnOnPartitionResponse
-        ? CommandEndTxnOnPartitionResponse.toJSON(
-            message.endTxnOnPartitionResponse
-          )
-        : undefined);
-    message.endTxnOnSubscription !== undefined &&
-      (obj.endTxnOnSubscription = message.endTxnOnSubscription
-        ? CommandEndTxnOnSubscription.toJSON(message.endTxnOnSubscription)
-        : undefined);
-    message.endTxnOnSubscriptionResponse !== undefined &&
-      (obj.endTxnOnSubscriptionResponse = message.endTxnOnSubscriptionResponse
-        ? CommandEndTxnOnSubscriptionResponse.toJSON(
-            message.endTxnOnSubscriptionResponse
-          )
-        : undefined);
-    message.tcClientConnectRequest !== undefined &&
-      (obj.tcClientConnectRequest = message.tcClientConnectRequest
-        ? CommandTcClientConnectRequest.toJSON(message.tcClientConnectRequest)
-        : undefined);
-    message.tcClientConnectResponse !== undefined &&
-      (obj.tcClientConnectResponse = message.tcClientConnectResponse
-        ? CommandTcClientConnectResponse.toJSON(message.tcClientConnectResponse)
-        : undefined);
-    message.watchTopicList !== undefined &&
-      (obj.watchTopicList = message.watchTopicList
-        ? CommandWatchTopicList.toJSON(message.watchTopicList)
-        : undefined);
-    message.watchTopicListSuccess !== undefined &&
-      (obj.watchTopicListSuccess = message.watchTopicListSuccess
-        ? CommandWatchTopicListSuccess.toJSON(message.watchTopicListSuccess)
-        : undefined);
-    message.watchTopicUpdate !== undefined &&
-      (obj.watchTopicUpdate = message.watchTopicUpdate
-        ? CommandWatchTopicUpdate.toJSON(message.watchTopicUpdate)
-        : undefined);
-    message.watchTopicListClose !== undefined &&
-      (obj.watchTopicListClose = message.watchTopicListClose
-        ? CommandWatchTopicListClose.toJSON(message.watchTopicListClose)
-        : undefined);
+    if (message.type !== 2) {
+      obj.type = baseCommand_TypeToJSON(message.type);
+    }
+    if (message.connect !== undefined) {
+      obj.connect = CommandConnect.toJSON(message.connect);
+    }
+    if (message.connected !== undefined) {
+      obj.connected = CommandConnected.toJSON(message.connected);
+    }
+    if (message.subscribe !== undefined) {
+      obj.subscribe = CommandSubscribe.toJSON(message.subscribe);
+    }
+    if (message.producer !== undefined) {
+      obj.producer = CommandProducer.toJSON(message.producer);
+    }
+    if (message.send !== undefined) {
+      obj.send = CommandSend.toJSON(message.send);
+    }
+    if (message.sendReceipt !== undefined) {
+      obj.sendReceipt = CommandSendReceipt.toJSON(message.sendReceipt);
+    }
+    if (message.sendError !== undefined) {
+      obj.sendError = CommandSendError.toJSON(message.sendError);
+    }
+    if (message.message !== undefined) {
+      obj.message = CommandMessage.toJSON(message.message);
+    }
+    if (message.ack !== undefined) {
+      obj.ack = CommandAck.toJSON(message.ack);
+    }
+    if (message.flow !== undefined) {
+      obj.flow = CommandFlow.toJSON(message.flow);
+    }
+    if (message.unsubscribe !== undefined) {
+      obj.unsubscribe = CommandUnsubscribe.toJSON(message.unsubscribe);
+    }
+    if (message.success !== undefined) {
+      obj.success = CommandSuccess.toJSON(message.success);
+    }
+    if (message.error !== undefined) {
+      obj.error = CommandError.toJSON(message.error);
+    }
+    if (message.closeProducer !== undefined) {
+      obj.closeProducer = CommandCloseProducer.toJSON(message.closeProducer);
+    }
+    if (message.closeConsumer !== undefined) {
+      obj.closeConsumer = CommandCloseConsumer.toJSON(message.closeConsumer);
+    }
+    if (message.producerSuccess !== undefined) {
+      obj.producerSuccess = CommandProducerSuccess.toJSON(message.producerSuccess);
+    }
+    if (message.ping !== undefined) {
+      obj.ping = CommandPing.toJSON(message.ping);
+    }
+    if (message.pong !== undefined) {
+      obj.pong = CommandPong.toJSON(message.pong);
+    }
+    if (message.redeliverUnacknowledgedMessages !== undefined) {
+      obj.redeliverUnacknowledgedMessages = CommandRedeliverUnacknowledgedMessages.toJSON(
+        message.redeliverUnacknowledgedMessages,
+      );
+    }
+    if (message.partitionMetadata !== undefined) {
+      obj.partitionMetadata = CommandPartitionedTopicMetadata.toJSON(message.partitionMetadata);
+    }
+    if (message.partitionMetadataResponse !== undefined) {
+      obj.partitionMetadataResponse = CommandPartitionedTopicMetadataResponse.toJSON(message.partitionMetadataResponse);
+    }
+    if (message.lookupTopic !== undefined) {
+      obj.lookupTopic = CommandLookupTopic.toJSON(message.lookupTopic);
+    }
+    if (message.lookupTopicResponse !== undefined) {
+      obj.lookupTopicResponse = CommandLookupTopicResponse.toJSON(message.lookupTopicResponse);
+    }
+    if (message.consumerStats !== undefined) {
+      obj.consumerStats = CommandConsumerStats.toJSON(message.consumerStats);
+    }
+    if (message.consumerStatsResponse !== undefined) {
+      obj.consumerStatsResponse = CommandConsumerStatsResponse.toJSON(message.consumerStatsResponse);
+    }
+    if (message.reachedEndOfTopic !== undefined) {
+      obj.reachedEndOfTopic = CommandReachedEndOfTopic.toJSON(message.reachedEndOfTopic);
+    }
+    if (message.seek !== undefined) {
+      obj.seek = CommandSeek.toJSON(message.seek);
+    }
+    if (message.getLastMessageId !== undefined) {
+      obj.getLastMessageId = CommandGetLastMessageId.toJSON(message.getLastMessageId);
+    }
+    if (message.getLastMessageIdResponse !== undefined) {
+      obj.getLastMessageIdResponse = CommandGetLastMessageIdResponse.toJSON(message.getLastMessageIdResponse);
+    }
+    if (message.activeConsumerChange !== undefined) {
+      obj.activeConsumerChange = CommandActiveConsumerChange.toJSON(message.activeConsumerChange);
+    }
+    if (message.getTopicsOfNamespace !== undefined) {
+      obj.getTopicsOfNamespace = CommandGetTopicsOfNamespace.toJSON(message.getTopicsOfNamespace);
+    }
+    if (message.getTopicsOfNamespaceResponse !== undefined) {
+      obj.getTopicsOfNamespaceResponse = CommandGetTopicsOfNamespaceResponse.toJSON(
+        message.getTopicsOfNamespaceResponse,
+      );
+    }
+    if (message.getSchema !== undefined) {
+      obj.getSchema = CommandGetSchema.toJSON(message.getSchema);
+    }
+    if (message.getSchemaResponse !== undefined) {
+      obj.getSchemaResponse = CommandGetSchemaResponse.toJSON(message.getSchemaResponse);
+    }
+    if (message.authChallenge !== undefined) {
+      obj.authChallenge = CommandAuthChallenge.toJSON(message.authChallenge);
+    }
+    if (message.authResponse !== undefined) {
+      obj.authResponse = CommandAuthResponse.toJSON(message.authResponse);
+    }
+    if (message.ackResponse !== undefined) {
+      obj.ackResponse = CommandAckResponse.toJSON(message.ackResponse);
+    }
+    if (message.getOrCreateSchema !== undefined) {
+      obj.getOrCreateSchema = CommandGetOrCreateSchema.toJSON(message.getOrCreateSchema);
+    }
+    if (message.getOrCreateSchemaResponse !== undefined) {
+      obj.getOrCreateSchemaResponse = CommandGetOrCreateSchemaResponse.toJSON(message.getOrCreateSchemaResponse);
+    }
+    if (message.newTxn !== undefined) {
+      obj.newTxn = CommandNewTxn.toJSON(message.newTxn);
+    }
+    if (message.newTxnResponse !== undefined) {
+      obj.newTxnResponse = CommandNewTxnResponse.toJSON(message.newTxnResponse);
+    }
+    if (message.addPartitionToTxn !== undefined) {
+      obj.addPartitionToTxn = CommandAddPartitionToTxn.toJSON(message.addPartitionToTxn);
+    }
+    if (message.addPartitionToTxnResponse !== undefined) {
+      obj.addPartitionToTxnResponse = CommandAddPartitionToTxnResponse.toJSON(message.addPartitionToTxnResponse);
+    }
+    if (message.addSubscriptionToTxn !== undefined) {
+      obj.addSubscriptionToTxn = CommandAddSubscriptionToTxn.toJSON(message.addSubscriptionToTxn);
+    }
+    if (message.addSubscriptionToTxnResponse !== undefined) {
+      obj.addSubscriptionToTxnResponse = CommandAddSubscriptionToTxnResponse.toJSON(
+        message.addSubscriptionToTxnResponse,
+      );
+    }
+    if (message.endTxn !== undefined) {
+      obj.endTxn = CommandEndTxn.toJSON(message.endTxn);
+    }
+    if (message.endTxnResponse !== undefined) {
+      obj.endTxnResponse = CommandEndTxnResponse.toJSON(message.endTxnResponse);
+    }
+    if (message.endTxnOnPartition !== undefined) {
+      obj.endTxnOnPartition = CommandEndTxnOnPartition.toJSON(message.endTxnOnPartition);
+    }
+    if (message.endTxnOnPartitionResponse !== undefined) {
+      obj.endTxnOnPartitionResponse = CommandEndTxnOnPartitionResponse.toJSON(message.endTxnOnPartitionResponse);
+    }
+    if (message.endTxnOnSubscription !== undefined) {
+      obj.endTxnOnSubscription = CommandEndTxnOnSubscription.toJSON(message.endTxnOnSubscription);
+    }
+    if (message.endTxnOnSubscriptionResponse !== undefined) {
+      obj.endTxnOnSubscriptionResponse = CommandEndTxnOnSubscriptionResponse.toJSON(
+        message.endTxnOnSubscriptionResponse,
+      );
+    }
+    if (message.tcClientConnectRequest !== undefined) {
+      obj.tcClientConnectRequest = CommandTcClientConnectRequest.toJSON(message.tcClientConnectRequest);
+    }
+    if (message.tcClientConnectResponse !== undefined) {
+      obj.tcClientConnectResponse = CommandTcClientConnectResponse.toJSON(message.tcClientConnectResponse);
+    }
+    if (message.watchTopicList !== undefined) {
+      obj.watchTopicList = CommandWatchTopicList.toJSON(message.watchTopicList);
+    }
+    if (message.watchTopicListSuccess !== undefined) {
+      obj.watchTopicListSuccess = CommandWatchTopicListSuccess.toJSON(message.watchTopicListSuccess);
+    }
+    if (message.watchTopicUpdate !== undefined) {
+      obj.watchTopicUpdate = CommandWatchTopicUpdate.toJSON(message.watchTopicUpdate);
+    }
+    if (message.watchTopicListClose !== undefined) {
+      obj.watchTopicListClose = CommandWatchTopicListClose.toJSON(message.watchTopicListClose);
+    }
     return obj;
   },
 
-  fromPartial<I extends Exact<DeepPartial<BaseCommand>, I>>(
-    object: I
-  ): BaseCommand {
+  create<I extends Exact<DeepPartial<BaseCommand>, I>>(base?: I): BaseCommand {
+    return BaseCommand.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BaseCommand>, I>>(object: I): BaseCommand {
     const message = createBaseBaseCommand();
     message.type = object.type ?? 2;
-    message.connect =
-      object.connect !== undefined && object.connect !== null
-        ? CommandConnect.fromPartial(object.connect)
-        : undefined;
-    message.connected =
-      object.connected !== undefined && object.connected !== null
-        ? CommandConnected.fromPartial(object.connected)
-        : undefined;
-    message.subscribe =
-      object.subscribe !== undefined && object.subscribe !== null
-        ? CommandSubscribe.fromPartial(object.subscribe)
-        : undefined;
-    message.producer =
-      object.producer !== undefined && object.producer !== null
-        ? CommandProducer.fromPartial(object.producer)
-        : undefined;
-    message.send =
-      object.send !== undefined && object.send !== null
-        ? CommandSend.fromPartial(object.send)
-        : undefined;
-    message.sendReceipt =
-      object.sendReceipt !== undefined && object.sendReceipt !== null
-        ? CommandSendReceipt.fromPartial(object.sendReceipt)
-        : undefined;
-    message.sendError =
-      object.sendError !== undefined && object.sendError !== null
-        ? CommandSendError.fromPartial(object.sendError)
-        : undefined;
-    message.message =
-      object.message !== undefined && object.message !== null
-        ? CommandMessage.fromPartial(object.message)
-        : undefined;
-    message.ack =
-      object.ack !== undefined && object.ack !== null
-        ? CommandAck.fromPartial(object.ack)
-        : undefined;
-    message.flow =
-      object.flow !== undefined && object.flow !== null
-        ? CommandFlow.fromPartial(object.flow)
-        : undefined;
-    message.unsubscribe =
-      object.unsubscribe !== undefined && object.unsubscribe !== null
-        ? CommandUnsubscribe.fromPartial(object.unsubscribe)
-        : undefined;
-    message.success =
-      object.success !== undefined && object.success !== null
-        ? CommandSuccess.fromPartial(object.success)
-        : undefined;
-    message.error =
-      object.error !== undefined && object.error !== null
-        ? CommandError.fromPartial(object.error)
-        : undefined;
-    message.closeProducer =
-      object.closeProducer !== undefined && object.closeProducer !== null
-        ? CommandCloseProducer.fromPartial(object.closeProducer)
-        : undefined;
-    message.closeConsumer =
-      object.closeConsumer !== undefined && object.closeConsumer !== null
-        ? CommandCloseConsumer.fromPartial(object.closeConsumer)
-        : undefined;
-    message.producerSuccess =
-      object.producerSuccess !== undefined && object.producerSuccess !== null
-        ? CommandProducerSuccess.fromPartial(object.producerSuccess)
-        : undefined;
-    message.ping =
-      object.ping !== undefined && object.ping !== null
-        ? CommandPing.fromPartial(object.ping)
-        : undefined;
-    message.pong =
-      object.pong !== undefined && object.pong !== null
-        ? CommandPong.fromPartial(object.pong)
-        : undefined;
+    message.connect = (object.connect !== undefined && object.connect !== null)
+      ? CommandConnect.fromPartial(object.connect)
+      : undefined;
+    message.connected = (object.connected !== undefined && object.connected !== null)
+      ? CommandConnected.fromPartial(object.connected)
+      : undefined;
+    message.subscribe = (object.subscribe !== undefined && object.subscribe !== null)
+      ? CommandSubscribe.fromPartial(object.subscribe)
+      : undefined;
+    message.producer = (object.producer !== undefined && object.producer !== null)
+      ? CommandProducer.fromPartial(object.producer)
+      : undefined;
+    message.send = (object.send !== undefined && object.send !== null)
+      ? CommandSend.fromPartial(object.send)
+      : undefined;
+    message.sendReceipt = (object.sendReceipt !== undefined && object.sendReceipt !== null)
+      ? CommandSendReceipt.fromPartial(object.sendReceipt)
+      : undefined;
+    message.sendError = (object.sendError !== undefined && object.sendError !== null)
+      ? CommandSendError.fromPartial(object.sendError)
+      : undefined;
+    message.message = (object.message !== undefined && object.message !== null)
+      ? CommandMessage.fromPartial(object.message)
+      : undefined;
+    message.ack = (object.ack !== undefined && object.ack !== null) ? CommandAck.fromPartial(object.ack) : undefined;
+    message.flow = (object.flow !== undefined && object.flow !== null)
+      ? CommandFlow.fromPartial(object.flow)
+      : undefined;
+    message.unsubscribe = (object.unsubscribe !== undefined && object.unsubscribe !== null)
+      ? CommandUnsubscribe.fromPartial(object.unsubscribe)
+      : undefined;
+    message.success = (object.success !== undefined && object.success !== null)
+      ? CommandSuccess.fromPartial(object.success)
+      : undefined;
+    message.error = (object.error !== undefined && object.error !== null)
+      ? CommandError.fromPartial(object.error)
+      : undefined;
+    message.closeProducer = (object.closeProducer !== undefined && object.closeProducer !== null)
+      ? CommandCloseProducer.fromPartial(object.closeProducer)
+      : undefined;
+    message.closeConsumer = (object.closeConsumer !== undefined && object.closeConsumer !== null)
+      ? CommandCloseConsumer.fromPartial(object.closeConsumer)
+      : undefined;
+    message.producerSuccess = (object.producerSuccess !== undefined && object.producerSuccess !== null)
+      ? CommandProducerSuccess.fromPartial(object.producerSuccess)
+      : undefined;
+    message.ping = (object.ping !== undefined && object.ping !== null)
+      ? CommandPing.fromPartial(object.ping)
+      : undefined;
+    message.pong = (object.pong !== undefined && object.pong !== null)
+      ? CommandPong.fromPartial(object.pong)
+      : undefined;
     message.redeliverUnacknowledgedMessages =
-      object.redeliverUnacknowledgedMessages !== undefined &&
-      object.redeliverUnacknowledgedMessages !== null
-        ? CommandRedeliverUnacknowledgedMessages.fromPartial(
-            object.redeliverUnacknowledgedMessages
-          )
+      (object.redeliverUnacknowledgedMessages !== undefined && object.redeliverUnacknowledgedMessages !== null)
+        ? CommandRedeliverUnacknowledgedMessages.fromPartial(object.redeliverUnacknowledgedMessages)
         : undefined;
-    message.partitionMetadata =
-      object.partitionMetadata !== undefined &&
-      object.partitionMetadata !== null
-        ? CommandPartitionedTopicMetadata.fromPartial(object.partitionMetadata)
-        : undefined;
+    message.partitionMetadata = (object.partitionMetadata !== undefined && object.partitionMetadata !== null)
+      ? CommandPartitionedTopicMetadata.fromPartial(object.partitionMetadata)
+      : undefined;
     message.partitionMetadataResponse =
-      object.partitionMetadataResponse !== undefined &&
-      object.partitionMetadataResponse !== null
-        ? CommandPartitionedTopicMetadataResponse.fromPartial(
-            object.partitionMetadataResponse
-          )
+      (object.partitionMetadataResponse !== undefined && object.partitionMetadataResponse !== null)
+        ? CommandPartitionedTopicMetadataResponse.fromPartial(object.partitionMetadataResponse)
         : undefined;
-    message.lookupTopic =
-      object.lookupTopic !== undefined && object.lookupTopic !== null
-        ? CommandLookupTopic.fromPartial(object.lookupTopic)
-        : undefined;
-    message.lookupTopicResponse =
-      object.lookupTopicResponse !== undefined &&
-      object.lookupTopicResponse !== null
-        ? CommandLookupTopicResponse.fromPartial(object.lookupTopicResponse)
-        : undefined;
-    message.consumerStats =
-      object.consumerStats !== undefined && object.consumerStats !== null
-        ? CommandConsumerStats.fromPartial(object.consumerStats)
-        : undefined;
+    message.lookupTopic = (object.lookupTopic !== undefined && object.lookupTopic !== null)
+      ? CommandLookupTopic.fromPartial(object.lookupTopic)
+      : undefined;
+    message.lookupTopicResponse = (object.lookupTopicResponse !== undefined && object.lookupTopicResponse !== null)
+      ? CommandLookupTopicResponse.fromPartial(object.lookupTopicResponse)
+      : undefined;
+    message.consumerStats = (object.consumerStats !== undefined && object.consumerStats !== null)
+      ? CommandConsumerStats.fromPartial(object.consumerStats)
+      : undefined;
     message.consumerStatsResponse =
-      object.consumerStatsResponse !== undefined &&
-      object.consumerStatsResponse !== null
+      (object.consumerStatsResponse !== undefined && object.consumerStatsResponse !== null)
         ? CommandConsumerStatsResponse.fromPartial(object.consumerStatsResponse)
         : undefined;
-    message.reachedEndOfTopic =
-      object.reachedEndOfTopic !== undefined &&
-      object.reachedEndOfTopic !== null
-        ? CommandReachedEndOfTopic.fromPartial(object.reachedEndOfTopic)
-        : undefined;
-    message.seek =
-      object.seek !== undefined && object.seek !== null
-        ? CommandSeek.fromPartial(object.seek)
-        : undefined;
-    message.getLastMessageId =
-      object.getLastMessageId !== undefined && object.getLastMessageId !== null
-        ? CommandGetLastMessageId.fromPartial(object.getLastMessageId)
-        : undefined;
+    message.reachedEndOfTopic = (object.reachedEndOfTopic !== undefined && object.reachedEndOfTopic !== null)
+      ? CommandReachedEndOfTopic.fromPartial(object.reachedEndOfTopic)
+      : undefined;
+    message.seek = (object.seek !== undefined && object.seek !== null)
+      ? CommandSeek.fromPartial(object.seek)
+      : undefined;
+    message.getLastMessageId = (object.getLastMessageId !== undefined && object.getLastMessageId !== null)
+      ? CommandGetLastMessageId.fromPartial(object.getLastMessageId)
+      : undefined;
     message.getLastMessageIdResponse =
-      object.getLastMessageIdResponse !== undefined &&
-      object.getLastMessageIdResponse !== null
-        ? CommandGetLastMessageIdResponse.fromPartial(
-            object.getLastMessageIdResponse
-          )
+      (object.getLastMessageIdResponse !== undefined && object.getLastMessageIdResponse !== null)
+        ? CommandGetLastMessageIdResponse.fromPartial(object.getLastMessageIdResponse)
         : undefined;
-    message.activeConsumerChange =
-      object.activeConsumerChange !== undefined &&
-      object.activeConsumerChange !== null
-        ? CommandActiveConsumerChange.fromPartial(object.activeConsumerChange)
-        : undefined;
-    message.getTopicsOfNamespace =
-      object.getTopicsOfNamespace !== undefined &&
-      object.getTopicsOfNamespace !== null
-        ? CommandGetTopicsOfNamespace.fromPartial(object.getTopicsOfNamespace)
-        : undefined;
+    message.activeConsumerChange = (object.activeConsumerChange !== undefined && object.activeConsumerChange !== null)
+      ? CommandActiveConsumerChange.fromPartial(object.activeConsumerChange)
+      : undefined;
+    message.getTopicsOfNamespace = (object.getTopicsOfNamespace !== undefined && object.getTopicsOfNamespace !== null)
+      ? CommandGetTopicsOfNamespace.fromPartial(object.getTopicsOfNamespace)
+      : undefined;
     message.getTopicsOfNamespaceResponse =
-      object.getTopicsOfNamespaceResponse !== undefined &&
-      object.getTopicsOfNamespaceResponse !== null
-        ? CommandGetTopicsOfNamespaceResponse.fromPartial(
-            object.getTopicsOfNamespaceResponse
-          )
+      (object.getTopicsOfNamespaceResponse !== undefined && object.getTopicsOfNamespaceResponse !== null)
+        ? CommandGetTopicsOfNamespaceResponse.fromPartial(object.getTopicsOfNamespaceResponse)
         : undefined;
-    message.getSchema =
-      object.getSchema !== undefined && object.getSchema !== null
-        ? CommandGetSchema.fromPartial(object.getSchema)
-        : undefined;
-    message.getSchemaResponse =
-      object.getSchemaResponse !== undefined &&
-      object.getSchemaResponse !== null
-        ? CommandGetSchemaResponse.fromPartial(object.getSchemaResponse)
-        : undefined;
-    message.authChallenge =
-      object.authChallenge !== undefined && object.authChallenge !== null
-        ? CommandAuthChallenge.fromPartial(object.authChallenge)
-        : undefined;
-    message.authResponse =
-      object.authResponse !== undefined && object.authResponse !== null
-        ? CommandAuthResponse.fromPartial(object.authResponse)
-        : undefined;
-    message.ackResponse =
-      object.ackResponse !== undefined && object.ackResponse !== null
-        ? CommandAckResponse.fromPartial(object.ackResponse)
-        : undefined;
-    message.getOrCreateSchema =
-      object.getOrCreateSchema !== undefined &&
-      object.getOrCreateSchema !== null
-        ? CommandGetOrCreateSchema.fromPartial(object.getOrCreateSchema)
-        : undefined;
+    message.getSchema = (object.getSchema !== undefined && object.getSchema !== null)
+      ? CommandGetSchema.fromPartial(object.getSchema)
+      : undefined;
+    message.getSchemaResponse = (object.getSchemaResponse !== undefined && object.getSchemaResponse !== null)
+      ? CommandGetSchemaResponse.fromPartial(object.getSchemaResponse)
+      : undefined;
+    message.authChallenge = (object.authChallenge !== undefined && object.authChallenge !== null)
+      ? CommandAuthChallenge.fromPartial(object.authChallenge)
+      : undefined;
+    message.authResponse = (object.authResponse !== undefined && object.authResponse !== null)
+      ? CommandAuthResponse.fromPartial(object.authResponse)
+      : undefined;
+    message.ackResponse = (object.ackResponse !== undefined && object.ackResponse !== null)
+      ? CommandAckResponse.fromPartial(object.ackResponse)
+      : undefined;
+    message.getOrCreateSchema = (object.getOrCreateSchema !== undefined && object.getOrCreateSchema !== null)
+      ? CommandGetOrCreateSchema.fromPartial(object.getOrCreateSchema)
+      : undefined;
     message.getOrCreateSchemaResponse =
-      object.getOrCreateSchemaResponse !== undefined &&
-      object.getOrCreateSchemaResponse !== null
-        ? CommandGetOrCreateSchemaResponse.fromPartial(
-            object.getOrCreateSchemaResponse
-          )
+      (object.getOrCreateSchemaResponse !== undefined && object.getOrCreateSchemaResponse !== null)
+        ? CommandGetOrCreateSchemaResponse.fromPartial(object.getOrCreateSchemaResponse)
         : undefined;
-    message.newTxn =
-      object.newTxn !== undefined && object.newTxn !== null
-        ? CommandNewTxn.fromPartial(object.newTxn)
-        : undefined;
-    message.newTxnResponse =
-      object.newTxnResponse !== undefined && object.newTxnResponse !== null
-        ? CommandNewTxnResponse.fromPartial(object.newTxnResponse)
-        : undefined;
-    message.addPartitionToTxn =
-      object.addPartitionToTxn !== undefined &&
-      object.addPartitionToTxn !== null
-        ? CommandAddPartitionToTxn.fromPartial(object.addPartitionToTxn)
-        : undefined;
+    message.newTxn = (object.newTxn !== undefined && object.newTxn !== null)
+      ? CommandNewTxn.fromPartial(object.newTxn)
+      : undefined;
+    message.newTxnResponse = (object.newTxnResponse !== undefined && object.newTxnResponse !== null)
+      ? CommandNewTxnResponse.fromPartial(object.newTxnResponse)
+      : undefined;
+    message.addPartitionToTxn = (object.addPartitionToTxn !== undefined && object.addPartitionToTxn !== null)
+      ? CommandAddPartitionToTxn.fromPartial(object.addPartitionToTxn)
+      : undefined;
     message.addPartitionToTxnResponse =
-      object.addPartitionToTxnResponse !== undefined &&
-      object.addPartitionToTxnResponse !== null
-        ? CommandAddPartitionToTxnResponse.fromPartial(
-            object.addPartitionToTxnResponse
-          )
+      (object.addPartitionToTxnResponse !== undefined && object.addPartitionToTxnResponse !== null)
+        ? CommandAddPartitionToTxnResponse.fromPartial(object.addPartitionToTxnResponse)
         : undefined;
-    message.addSubscriptionToTxn =
-      object.addSubscriptionToTxn !== undefined &&
-      object.addSubscriptionToTxn !== null
-        ? CommandAddSubscriptionToTxn.fromPartial(object.addSubscriptionToTxn)
-        : undefined;
+    message.addSubscriptionToTxn = (object.addSubscriptionToTxn !== undefined && object.addSubscriptionToTxn !== null)
+      ? CommandAddSubscriptionToTxn.fromPartial(object.addSubscriptionToTxn)
+      : undefined;
     message.addSubscriptionToTxnResponse =
-      object.addSubscriptionToTxnResponse !== undefined &&
-      object.addSubscriptionToTxnResponse !== null
-        ? CommandAddSubscriptionToTxnResponse.fromPartial(
-            object.addSubscriptionToTxnResponse
-          )
+      (object.addSubscriptionToTxnResponse !== undefined && object.addSubscriptionToTxnResponse !== null)
+        ? CommandAddSubscriptionToTxnResponse.fromPartial(object.addSubscriptionToTxnResponse)
         : undefined;
-    message.endTxn =
-      object.endTxn !== undefined && object.endTxn !== null
-        ? CommandEndTxn.fromPartial(object.endTxn)
-        : undefined;
-    message.endTxnResponse =
-      object.endTxnResponse !== undefined && object.endTxnResponse !== null
-        ? CommandEndTxnResponse.fromPartial(object.endTxnResponse)
-        : undefined;
-    message.endTxnOnPartition =
-      object.endTxnOnPartition !== undefined &&
-      object.endTxnOnPartition !== null
-        ? CommandEndTxnOnPartition.fromPartial(object.endTxnOnPartition)
-        : undefined;
+    message.endTxn = (object.endTxn !== undefined && object.endTxn !== null)
+      ? CommandEndTxn.fromPartial(object.endTxn)
+      : undefined;
+    message.endTxnResponse = (object.endTxnResponse !== undefined && object.endTxnResponse !== null)
+      ? CommandEndTxnResponse.fromPartial(object.endTxnResponse)
+      : undefined;
+    message.endTxnOnPartition = (object.endTxnOnPartition !== undefined && object.endTxnOnPartition !== null)
+      ? CommandEndTxnOnPartition.fromPartial(object.endTxnOnPartition)
+      : undefined;
     message.endTxnOnPartitionResponse =
-      object.endTxnOnPartitionResponse !== undefined &&
-      object.endTxnOnPartitionResponse !== null
-        ? CommandEndTxnOnPartitionResponse.fromPartial(
-            object.endTxnOnPartitionResponse
-          )
+      (object.endTxnOnPartitionResponse !== undefined && object.endTxnOnPartitionResponse !== null)
+        ? CommandEndTxnOnPartitionResponse.fromPartial(object.endTxnOnPartitionResponse)
         : undefined;
-    message.endTxnOnSubscription =
-      object.endTxnOnSubscription !== undefined &&
-      object.endTxnOnSubscription !== null
-        ? CommandEndTxnOnSubscription.fromPartial(object.endTxnOnSubscription)
-        : undefined;
+    message.endTxnOnSubscription = (object.endTxnOnSubscription !== undefined && object.endTxnOnSubscription !== null)
+      ? CommandEndTxnOnSubscription.fromPartial(object.endTxnOnSubscription)
+      : undefined;
     message.endTxnOnSubscriptionResponse =
-      object.endTxnOnSubscriptionResponse !== undefined &&
-      object.endTxnOnSubscriptionResponse !== null
-        ? CommandEndTxnOnSubscriptionResponse.fromPartial(
-            object.endTxnOnSubscriptionResponse
-          )
+      (object.endTxnOnSubscriptionResponse !== undefined && object.endTxnOnSubscriptionResponse !== null)
+        ? CommandEndTxnOnSubscriptionResponse.fromPartial(object.endTxnOnSubscriptionResponse)
         : undefined;
     message.tcClientConnectRequest =
-      object.tcClientConnectRequest !== undefined &&
-      object.tcClientConnectRequest !== null
-        ? CommandTcClientConnectRequest.fromPartial(
-            object.tcClientConnectRequest
-          )
+      (object.tcClientConnectRequest !== undefined && object.tcClientConnectRequest !== null)
+        ? CommandTcClientConnectRequest.fromPartial(object.tcClientConnectRequest)
         : undefined;
     message.tcClientConnectResponse =
-      object.tcClientConnectResponse !== undefined &&
-      object.tcClientConnectResponse !== null
-        ? CommandTcClientConnectResponse.fromPartial(
-            object.tcClientConnectResponse
-          )
+      (object.tcClientConnectResponse !== undefined && object.tcClientConnectResponse !== null)
+        ? CommandTcClientConnectResponse.fromPartial(object.tcClientConnectResponse)
         : undefined;
-    message.watchTopicList =
-      object.watchTopicList !== undefined && object.watchTopicList !== null
-        ? CommandWatchTopicList.fromPartial(object.watchTopicList)
-        : undefined;
+    message.watchTopicList = (object.watchTopicList !== undefined && object.watchTopicList !== null)
+      ? CommandWatchTopicList.fromPartial(object.watchTopicList)
+      : undefined;
     message.watchTopicListSuccess =
-      object.watchTopicListSuccess !== undefined &&
-      object.watchTopicListSuccess !== null
+      (object.watchTopicListSuccess !== undefined && object.watchTopicListSuccess !== null)
         ? CommandWatchTopicListSuccess.fromPartial(object.watchTopicListSuccess)
         : undefined;
-    message.watchTopicUpdate =
-      object.watchTopicUpdate !== undefined && object.watchTopicUpdate !== null
-        ? CommandWatchTopicUpdate.fromPartial(object.watchTopicUpdate)
-        : undefined;
-    message.watchTopicListClose =
-      object.watchTopicListClose !== undefined &&
-      object.watchTopicListClose !== null
-        ? CommandWatchTopicListClose.fromPartial(object.watchTopicListClose)
-        : undefined;
+    message.watchTopicUpdate = (object.watchTopicUpdate !== undefined && object.watchTopicUpdate !== null)
+      ? CommandWatchTopicUpdate.fromPartial(object.watchTopicUpdate)
+      : undefined;
+    message.watchTopicListClose = (object.watchTopicListClose !== undefined && object.watchTopicListClose !== null)
+      ? CommandWatchTopicListClose.fromPartial(object.watchTopicListClose)
+      : undefined;
     return message;
   },
 };
 
-declare var self: any | undefined;
-declare var window: any | undefined;
-declare var global: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
+declare const self: any | undefined;
+declare const window: any | undefined;
+declare const global: any | undefined;
+const tsProtoGlobalThis: any = (() => {
+  if (typeof globalThis !== "undefined") {
+    return globalThis;
+  }
+  if (typeof self !== "undefined") {
+    return self;
+  }
+  if (typeof window !== "undefined") {
+    return window;
+  }
+  if (typeof global !== "undefined") {
+    return global;
+  }
   throw "Unable to locate global object";
 })();
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, "base64").toString("binary"));
 function bytesFromBase64(b64: string): Uint8Array {
-  const bin = atob(b64);
-  const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; ++i) {
-    arr[i] = bin.charCodeAt(i);
+  if (tsProtoGlobalThis.Buffer) {
+    return Uint8Array.from(tsProtoGlobalThis.Buffer.from(b64, "base64"));
+  } else {
+    const bin = tsProtoGlobalThis.atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; ++i) {
+      arr[i] = bin.charCodeAt(i);
+    }
+    return arr;
   }
-  return arr;
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
 function base64FromBytes(arr: Uint8Array): string {
-  const bin: string[] = [];
-  arr.forEach((byte) => {
-    bin.push(String.fromCharCode(byte));
-  });
-  return btoa(bin.join(""));
+  if (tsProtoGlobalThis.Buffer) {
+    return tsProtoGlobalThis.Buffer.from(arr).toString("base64");
+  } else {
+    const bin: string[] = [];
+    arr.forEach((byte) => {
+      bin.push(String.fromCharCode(byte));
+    });
+    return tsProtoGlobalThis.btoa(bin.join(""));
+  }
 }
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends Long
-  ? string | number | Long
-  : T extends Array<infer U>
-  ? Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U>
-  ? ReadonlyArray<DeepPartial<U>>
-  : T extends {}
-  ? { [K in keyof T]?: DeepPartial<T[K]> }
+export type DeepPartial<T> = T extends Builtin ? T
+  : T extends Long ? string | number | Long : T extends Array<infer U> ? Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
-        Exclude<keyof I, KeysOfUnion<P>>,
-        never
-      >;
+export type Exact<P, I extends P> = P extends Builtin ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

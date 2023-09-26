@@ -5,6 +5,10 @@ import { ConnectionPool } from '../../src/connection'
 
 describe('e2e connect tests', () => {
   const sn2Oauth2KeyFile = JSON.parse(readFileSync(configs.snOauth2KeyFile).toString())
+  const cp = new ConnectionPool({
+    url: configs.brokerUrl,
+    auth: new OAuth(convertFromSNOauth2KeyFile(configs.audience, sn2Oauth2KeyFile))
+  })
 
   describe('oauth', () => {
     it('can get token', async () => {
@@ -17,11 +21,6 @@ describe('e2e connect tests', () => {
   })
 
   it('can establish a connection', async () => {
-    const cp = new ConnectionPool({
-      url: configs.brokerUrl,
-      auth: new OAuth(convertFromSNOauth2KeyFile(configs.audience, sn2Oauth2KeyFile))
-    })
-
     const cnx = cp.getConnection(new URL(configs.brokerUrl))
     await cnx.ensureReady()
   })
