@@ -6,6 +6,8 @@ import { PartitionedProducer } from './partitionedProducer'
 import { BaseCommand, BaseCommand_Type, CommandPartitionedTopicMetadataResponse } from '../proto/PulsarApi'
 import { ProducerMessage } from './ProducerMessage'
 
+const encoder = new TextEncoder()
+
 export class Producer {
   public readonly cnxPool: ConnectionPool
   readonly options: ProducerOption
@@ -72,8 +74,10 @@ export class Producer {
     return this.partitionedProducers[partitionIndex]
   }
 
-  async send (msg: ProducerMessage | ArrayBuffer): Promise<CommandTypesResponses> {
-    if (msg instanceof ArrayBuffer) {
+  async send (msg: ProducerMessage | ArrayBuffer | String): Promise<CommandTypesResponses> {
+    if (msg instanceof String) {
+      msg = { payload: encoder.encode(msg as string).buffer }
+    } else if (msg instanceof ArrayBuffer) {
       msg = { payload: msg }
     }
 

@@ -42,11 +42,11 @@ export class _ConnectionOptions {
     this.uuid = v4()
   }
 
-  getWrappedLogger (name: string, logicalAddress: URL): WrappedLogger {
+  getWrappedLogger (name: string, logicalAddress?: URL): WrappedLogger {
     return new WrappedLogger({
       name,
       uuid: this.uuid,
-      host: logicalAddress.host
+      host: logicalAddress === undefined ? this.urlObj.host : logicalAddress.host
     })
   }
 }

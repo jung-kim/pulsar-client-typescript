@@ -13,7 +13,6 @@ describe('e2e connect tests', () => {
   describe('oauth', () => {
     it('can get token', async () => {
       const oauthOption = convertFromSNOauth2KeyFile(configs.audience, sn2Oauth2KeyFile)
-
       const auth = new OAuth(oauthOption)
 
       await auth.getToken()
@@ -23,5 +22,15 @@ describe('e2e connect tests', () => {
   it('can establish a connection', async () => {
     const cnx = client.getConnection()
     await cnx.ensureReady()
+  })
+
+  describe('none-partitioned noe-persistent', () => {
+    it('producer', async () => {
+      const producer = client.createProducer({
+        topic: 'non-persistent://public/default/npers-0-0'
+      })
+
+      await producer.send('yellow')
+    })
   })
 })

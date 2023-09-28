@@ -4,7 +4,7 @@ export interface ProducerMessage {
   payload: ArrayBuffer
 
   // // Value and payload is mutually exclusive, `Value interface{}` for schema message.
-  value?: any
+  // value?: any
 
   // Key sets the key of the message for routing policy
   key?: string
