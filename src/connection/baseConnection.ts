@@ -2,7 +2,7 @@ import { Message, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION, CommandTypesResponses
 import { BaseCommand, BaseCommand_Type, CommandCloseConsumer } from '../proto/PulsarApi'
 import { WrappedLogger } from '../util/logger'
 import { RequestTracker } from '../util/requestTracker'
-import { _ConnectionOptions } from './ConnectionOptions'
+import { _ConnectionOptions } from './connectionOptions'
 import { ConsumerListeners } from './consumerListeners'
 import { ProducerListeners } from './producerListeners'
 import { PulsarSocket } from './pulsarSocket/pulsarSocket'

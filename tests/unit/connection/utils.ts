@@ -1,7 +1,7 @@
 import { Signal } from 'micro-signals'
 import sinon from 'sinon'
 import { CommandTypesResponses, Connection, EventSignalType, Message } from '../../../src/connection'
-import { _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
+import { _ConnectionOptions } from '../../../src/connection/connectionOptions'
 import { ConsumerListeners } from '../../../src/connection/consumerListeners'
 import { ProducerListeners } from '../../../src/connection/producerListeners'
 import { PulsarSocket } from '../../../src/connection/pulsarSocket/pulsarSocket'

@@ -1,17 +1,17 @@
 import { EventSignalType, Message, STATE } from '..'
 import { ReadableSignal, Signal } from 'micro-signals'
 import { WrappedLogger } from '../../util/logger'
-import { _ConnectionOptions } from '../ConnectionOptions'
-import { getDeferred } from '../../util/deferred'
+import { _ConnectionOptions } from '../connectionOptions'
 import { BaseCommand } from '../../../src/proto/PulsarApi'
 import { commandToPayload } from './utils'
+import type { Defered } from '../../util/deferred'
 
 /**
  * handles state and state's transitions for the pulsar socket
  */
 export abstract class AbstractPulsarSocket {
   private state: STATE = 'INITIALIZING'
-  private readonly initializeDeferrred = getDeferred<undefined>()
+  protected initializeDeferrred: Defered<void> | undefined = undefined
   private readonly id: string
   protected readonly wrappedLogger: WrappedLogger
 
@@ -22,38 +22,25 @@ export abstract class AbstractPulsarSocket {
   public readonly options: _ConnectionOptions
   public readonly logicalAddress: URL
 
-  constructor (name: string, options: _ConnectionOptions, logicalAddress: URL) {
+  constructor (options: _ConnectionOptions, logicalAddress: URL) {
     this._eventSignal = options._eventSignal
     this.eventSignal = this._eventSignal.readOnly()
     this._dataSignal = options._dataSignal
     this.dataSignal = this._dataSignal.readOnly()
     this.options = options
     this.logicalAddress = logicalAddress
-    this.wrappedLogger = options.getWrappedLogger(name, logicalAddress)
+    this.wrappedLogger = options.getWrappedLogger('pulasr-socket', logicalAddress)
     this.id = `${options.connectionId}-${logicalAddress.host}`
-
-    this.eventSignal.add(payload => {
-      switch (payload.event) {
-        case 'close':
-          this.onClose()
-          break
-        case 'handshake_success':
-          this.onReady()
-          break
-      }
-    })
   }
 
-  private onClose (): void {
-    this.initializeDeferrred.resolve(undefined)
+  protected close (): void {
+    this.initializeDeferrred?.resolve(undefined)
     this.state = 'CLOSED'
-    this.wrappedLogger.info('closed abstract pulsar socket')
   }
 
-  private onReady (): void {
-    this.initializeDeferrred.resolve(undefined)
+  protected setReady (): void {
+    this.initializeDeferrred?.resolve(undefined)
     this.state = 'READY'
-    this._eventSignal.dispatch({ event: 'ready' })
   }
 
   public abstract send (buffer: Uint8Array | Buffer): Promise<void>
@@ -75,9 +62,5 @@ export abstract class AbstractPulsarSocket {
 
   public getState (): STATE {
     return this.state
-  }
-
-  public close (): void {
-    this._eventSignal.dispatch({ event: 'close' })
   }
 }

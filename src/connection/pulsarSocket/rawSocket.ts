@@ -3,8 +3,9 @@ import { createConnection, Socket } from 'net'
 import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
 import { Reader } from 'protobufjs'
 import { connect, TLSSocket } from 'tls'
-import { _ConnectionOptions } from '../ConnectionOptions'
+import { _ConnectionOptions } from '../connectionOptions'
 import { AbstractPulsarSocket } from './abstractPulsarSocket'
+import { getDeferred } from '../../util/deferred'
 
 /**
  * Has raw TCP socket conenction and raw functions for raw sockets
@@ -14,20 +15,16 @@ export class RawSocket extends AbstractPulsarSocket {
   private lastDataReceived: number = 0
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    super('aaa', options, logicalAddress)
+    super(options, logicalAddress)
     this.wrappedLogger.info('base socket created')
-
-    this.options._eventSignal.add((payload) => {
-      switch (payload.event) {
-        case 'connect':
-          this.initialize()
-          break
-      }
-    })
   }
 
-  protected initialize = (): void => {
-    this.close()
+  protected initializeRawSocket = async (): Promise<void> => {
+    if (this.initializeDeferrred !== undefined) {
+      return await this.ensureReady()
+    }
+
+    this.initializeDeferrred = getDeferred()
 
     this.socket = this.options.isTlsEnabled
       ? connect({
@@ -41,6 +38,7 @@ export class RawSocket extends AbstractPulsarSocket {
         port: parseInt(this.logicalAddress.port),
         timeout: this.options.connectionTimeoutMs
       })
+    this.socket.setKeepAlive(true, 100000)
 
     const timeout = setTimeout(() => {
       this.options._eventSignal.dispatch({ event: 'close' })
@@ -82,15 +80,16 @@ export class RawSocket extends AbstractPulsarSocket {
       clearTimeout(timeout)
       this.options._eventSignal.dispatch({ event: 'handshake_start' })
     })
+    return await this.ensureReady()
   }
 
   /**
    * closes the connection.
    */
   public close (): void {
+    super.close()
     this.socket?.destroy()
     this.socket = undefined
-    this.wrappedLogger.info('closed raw socket')
   }
 
   public async send (buffer: Uint8Array | Buffer): Promise<void> {

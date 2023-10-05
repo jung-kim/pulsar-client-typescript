@@ -1,34 +1,25 @@
 import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
-import { _ConnectionOptions } from '../ConnectionOptions'
-import { RawSocket } from './rawSocket'
+import { _ConnectionOptions } from '../connectionOptions'
 import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from '..'
 import { commandToPayload } from './utils'
+import { KeepAliveSocket } from './keepAliveSocket'
 
 /**
  * contains pulsar specifc socket logic
  */
-export class PulsarSocket extends RawSocket {
+export class PulsarSocket extends KeepAliveSocket {
   private interval: ReturnType<typeof setInterval> | undefined = undefined
-  private readonly rawSocket: RawSocket
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     super(options, logicalAddress)
-    this.rawSocket = new RawSocket(options, logicalAddress)
 
-    this.eventSignal.add(payload => {
+    this._eventSignal.add(payload => {
       switch (payload.event) {
         case 'close':
-          this.closePulsarSocket()
-          this.rawSocket.close()
+          this.close()
           break
         case 'handshake_start':
           void this.sendHandshake()
-          break
-        case 'ping':
-          this.handlePing()
-          break
-        case 'pong':
-          this.handlePong()
           break
         case 'handshake_response':
           this.receiveHandshake(payload.command)
@@ -36,10 +27,11 @@ export class PulsarSocket extends RawSocket {
       }
     })
 
-    this._eventSignal.dispatch({ event: 'connect' })
+    void this.initializeRawSocket()
   }
 
-  private closePulsarSocket (): void {
+  public close (): void {
+    super.close()
     clearInterval(this.interval)
     this.interval = undefined
     this.wrappedLogger.info('closed pulsar socket')
@@ -64,7 +56,7 @@ export class PulsarSocket extends RawSocket {
           proxyToBrokerUrl: this.logicalAddress.href === this.options.urlObj.href ? undefined : this.logicalAddress.host
         }
       })
-      await this.rawSocket.send(commandToPayload(handshake))
+      await super.send(commandToPayload(handshake))
     } catch (e) {
       this.wrappedLogger.error('failed to send handshake', e)
       this._eventSignal.dispatch({ event: 'close', err: e })
@@ -101,47 +93,11 @@ export class PulsarSocket extends RawSocket {
 
     this.interval = setInterval((this.handleInterval.bind(this)), this.options.keepAliveIntervalMs)
     this.wrappedLogger.info('connected!!')
-    this._eventSignal.dispatch({ event: 'handshake_success' })
+    this.setReady()
   }
 
   public async send (buffer: Uint8Array | Buffer): Promise<void> {
     await this.ensureReady()
-    return await this.rawSocket.send(buffer)
-  }
-
-  private handleInterval (): void {
-    this.sendPing()
-
-    if (this.rawSocket.getLastDataReceived() + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
-      // stale connection, closing
-      this.wrappedLogger.info('stale connection, closing')
-      this._eventSignal.dispatch({ event: 'close' })
-    }
-  }
-
-  private sendPing (): void {
-    if (this.getState() !== 'READY') {
-      return
-    }
-    this.wrappedLogger.debug('send ping')
-    this.writeCommand(
-      BaseCommand.fromJSON({
-        type: BaseCommand_Type.PING
-      })
-    ).catch((err) => this.wrappedLogger.error('send ping error', err))
-  }
-
-  protected handlePong (): void { }
-
-  protected handlePing (): void {
-    if (this.getState() !== 'READY') {
-      return
-    }
-    this.wrappedLogger.debug('handle ping')
-    this.writeCommand(
-      BaseCommand.fromJSON({
-        type: BaseCommand_Type.PONG
-      })
-    ).catch((err) => this.wrappedLogger.error('handle ping error', err))
+    return await super.send(buffer)
   }
 }

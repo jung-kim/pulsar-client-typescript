@@ -5,7 +5,7 @@ import {
   MessageMetadata,
   CommandSend
 } from '../proto/PulsarApi'
-import { _ConnectionOptions } from './ConnectionOptions'
+import { _ConnectionOptions } from './connectionOptions'
 import Long from 'long'
 import { Signal } from 'micro-signals'
 import { serializeBatch } from './Commands'
@@ -44,7 +44,7 @@ export class Connection extends BaseConnection {
    *  - when requestId is set, requestTracker must have requestTrack for the requestId
    * @returns promise for the command. Awaiting for the returned value will return the respons back from the server
    */
-  async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses | undefined> {
+  async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses> {
     let requestTrack: RequestTrack<CommandTypesResponses>
     let commandCount = 0
 

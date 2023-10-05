@@ -11,7 +11,7 @@ describe('e2e connect tests', () => {
   })
 
   describe('oauth', () => {
-    it('can get token', async () => {
+    it('should be able to get token', async () => {
       const oauthOption = convertFromSNOauth2KeyFile(configs.audience, sn2Oauth2KeyFile)
       const auth = new OAuth(oauthOption)
 
@@ -19,18 +19,14 @@ describe('e2e connect tests', () => {
     }).timeout(5000)
   })
 
-  it('can establish a connection', async () => {
+  it('should be able to establish a connection', async () => {
     const cnx = client.getConnection()
     await cnx.ensureReady()
   })
 
-  describe('none-partitioned noe-persistent', () => {
-    it('producer', async () => {
-      const producer = client.createProducer({
-        topic: 'non-persistent://public/default/npers-0-0'
-      })
-
-      await producer.send('yellow')
+  describe('lookups', () => {
+    it('should return lookup response', async () => {
+      await client.lookupService.lookup('non-persistent://public/default/npers-0-0')
     })
   })
 })

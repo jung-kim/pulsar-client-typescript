@@ -10,7 +10,7 @@ export class ConsumerListeners {
 
   constructor (uuid: string) {
     this.wrappedLogger = new WrappedLogger({ name: 'ConsumerListeners', uuid })
-    this.wrappedLogger.info('created a consumer listener')
+    this.wrappedLogger.debug('created a consumer listener')
   }
 
   handleCloseConsumer (message: Message): void {

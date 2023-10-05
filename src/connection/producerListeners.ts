@@ -13,7 +13,7 @@ export class ProducerListeners {
 
   constructor (uuid: string) {
     this.wrappedLogger = new WrappedLogger({ name: ProducerListeners, uuid })
-    this.wrappedLogger.debug('producer listeners created')
+    this.wrappedLogger.debug('created producer listeners')
   }
 
   public handleSendReceipt (message: Message): void {
