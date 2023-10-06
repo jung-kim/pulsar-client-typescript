@@ -1,9 +1,7 @@
-import { BaseCommand, BaseCommand_Type, CommandLookupTopicResponse } from '../proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type, CommandGetTopicsOfNamespaceResponse, CommandGetTopicsOfNamespace_Mode, CommandLookupTopicResponse, CommandPartitionedTopicMetadataResponse } from '../proto/PulsarApi'
 import { v4 } from 'uuid'
 import { WrappedLogger } from '../util/logger'
 import { Client } from './client'
-
-// type getTopicsOfNamespaceMode = 'PERSISTENT' | 'NON_PERSISTENT' | 'ALL'
 
 export class LookupService {
   readonly uuid: string
@@ -18,8 +16,7 @@ export class LookupService {
 
   public async lookup (topic: String): Promise<CommandLookupTopicResponse> {
     const conn = this.client.getConnection()
-
-    const lookupCommand = BaseCommand.fromJSON({
+    const command = BaseCommand.fromJSON({
       type: BaseCommand_Type.LOOKUP,
       lookupTopic: {
         topic,
@@ -27,12 +24,24 @@ export class LookupService {
         advertisedListenerName: ''
       }
     })
-    return await conn.sendCommand(lookupCommand) as CommandLookupTopicResponse
+    return await conn.sendCommand(command) as CommandLookupTopicResponse
   }
 
-  // public getPartitionedTopicMetadata (topic: string) {
-  // }
+  public async getPartitionedTopicMetadata (topic: string): Promise<CommandPartitionedTopicMetadataResponse> {
+    const conn = this.client.getConnection()
+    const command = BaseCommand.fromJSON({
+      type: BaseCommand_Type.PARTITIONED_METADATA,
+      partitionMetadata: { topic }
+    })
+    return await conn.sendCommand(command) as CommandPartitionedTopicMetadataResponse
+  }
 
-  // public getTopicsOfNamespace (namespace: string, mode: getTopicsOfNamespaceMode) {
-  // }
+  public async getTopicsOfNamespace (namespace: string, mode: CommandGetTopicsOfNamespace_Mode): Promise<CommandGetTopicsOfNamespaceResponse> {
+    const conn = this.client.getConnection()
+    const command = BaseCommand.fromJSON({
+      type: BaseCommand_Type.GET_TOPICS_OF_NAMESPACE,
+      getTopicsOfNamespace: { namespace, mode }
+    })
+    return await conn.sendCommand(command) as CommandGetTopicsOfNamespaceResponse
+  }
 }
