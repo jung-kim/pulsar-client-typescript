@@ -19,7 +19,7 @@ export class Connection extends BaseConnection {
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     super(options, logicalAddress)
-    this.wrappedLogger = options.getWrappedLogger('BaseConnection', logicalAddress)
+    this.wrappedLogger = options.getWrappedLogger('connection', logicalAddress)
   }
 
   close (): void {

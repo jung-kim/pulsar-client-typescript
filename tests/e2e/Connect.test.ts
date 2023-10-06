@@ -2,6 +2,8 @@ import { convertFromSNOauth2KeyFile, OAuth } from '../../src/auth/oauth'
 import { configs } from './configs'
 import { readFileSync } from 'fs'
 import { TestClient } from '../utils'
+import { expect } from 'chai'
+import { ServerError } from '../../src/proto/PulsarApi'
 
 describe('e2e connect tests', () => {
   const sn2Oauth2KeyFile = JSON.parse(readFileSync(configs.snOauth2KeyFile).toString())
@@ -16,7 +18,7 @@ describe('e2e connect tests', () => {
       const auth = new OAuth(oauthOption)
 
       await auth.getToken()
-    }).timeout(5000)
+    })
   })
 
   it('should be able to establish a connection', async () => {
@@ -26,7 +28,9 @@ describe('e2e connect tests', () => {
 
   describe('lookups', () => {
     it('should return lookup response', async () => {
-      await client.lookupService.lookup('non-persistent://public/default/npers-0-0')
+      const lookupResp = await client.lookupService.lookup('non-persistent://public/default/np-0')
+      expect(lookupResp.error).eq(ServerError.UnknownError)
+      expect(lookupResp.brokerServiceUrl === '' ? lookupResp.brokerServiceUrlTls : lookupResp.brokerServiceUrl).not.eq('')
     })
   })
 })

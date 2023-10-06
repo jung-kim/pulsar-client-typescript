@@ -16,9 +16,8 @@ export class RequestTracker<T> {
   protected readonly requestTrackMap: Map<string, RequestTrack<T>> = new Map()
 
   private getRequestId (): Long {
-    const id = this.currentRequestId
     this.currentRequestId = this.currentRequestId.add(1)
-    return id
+    return this.currentRequestId
   }
 
   trackRequest (timeoutMs?: number): RequestTrack<T> {

@@ -3,7 +3,7 @@ import { Connection, ConnectionPool } from '../connection'
 import { ClientOptions, _ClientOptions } from './clientOptions'
 import { WrappedLogger } from '../util/logger'
 import { v4 } from 'uuid'
-import { LookupService } from './lookUpService'
+import { LookupService } from './lookupService'
 
 export class Client {
   private readonly cp: ConnectionPool

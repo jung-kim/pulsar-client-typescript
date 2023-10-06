@@ -1,4 +1,4 @@
-import { _ConnectionOptions } from '../connection/ConnectionOptions'
+import { _ConnectionOptions } from '../connection/connectionOptions'
 import { ConnectionOptions } from '../connection'
 
 const defaultOperationTimeoutMs = 30 * 1000
