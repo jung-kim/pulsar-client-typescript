@@ -26,11 +26,30 @@ describe('e2e connect tests', () => {
     await cnx.ensureReady()
   })
 
-  describe('lookups', () => {
+  describe('lookupService', () => {
     it('should return lookup response', async () => {
       const lookupResp = await client.lookupService.lookup('non-persistent://public/default/np-0')
       expect(lookupResp.error).eq(ServerError.UnknownError)
       expect(lookupResp.brokerServiceUrl === '' ? lookupResp.brokerServiceUrlTls : lookupResp.brokerServiceUrl).not.eq('')
+    })
+
+    describe('getPartitionedTopicMetadata', () => {
+      it('should return for none persistent none partitioned topic', async () => {
+        const topicMetdataResp = await client.lookupService.getPartitionedTopicMetadata('non-persistent://public/default/np0')
+        expect(topicMetdataResp.partitions).eq(0)
+      })
+      it('should return for persistent none partitioned topic', async () => {
+        const topicMetdataResp = await client.lookupService.getPartitionedTopicMetadata('persistent://public/default/p3')
+        expect(topicMetdataResp.partitions).eq(3)
+      })
+      it('should return for none persistent partitioned topic', async () => {
+        const topicMetdataResp = await client.lookupService.getPartitionedTopicMetadata('non-persistent://public/default/np5')
+        expect(topicMetdataResp.partitions).eq(5)
+      })
+      it('should return for persistent partitioned topic', async () => {
+        const topicMetdataResp = await client.lookupService.getPartitionedTopicMetadata('persistent://public/default/p0')
+        expect(topicMetdataResp.partitions).eq(0)
+      })
     })
   })
 })
