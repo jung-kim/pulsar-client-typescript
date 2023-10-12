@@ -5,6 +5,7 @@ import { ConnectionOptions, _ConnectionOptions } from './connectionOptions'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 import { CommandTypesResponses, LOOKUP_RESULT_MAX_REDIRECT } from '.'
+import { LookupService } from './lookupService'
 
 export class ConnectionPool {
   // These connections are not used for topic message traffics.  Rather
@@ -13,6 +14,7 @@ export class ConnectionPool {
   private readonly options: _ConnectionOptions
   private readonly wrappedLogger: WrappedLogger
   private producerId = new Long(0, undefined, true)
+  public readonly lookupService: LookupService
 
   constructor (options: ConnectionOptions) {
     this.options = new _ConnectionOptions(options)
@@ -21,6 +23,7 @@ export class ConnectionPool {
       uuid: this.options.uuid,
       id: `${this.options.connectionId}`
     })
+    this.lookupService = new LookupService(this)
   }
 
   clear (): void {
@@ -54,7 +57,7 @@ export class ConnectionPool {
     return cnx
   }
 
-  async lookup (topic: string, listenerName: string = this.options.listenerName): Promise<URL> {
+  async lookupTopic (topic: string, listenerName: string = this.options.listenerName): Promise<URL> {
     this.wrappedLogger.debug('looking up', { topic, listenerName })
     const lookupCommand = BaseCommand.fromJSON({
       type: BaseCommand_Type.LOOKUP,
@@ -128,7 +131,7 @@ export class ConnectionPool {
     //   p.log.Debug("The partition consumer schema is nil")
     // }
 
-    const logicalAddr = await this.lookup(topicName)
+    const logicalAddr = await this.lookupTopic(topicName)
     const cnx = this.getConnection(logicalAddr)
 
     const cmdProducer = BaseCommand.fromJSON({

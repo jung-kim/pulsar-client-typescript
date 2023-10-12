@@ -151,7 +151,7 @@ export interface ProducerOption {
 }
 
 export const _initializeOption = (option: Partial<ProducerOption>): ProducerOption => {
-  if (option.topic === undefined) {
+  if (option.topic === undefined || option.topic === '') {
     throw new Error('Topic name is required for producer')
   }
 

@@ -1,7 +1,7 @@
 import { Producer } from './Producer'
 import { ProducerMessage } from './ProducerMessage'
 import { WrappedLogger } from '../util/logger'
-import { Connection, ConnectionPool, CommandTypesResponses } from '../connection'
+import { Connection, CommandTypesResponses } from '../connection'
 import { SendRequest } from './sendRequest'
 import { CommandCloseProducer, CommandSendReceipt } from '../proto/PulsarApi'
 import { Signal } from 'micro-signals'
@@ -14,7 +14,6 @@ export class PartitionedProducer {
   readonly partitionId: number
   readonly topicName: string
   readonly producerId: Long
-  private readonly cnxPool: ConnectionPool
   private cnx: Connection | undefined
   private readonly wrappedLogger: WrappedLogger
   private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
@@ -31,9 +30,8 @@ export class PartitionedProducer {
   constructor (producer: Producer, partitionId: number) {
     this.parent = producer
     this.partitionId = partitionId
-    this.cnxPool = producer.cnxPool
     this.topicName = `${this.parent.options.topic}-partition-${this.partitionId}`
-    this.producerId = this.cnxPool.getProducerId()
+    this.producerId = producer.cnxPool.getProducerId()
     this.wrappedLogger = new WrappedLogger({
       producerName: this.parent.options.name,
       producerId: this.producerId,
@@ -94,7 +92,7 @@ export class PartitionedProducer {
   }
 
   async grabCnx (): Promise<void> {
-    const { cnx } = await this.cnxPool.getProducerConnection(
+    const { cnx } = await this.parent.cnxPool.getProducerConnection(
       this.producerId,
       this.topicName,
       this.producerSignal,

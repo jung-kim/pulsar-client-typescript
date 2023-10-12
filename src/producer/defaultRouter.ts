@@ -7,6 +7,7 @@ export const newDefaultRouter = (
   maxBatchingDelayMs: number,
   disableBatching: boolean
 ): ((message: ProducerMessage, numPartitions: number) => number) => {
+  console.log(888131, maxBatchingMessages, maxBatchingSize, maxBatchingDelayMs, disableBatching)
   let currentPartitionCursor: number = 0
 
   const readClockAfterNumMessages = maxBatchingMessages / 10
@@ -28,6 +29,7 @@ export const newDefaultRouter = (
   let cumulativeBatchSize: number = 0
 
   return (message: ProducerMessage, numPartitions: number): number => {
+    console.log(882342, numPartitions)
     if (numPartitions === 1) {
       // When there are no partitions, don't even bother
       return 0

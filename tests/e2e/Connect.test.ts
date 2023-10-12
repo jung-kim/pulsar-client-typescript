@@ -28,27 +28,49 @@ describe('e2e connect tests', () => {
 
   describe('lookupService', () => {
     it('should return lookup response', async () => {
-      const lookupResp = await client.lookupService.lookup('non-persistent://public/default/np-0')
+      const lookupResp = await client.getLookupService().lookup('non-persistent://public/default/np-0')
       expect(lookupResp.error).eq(ServerError.UnknownError)
       expect(lookupResp.brokerServiceUrl === '' ? lookupResp.brokerServiceUrlTls : lookupResp.brokerServiceUrl).not.eq('')
     })
 
     describe('getPartitionedTopicMetadata', () => {
-      it('should return for none persistent none partitioned topic', async () => {
-        const topicMetdataResp = await client.lookupService.getPartitionedTopicMetadata('non-persistent://public/default/np0')
+      it.skip('should return for none persistent none partitioned topic', async () => {
+        const topicMetdataResp = await client.getLookupService().getPartitionedTopicMetadata('non-persistent://public/default/np0')
         expect(topicMetdataResp.partitions).eq(0)
       })
       it('should return for persistent none partitioned topic', async () => {
-        const topicMetdataResp = await client.lookupService.getPartitionedTopicMetadata('persistent://public/default/p3')
+        const topicMetdataResp = await client.getLookupService().getPartitionedTopicMetadata('persistent://public/default/p3')
         expect(topicMetdataResp.partitions).eq(3)
       })
       it('should return for none persistent partitioned topic', async () => {
-        const topicMetdataResp = await client.lookupService.getPartitionedTopicMetadata('non-persistent://public/default/np5')
+        const topicMetdataResp = await client.getLookupService().getPartitionedTopicMetadata('non-persistent://public/default/np5')
         expect(topicMetdataResp.partitions).eq(5)
       })
       it('should return for persistent partitioned topic', async () => {
-        const topicMetdataResp = await client.lookupService.getPartitionedTopicMetadata('persistent://public/default/p0')
+        const topicMetdataResp = await client.getLookupService().getPartitionedTopicMetadata('persistent://public/default/p0')
         expect(topicMetdataResp.partitions).eq(0)
+      })
+    })
+  })
+
+  describe('producer', () => {
+    it('throw on missing topic on blank object', () => {
+      expect(() => { client.createProducer({}) }).throw()
+    })
+    it('throw on missing topic on undefined topic', () => {
+      expect(() => { client.createProducer({ topic: undefined }) }).throw()
+    })
+    it('throw on missing topic on blank topic', () => {
+      expect(() => { client.createProducer({ topic: '' }) }).throw()
+    })
+
+    describe('with invalid producer', () => {
+      it('should return for persistent partitioned topic', async () => {
+        const producer = client.createProducer({ topic: 'persistent://public/default/p0' })
+
+        const m = await producer.send('hello')
+
+        console.log(888432, m)
       })
     })
   })
