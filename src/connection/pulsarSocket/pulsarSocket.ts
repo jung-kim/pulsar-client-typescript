@@ -42,6 +42,7 @@ export class PulsarSocket extends KeepAliveSocket {
       return
     }
     try {
+      this.wrappedLogger.info('handshake initiated')
       const authData = await this.options.auth.getToken()
       const handshake = BaseCommand.fromJSON({
         type: BaseCommand_Type.CONNECT,
@@ -64,6 +65,7 @@ export class PulsarSocket extends KeepAliveSocket {
   }
 
   protected receiveHandshake (baseCommand: BaseCommand): void {
+    this.wrappedLogger.info(`received handshake response ${this.getState()}`)
     if (this.getState() !== 'INITIALIZING') {
       this.wrappedLogger.warn(
         'received handshake response out side of initializing state',

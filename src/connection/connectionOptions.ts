@@ -25,8 +25,6 @@ export class _ConnectionOptions {
   readonly connectionId: string
   readonly isTlsEnabled: boolean
   readonly uuid: string
-  readonly _eventSignal = new Signal<EventSignalType>()
-  readonly _dataSignal = new Signal<Message>()
 
   constructor (options: ConnectionOptions) {
     const urlObj = new URL(options.url)
@@ -48,5 +46,13 @@ export class _ConnectionOptions {
       uuid: this.uuid,
       host: logicalAddress === undefined ? this.urlObj.host : logicalAddress.host
     })
+  }
+
+  getNewEventSignal (): Signal<EventSignalType> {
+    return new Signal<EventSignalType>()
+  }
+
+  getNewDataSignal (): Signal<Message> {
+    return new Signal<Message>()
   }
 }

@@ -1,4 +1,4 @@
-import { Connection } from '../../../src/connection/Connection'
+import { Connection } from '../../../src/connection/connection'
 import { expect } from 'chai'
 import { CommandTypesResponses, Message } from '../../../src/connection'
 import { Signal } from 'micro-signals'
@@ -256,11 +256,11 @@ describe('connection.Connection', () => {
       const closeConsumerCommand = BaseCommand.fromJSON({
         type: BaseCommand_Type.CLOSE_CONSUMER,
         closeConsumer: CommandCloseConsumer.fromJSON({
-          consumerId: Long.UZERO
+          consumerId: Long.UONE
         })
       })
 
-      const requestId = Long.UZERO
+      const requestId = Long.UONE
       const writeCommandStub = sinon.stub(ps, 'writeCommand')
 
       const closeConsumerCommandResultProm = conn.sendCommand(closeConsumerCommand)
@@ -298,7 +298,6 @@ describe('connection.Connection', () => {
       const closeConsumerCommandResultProm = conn.sendCommand(closeConsumerCommand)
       const interval = setInterval(() => {
         if (rt.get(requestId) === undefined) {
-          console.log(7177723)
           return
         }
         expect(rt.get(requestId)).to.be.an('object')

@@ -41,14 +41,8 @@ export class ConnectionPool {
   getConnection (logicalAddress: URL): Connection {
     let cnx = this.connections.get(logicalAddress.href)
     if (cnx !== undefined) {
-      if (cnx.isReady()) {
-        this.wrappedLogger.debug('connection is found in cache', { logicalAddress })
-        return cnx
-      }
-
-      // ensure it's closed
-      this.wrappedLogger.debug('connection is found but not ready', { logicalAddress })
-      cnx.close()
+      this.wrappedLogger.debug('connection is found in cache', { logicalAddress })
+      return cnx
     }
 
     cnx = new Connection(this.options, logicalAddress)

@@ -1,5 +1,5 @@
 import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE } from '../../../src/connection'
-import { _ConnectionOptions } from '../../../src/connection/ConnectionOptions'
+import { _ConnectionOptions } from '../../../src/connection/connectionOptions'
 import { expect } from 'chai'
 import ip from 'ip'
 import { OAuth } from '../../../src/auth/oauth'
@@ -14,8 +14,8 @@ describe('connection.ConnectionOptions', () => {
       expect(options.maxMessageSize).to.eq(DEFAULT_MAX_MESSAGE_SIZE)
       expect(options.isTlsEnabled).to.eq(true)
       expect(options.listenerName).to.eq('')
-      expect(options.url).to.eq('pulsar+ssl://a.b')
-      expect(options.connectionId).to.eq(`${ip.address()} -> ${options.url}`)
+      expect(options.urlObj.toString()).to.eq('pulsar+ssl://a.b')
+      expect(options.connectionId).to.eq(`${ip.address()} -> ${options.urlObj.toString()}`)
       expect(options.auth).to.be.an('object')
       expect(options.auth.name).to.eq('noauth')
     })
@@ -28,8 +28,8 @@ describe('connection.ConnectionOptions', () => {
       expect(options.maxMessageSize).to.eq(DEFAULT_MAX_MESSAGE_SIZE)
       expect(options.isTlsEnabled).to.eq(true)
       expect(options.listenerName).to.eq('')
-      expect(options.url).to.eq('https://a.b')
-      expect(options.connectionId).to.eq(`${ip.address()} -> ${options.url}`)
+      expect(options.urlObj.toString()).to.eq('https://a.b/')
+      expect(`${options.connectionId}/`).to.eq(`${ip.address()} -> ${options.urlObj.toString()}`)
       expect(options.auth).to.be.an('object')
       expect(options.auth.name).to.eq('noauth')
     })
@@ -53,8 +53,8 @@ describe('connection.ConnectionOptions', () => {
       expect(options.maxMessageSize).to.eq(3000)
       expect(options.isTlsEnabled).to.eq(false)
       expect(options.listenerName).to.eq('hello')
-      expect(options.url).to.eq('abc://a.b')
-      expect(options.connectionId).to.eq(`${ip.address()} -> ${options.url}`)
+      expect(options.urlObj.toString()).to.eq('abc://a.b')
+      expect(options.connectionId).to.eq(`${ip.address()} -> ${options.urlObj.toString()}`)
       expect(options.auth).to.be.an('object')
       expect(options.auth.name).to.eq('token')
     })

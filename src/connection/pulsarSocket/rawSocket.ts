@@ -41,20 +41,20 @@ export class RawSocket extends AbstractPulsarSocket {
     this.socket.setKeepAlive(true, 100000)
 
     const timeout = setTimeout(() => {
-      this.options._eventSignal.dispatch({ event: 'close' })
       this.wrappedLogger.error('raw socket connection timeout')
+      this._eventSignal.dispatch({ event: 'close' })
     }, this.options.connectionTimeoutMs)
 
     this.socket.on('close', () => {
       clearTimeout(timeout)
-      this.options._eventSignal.dispatch({ event: 'close' })
       this.wrappedLogger.info('raw socket close requested by server')
+      this._eventSignal.dispatch({ event: 'close' })
     })
 
     this.socket.on('error', (err: Error) => {
       clearTimeout(timeout)
-      this.options._eventSignal.dispatch({ event: 'close', err })
       this.wrappedLogger.info('raw socket error')
+      this._eventSignal.dispatch({ event: 'close', err })
     })
 
     this.socket.on('data', (data: Buffer) => {
@@ -62,23 +62,23 @@ export class RawSocket extends AbstractPulsarSocket {
 
       switch (message.baseCommand.type) {
         case BaseCommand_Type.PING:
-          this.options._eventSignal.dispatch({ event: 'ping' })
+          this._eventSignal.dispatch({ event: 'ping' })
           break
         case BaseCommand_Type.PONG:
-          this.options._eventSignal.dispatch({ event: 'pong' })
+          this._eventSignal.dispatch({ event: 'pong' })
           break
         case BaseCommand_Type.CONNECTED:
-          this.options._eventSignal.dispatch({ event: 'handshake_response', command: message.baseCommand })
+          this._eventSignal.dispatch({ event: 'handshake_response', command: message.baseCommand })
           break
         default:
-          this.options._dataSignal.dispatch(message)
+          this._dataSignal.dispatch(message)
           break
       }
     })
 
     this.socket.once('ready', () => {
       clearTimeout(timeout)
-      this.options._eventSignal.dispatch({ event: 'handshake_start' })
+      this._eventSignal.dispatch({ event: 'handshake_start' })
     })
     return await this.ensureReady()
   }

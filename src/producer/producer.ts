@@ -30,7 +30,6 @@ export class Producer {
   private readonly internalCreatePartitionsProducers = async (): Promise<void> => {
     const partitionResponse = await this.cnxPool.lookupService.getPartitionedTopicMetadata(this.options.topic)
     const partitionCount = partitionResponse.partitions
-    console.log(88824, partitionCount)
 
     if (this.partitionedProducers.length === partitionResponse.partitions) {
       this.wrappedLogger.debug('Number of partitions in topic has not changed', { partitionCount })
@@ -68,7 +67,6 @@ export class Producer {
     const partitionIndex = await this.getPartitionIndex(msg)
 
     if (this.partitionedProducers[partitionIndex] === undefined) {
-      console.log(8888131, partitionIndex)
       this.partitionedProducers[partitionIndex] = new PartitionedProducer(this, partitionIndex)
     }
 

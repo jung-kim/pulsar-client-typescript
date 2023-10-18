@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Typescript client for pulsar client",
   "scripts": {
-    "test:unit": "mocha -r ts-node/register  './tests/unit/**/*.test.ts'",
+    "test:unit": "mocha --exit -r ts-node/register  './tests/unit/**/*.test.ts'",
     "test": "export PULSAR_CLIENT_LOG_LEVEL=0; nyc --reporter=text npm run test:unit;",
     "test:e2e": "mocha --exit --timeout 5000 -r ts-node/register './tests/e2e/**/*.test.ts'",
     "lint": "eslint .  --ext .ts",

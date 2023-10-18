@@ -24,13 +24,13 @@ describe('util.requestTracker', () => {
       const rt = new TestRequestTracker()
 
       const first = rt.trackRequest()
-      expect(first.id).to.deep.eq(Long.UZERO)
-      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['0'])
+      expect(first.id).to.deep.eq(Long.UONE)
+      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['1'])
       expect(rt.getCurrentRequestId()).to.deep.eq(Long.UONE)
 
       const second = rt.trackRequest()
-      expect(second.id).to.deep.eq(Long.UONE)
-      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['0', '1'])
+      expect(second.id).to.deep.eq(Long.fromNumber(2, true))
+      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['1', '2'])
       expect(rt.getRequestTrackMap().get(Long.UONE.toString())?.id).to.deep.eq(Long.UONE)
       expect(rt.getCurrentRequestId()).to.deep.eq(Long.fromNumber(2, true))
     })
@@ -40,12 +40,12 @@ describe('util.requestTracker', () => {
       const clock = sinon.useFakeTimers()
 
       const first = rt.trackRequest(10000)
-      expect(first.id).to.deep.eq(Long.UZERO)
-      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['0'])
+      expect(first.id).to.deep.eq(Long.UONE)
+      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['1'])
       expect(rt.getCurrentRequestId()).to.deep.eq(Long.UONE)
 
       clock.tick(5000)
-      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['0'])
+      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['1'])
       expect(rt.getCurrentRequestId()).to.deep.eq(Long.UONE)
 
       clock.tick(6000)
@@ -64,8 +64,8 @@ describe('util.requestTracker', () => {
       expect(rt.getCurrentRequestId()).to.deep.eq(Long.MAX_UNSIGNED_VALUE)
 
       const max = rt.trackRequest()
-      expect(max.id).to.deep.eq(Long.MAX_UNSIGNED_VALUE)
-      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq([Long.MAX_UNSIGNED_VALUE.toString()])
+      expect(max.id).to.deep.eq(Long.UZERO)
+      expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['0'])
       expect(rt.getCurrentRequestId()).to.deep.eq(Long.UZERO)
     })
   })
@@ -76,7 +76,7 @@ describe('util.requestTracker', () => {
     const first = rt.trackRequest()
     const second = rt.trackRequest()
 
-    expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['0', '1'])
+    expect(Array.from(rt.getRequestTrackMap().keys())).to.deep.eq(['1', '2'])
 
     rt.clear()
 

@@ -23,9 +23,9 @@ export abstract class AbstractPulsarSocket {
   public readonly logicalAddress: URL
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    this._eventSignal = options._eventSignal
+    this._eventSignal = options.getNewEventSignal()
     this.eventSignal = this._eventSignal.readOnly()
-    this._dataSignal = options._dataSignal
+    this._dataSignal = options.getNewDataSignal()
     this.dataSignal = this._dataSignal.readOnly()
     this.options = options
     this.logicalAddress = logicalAddress

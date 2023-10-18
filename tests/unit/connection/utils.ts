@@ -22,13 +22,13 @@ export const getConnection = (): {
 } => {
   const options = new _ConnectionOptions({ url: 'pulsar://a.b:6651' })
   const logicalAddress = new URL('pulsar://a.b:6651')
+  const eventSignal = new Signal<EventSignalType>()
+  const dataSignal = new Signal<Message>()
+  sinon.stub(options, 'getNewEventSignal').returns(eventSignal)
+  sinon.stub(options, 'getNewDataSignal').returns(dataSignal)
   const conn = new TestConnection(options, logicalAddress)
 
-  return {
-    conn,
-    dataSignal: options._dataSignal,
-    eventSignal: options._eventSignal
-  }
+  return { conn, dataSignal, eventSignal }
 }
 
 export const getDefaultHandleResponseStubs = (conn: Connection): {
