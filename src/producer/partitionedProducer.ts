@@ -17,7 +17,7 @@ export class PartitionedProducer {
   private cnx: Connection | undefined
   private readonly wrappedLogger: WrappedLogger
   private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
-  private readonly epoch: number = 0
+  private readonly epoch: Long = Long.UZERO
   private deferred = getDeferred<CommandTypesResponses>()
 
   private readonly producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()

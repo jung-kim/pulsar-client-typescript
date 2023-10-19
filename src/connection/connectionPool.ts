@@ -13,7 +13,7 @@ export class ConnectionPool {
   private readonly connections: Map<string, Connection> = new Map()
   private readonly options: _ConnectionOptions
   private readonly wrappedLogger: WrappedLogger
-  private producerId = new Long(0, undefined, true)
+  private producerId = new Long(1, undefined, true)
   public readonly lookupService: LookupService
 
   constructor (options: ConnectionOptions) {
@@ -105,7 +105,7 @@ export class ConnectionPool {
     producerId: Long,
     topicName: string,
     producerSignal: Signal<CommandSendReceipt | CommandCloseProducer>,
-    epoch: number,
+    epoch: Long,
     metadata: KeyValue[]
   ): Promise<{ cnx: Connection, commandProducerResponse: CommandTypesResponses }> {
     // PartitionedProducer.grabCnx()
@@ -128,11 +128,13 @@ export class ConnectionPool {
     const logicalAddr = await this.lookupTopic(topicName)
     const cnx = this.getConnection(logicalAddr)
 
+    await cnx.ensureReady()
+
     const cmdProducer = BaseCommand.fromJSON({
       type: BaseCommand_Type.PRODUCER,
       producer: CommandProducer.fromJSON({
         topic: topicName,
-        encrypted: undefined,
+        encrypted: false,
         producerId,
         // schema: pbSchema,
         epoch,

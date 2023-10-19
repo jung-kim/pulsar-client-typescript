@@ -68,7 +68,7 @@ export class BatchBuilder {
   }
 
   isFull (): boolean {
-    if (this.sendRequestBuffer.length >= this.maxBatchCount) {
+    if (this.numMessages >= this.maxBatchCount) {
       return true
     }
 
