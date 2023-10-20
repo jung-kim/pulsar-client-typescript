@@ -25,6 +25,8 @@ export class PartitionedProducer {
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
 
   private readonly batchBuilder: BatchBuilder
+
+  private readonly batchFlushTicker: NodeJS.Timer
   readonly isReadyProm: Promise<void>
 
   constructor (producer: Producer, partitionId: number) {
@@ -85,6 +87,16 @@ export class PartitionedProducer {
 
     // // event loop probably is not needed
     // go p.runEventsLoop()
+
+    this.batchFlushTicker = setInterval(() => {
+      this.flush().catch((e: Error) => {
+        this.wrappedLogger.error(`interval flush failed: ${e.toString()}`)
+      })
+    }, this.parent.options.batchingMaxPublishDelayMs)
+  }
+
+  close (): void {
+    clearInterval(this.batchFlushTicker)
   }
 
   isReady (): boolean {
@@ -143,6 +155,21 @@ export class PartitionedProducer {
       publishTimeMs: Date.now(),
       flushImmediately: false
     }
+
+    if (msg.sendAsBatch === undefined) {
+      if (this.parent.options.disableBatching) {
+        msg.sendAsBatch = false
+      } else if (msg.replicationClusters !== undefined) {
+        msg.sendAsBatch = false
+      } else if (msg.deliverAtMs !== undefined) {
+        msg.sendAsBatch = false
+      } else {
+        msg.sendAsBatch = true
+      }
+    }
+    if (msg.deliverAtMs === undefined) {
+      msg.deliverAfterMs = Long.fromNumber(Date.now(), false)
+    }
     return await this.internalSend(sendRequest)
   }
 
@@ -185,13 +212,9 @@ export class PartitionedProducer {
       msg.replicationClusters = ['__local__']
     }
 
-    const deliverAtMs = msg.deliverAfterMs ?? 0
-    const deliverAt = deliverAtMs > 0 ? deliverAtMs : Date.now() + deliverAtMs
-    const sendAsBatch = !this.parent.options.disableBatching && (msg.replicationClusters === undefined) && deliverAt < 0
+    this.batchBuilder.add(msg)
 
-    this.batchBuilder.add(msg, deliverAt)
-
-    if (sendRequest.flushImmediately || !sendAsBatch || this.batchBuilder.isFull()) {
+    if (sendRequest.flushImmediately || msg.sendAsBatch === false || this.batchBuilder.isFull()) {
       return await this.flush()
     } else {
       return await this.deferred.promise
@@ -206,7 +229,9 @@ export class PartitionedProducer {
       throw err
     }
     const { messageMetadata, uncompressedPayload, numMessagesInBatch } = this.batchBuilder.flush()
-    messageMetadata.producerName = this.parent.options.name
+    if (numMessagesInBatch === 0) {
+      return
+    }
     messageMetadata.uncompressedSize = uncompressedPayload.length
     messageMetadata.numMessagesInBatch = numMessagesInBatch
     this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })

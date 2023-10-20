@@ -28,7 +28,7 @@ export class BatchBuilder {
     this.sendRequestBuffer = new Array(maxBatchCount)
   }
 
-  add (msg: ProducerMessage, deliverAt: number): void {
+  add (msg: ProducerMessage): void {
     // const schemaPayload: ArrayBuffer =
     // var err error
     // if p.options.Schema != nil {
@@ -56,11 +56,12 @@ export class BatchBuilder {
 
     if (this.numMessages === 0) {
       this.messageMetadata = MessageMetadata.fromJSON({
-        // sequenceId: requestTrack.id,
+        sequenceId: msg.sequenceID,
+        publishTime: Long.fromNumber(Date.now(), true),
+        producerName: msg.producerName ?? '',
         replicateTo: msg.replicationClusters,
         partitionKey: msg.key,
-        orderingKey: msg.orderingKey,
-        deliverAtTime: deliverAt
+        deliverAtTime: msg.deliverAtMs
       })
     }
 
@@ -80,10 +81,13 @@ export class BatchBuilder {
   }
 
   flush (): {
-    messageMetadata: MessageMetadata
+    messageMetadata?: MessageMetadata
     numMessagesInBatch: number
-    uncompressedPayload: Uint8Array
+    uncompressedPayload?: Uint8Array
   } {
+    if (this.numMessages <= 0) {
+      return { numMessagesInBatch: 0 }
+    }
     try {
       if (this.messageMetadata == null) {
         throw Error('message metatdata is missing')

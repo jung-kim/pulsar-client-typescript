@@ -8,7 +8,7 @@ import { DEFAULT_MAX_MESSAGE_SIZE } from '../connection'
 export const DEFAULT_SEND_TIMEOUT_MS = 30 * 1000 // 30 sec
 
 // defaultBatchingMaxPublishDelay init default for maximum delay to batch messages
-export const DEFAULT_BATCHING_MAX_PUBLISH_DELAY_MS = 10 * 60 * 1000 // 10 min
+export const DEFAULT_BATCHING_MAX_PUBLISH_DELAY_MS = 10 // 10 min
 
 // defaultMaxBatchSize init default for maximum number of bytes per batch
 export const DEFAULT_MAX_BATCH_SIZE = 128 * 1024

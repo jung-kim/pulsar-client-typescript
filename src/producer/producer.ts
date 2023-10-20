@@ -29,9 +29,9 @@ export class Producer {
 
   private readonly internalCreatePartitionsProducers = async (): Promise<void> => {
     const partitionResponse = await this.cnxPool.lookupService.getPartitionedTopicMetadata(this.options.topic)
-    const partitionCount = partitionResponse.partitions
+    const partitionCount = Math.max(partitionResponse.partitions, 1)
 
-    if (this.partitionedProducers.length === partitionResponse.partitions) {
+    if (this.partitionedProducers.length === partitionCount) {
       this.wrappedLogger.debug('Number of partitions in topic has not changed', { partitionCount })
       return
     }
@@ -40,16 +40,12 @@ export class Producer {
       oldPartitionCount: this.partitionedProducers.length
     })
 
-    if ((partitionCount - this.partitionedProducers.length) < 0) {
-      this.partitionedProducers.length = 0
-    }
-
-    if (partitionCount === 0) {
-      this.partitionedProducers.push(new PartitionedProducer(this, 0))
-    }
-
-    for (let i = this.partitionedProducers.length; i < partitionCount; i++) {
-      this.partitionedProducers[i] = new PartitionedProducer(this, i)
+    this.partitionedProducers.length = partitionCount
+    for (let i = 0; i < this.partitionedProducers.length; i++) {
+      const partitionedProducer = this.partitionedProducers[i]
+      if (partitionedProducer === undefined) {
+        this.partitionedProducers[i] = new PartitionedProducer(this, 0)
+      }
     }
   }
 
@@ -66,11 +62,11 @@ export class Producer {
   async getPartitionedProducer (msg: ProducerMessage): Promise<PartitionedProducer> {
     const partitionIndex = await this.getPartitionIndex(msg)
 
-    if (this.partitionedProducers[partitionIndex] === undefined) {
-      this.partitionedProducers[partitionIndex] = new PartitionedProducer(this, partitionIndex)
+    if (this.partitionedProducers[partitionIndex - 1] === undefined) {
+      this.partitionedProducers[partitionIndex - 1] = new PartitionedProducer(this, partitionIndex)
     }
 
-    return this.partitionedProducers[partitionIndex]
+    return this.partitionedProducers[partitionIndex - 1]
   }
 
   async send (msg: ProducerMessage | ArrayBuffer | String): Promise<CommandTypesResponses> {

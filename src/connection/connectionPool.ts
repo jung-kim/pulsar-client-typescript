@@ -68,12 +68,13 @@ export class ConnectionPool {
         ? res.brokerServiceUrlTls
         : res.brokerServiceUrl
       const logicalAddrUrl = new URL(logicalAddress)
-      const cnx = this.getConnection(logicalAddrUrl)
       switch (res.response) {
-        case CommandLookupTopicResponse_LookupType.Redirect:
+        case CommandLookupTopicResponse_LookupType.Redirect: {
+          const cnx = this.getConnection(logicalAddrUrl)
           this.wrappedLogger.debug('lookup is redirected', { topic, listenerName })
           res = (await cnx.sendCommand(lookupCommand)) as CommandLookupTopicResponse
           break
+        }
         case CommandLookupTopicResponse_LookupType.Connect:
           this.wrappedLogger.debug('lookup is found', { topic, listenerName })
           return logicalAddrUrl
@@ -126,7 +127,7 @@ export class ConnectionPool {
     // }
 
     const logicalAddr = await this.lookupTopic(topicName)
-    const cnx = this.getConnection(logicalAddr)
+    const cnx = new Connection(this.options, logicalAddr)
 
     await cnx.ensureReady()
 
@@ -162,7 +163,7 @@ export class ConnectionPool {
     cnx.registerProducerListener(producerId, producerSignal)
 
     return {
-      cnx: new Connection(this.options, logicalAddr),
+      cnx,
       commandProducerResponse
     }
 

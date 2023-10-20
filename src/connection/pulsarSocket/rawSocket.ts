@@ -76,8 +76,7 @@ export class RawSocket extends AbstractPulsarSocket {
       }
     })
 
-    this.socket.once('ready', () => {
-      clearTimeout(timeout)
+    this.socket.once('connect', () => {
       this._eventSignal.dispatch({ event: 'handshake_start' })
     })
     return await this.ensureReady()
