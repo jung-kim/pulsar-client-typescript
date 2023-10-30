@@ -93,12 +93,12 @@ export class BatchBuilder {
         throw Error('message metatdata is missing')
       }
 
-      this.messageMetadata.numMessagesInBatch = this.sendRequestBuffer.length
+      this.messageMetadata.numMessagesInBatch = this.numMessages
       this.messageMetadata.uncompressedSize = this.sendRequestBuffer.reduce((pv, msgPayload) => pv + msgPayload.length + 4, 0)
-      this.messageMetadata.publishTime = Long.fromNumber(Date.now())
+      this.messageMetadata.publishTime = Long.fromNumber(Date.now(), true)
 
       const uncompressedPayload = new Uint8Array(this.messageMetadata.uncompressedSize)
-      const msgPayloads = this.sendRequestBuffer.slice(0, this.sendRequestBuffer.length)
+      const msgPayloads = this.sendRequestBuffer.slice(0, this.numMessages)
 
       let offSet = 0
       msgPayloads.forEach(msgPayload => {

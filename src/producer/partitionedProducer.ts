@@ -168,7 +168,7 @@ export class PartitionedProducer {
       }
     }
     if (msg.deliverAtMs === undefined) {
-      msg.deliverAfterMs = Long.fromNumber(Date.now(), false)
+      msg.deliverAfterMs = Long.fromNumber(Date.now(), true)
     }
     return await this.internalSend(sendRequest)
   }

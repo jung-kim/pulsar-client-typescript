@@ -13,6 +13,7 @@ import { BaseConnection } from './baseConnection'
 import { WrappedLogger } from '../util/logger'
 import { CommandTypesResponses } from '../connection'
 import { RequestTrack } from '../util/requestTracker'
+import { cloneDeep } from 'lodash'
 
 export class Connection extends BaseConnection {
   readonly wrappedLogger: WrappedLogger
@@ -47,21 +48,23 @@ export class Connection extends BaseConnection {
   async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses> {
     let requestTrack: RequestTrack<CommandTypesResponses>
     let commandCount = 0
+    const cmdCpy = cloneDeep(cmd)
 
-    Object.keys(cmd).forEach((key: keyof BaseCommand) => {
-      if (key === 'type' || cmd[key] === undefined) {
+    Object.keys(cmdCpy).forEach((key: keyof BaseCommand) => {
+      if (key === 'type' || cmdCpy[key] === undefined) {
         return
       }
       commandCount++
 
-      if ('requestId' in (cmd[key] as any)) {
-        if ((cmd[key] as any).requestId === undefined || Long.UZERO.eq((cmd[key] as any).requestId)) {
+      if ('requestId' in (cmdCpy[key] as any)) {
+        if ((cmdCpy[key] as any).requestId === undefined || Long.UZERO.eq((cmdCpy[key] as any).requestId)) {
           // request id is not defined, create a new request id.
           requestTrack = this.requestTracker.trackRequest();
-          (cmd[key] as any).requestId = requestTrack.id
+          (cmdCpy[key] as any).requestId = requestTrack.id
         } else {
+          console.trace(88828411, (cmdCpy[key] as any).requestId)
           // request id is defined, using passed in request id.
-          requestTrack = this.requestTracker.get((cmd[key] as any).requestId as Long)
+          requestTrack = this.requestTracker.get((cmdCpy[key] as any).requestId as Long)
           if (requestTrack === undefined) {
             throw new Error('passed in request id is invalid')
           }
@@ -74,7 +77,7 @@ export class Connection extends BaseConnection {
     }
 
     try {
-      await this.pulsarSocket.writeCommand(cmd)
+      await this.pulsarSocket.writeCommand(cmdCpy)
     } catch (e) {
       if (requestTrack !== undefined) {
         requestTrack.rejectRequest(e)

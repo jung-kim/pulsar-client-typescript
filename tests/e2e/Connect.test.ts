@@ -65,7 +65,7 @@ describe('e2e connect tests', () => {
     })
 
     describe('with valid producer', () => {
-      it('should return for persistent partitioned topic', async () => {
+      it('should be able to send a message', async () => {
         const producer = client.createProducer({ topic: 'persistent://public/default/p0' })
 
         const m = await producer.send('hello')
