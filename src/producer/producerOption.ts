@@ -1,5 +1,4 @@
-import { newDefaultRouter } from './defaultRouter'
-import { ProducerMessage } from './ProducerMessage'
+import { RouterArg, newDefaultRouter } from './defaultRouter'
 import murmurHash3 from 'murmurhash3js'
 import { KeyValue } from '../proto/PulsarApi'
 import { DEFAULT_MAX_MESSAGE_SIZE } from '../connection'
@@ -97,7 +96,7 @@ export interface ProducerOption {
   // MessageRouter set a custom message routing policy by passing an implementation of MessageRouter
   // The router is a function that given a particular message and the topic metadata, returns the
   // partition index where the message should be routed to
-  messageRouter: (message: ProducerMessage, numPartitions: number) => number
+  messageRouter: (message: RouterArg, numPartitions: number) => number
 
   // DisableBatching control whether automatic batching of messages is enabled for the producer. By default batching
   // is enabled.
@@ -238,7 +237,7 @@ export const _initializeOption = (option: Partial<ProducerOption>): ProducerOpti
       option.batchingMaxSize ?? DEFAULT_MAX_BATCH_SIZE,
       option.batchingMaxPublishDelayMs ?? DEFAULT_BATCHING_MAX_PUBLISH_DELAY_MS,
       option.disableBatching)
-    option.messageRouter = (message: ProducerMessage, numPartitions: number) => {
+    option.messageRouter = (message: RouterArg, numPartitions: number) => {
       return defaultRouter(message, numPartitions)
     }
   }

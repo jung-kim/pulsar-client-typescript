@@ -1,13 +1,13 @@
 import { Producer } from './Producer'
 import { ProducerMessage } from './ProducerMessage'
 import { WrappedLogger } from '../util/logger'
-import { Connection, CommandTypesResponses } from '../connection'
+import { Connection } from '../connection'
 import { SendRequest } from './sendRequest'
 import { CommandCloseProducer, CommandSendReceipt } from '../proto/PulsarApi'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 import { BatchBuilder } from './batchBuilder'
-import { getDeferred } from '../util/deferred'
+import { Defered, getDeferred } from '../util/deferred'
 
 export class PartitionedProducer {
   readonly parent: Producer
@@ -18,7 +18,10 @@ export class PartitionedProducer {
   private readonly wrappedLogger: WrappedLogger
   private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
   private readonly epoch: Long = Long.UZERO
-  private deferred = getDeferred<CommandTypesResponses>()
+
+  private readonly deferredMap: Map<string, Defered<CommandSendReceipt>> = new Map()
+
+  private sequenceId: Long = Long.fromNumber(1, true)
 
   private readonly producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
   private readonly pendingQueues: Array<{ sentAt: number }> = []
@@ -41,11 +44,20 @@ export class PartitionedProducer {
       partitionId
     })
     this.batchBuilder = new BatchBuilder(
+      this.producerId,
       this.parent.options.batchingMaxMessages,
       this.parent.options.batchingMaxSize,
       this.parent.options.maxMessageSize
     )
     this.state = 'PRODUCER_INIT'
+
+    this.producerSignal.add((payload: CommandSendReceipt | CommandCloseProducer) => {
+      if ('sequenceId' in payload) {
+        this.deferredMap.get(payload.sequenceId.toString()).resolve(payload)
+      } else {
+        this.close()
+      }
+    })
 
     // if options.Schema != nil && options.Schema.GetSchemaInfo() != nil {
     //   p.schemaInfo = options.Schema.GetSchemaInfo()
@@ -149,7 +161,7 @@ export class PartitionedProducer {
     // }
   }
 
-  async send (msg: ProducerMessage): Promise<CommandTypesResponses> {
+  async send (msg: ProducerMessage): Promise<CommandSendReceipt> {
     const sendRequest: SendRequest = {
       msg,
       publishTimeMs: Date.now(),
@@ -167,13 +179,13 @@ export class PartitionedProducer {
         msg.sendAsBatch = true
       }
     }
-    if (msg.deliverAtMs === undefined) {
-      msg.deliverAfterMs = Long.fromNumber(Date.now(), true)
+    if (msg.deliverAfterMs !== undefined) {
+      msg.deliverAtMs = msg.deliverAfterMs.add(Date.now())
     }
     return await this.internalSend(sendRequest)
   }
 
-  private async internalSend (sendRequest: SendRequest): Promise<CommandTypesResponses> {
+  private async internalSend (sendRequest: SendRequest): Promise<CommandSendReceipt> {
     await this.isReadyProm
     if (this.cnx === undefined || this.state !== 'PRODUCER_READY') {
       const err = Error('connection is undefined')
@@ -214,33 +226,47 @@ export class PartitionedProducer {
 
     this.batchBuilder.add(msg)
 
+    if (this.deferredMap.get(this.sequenceId.toString()) === undefined) {
+      this.deferredMap.set(this.sequenceId.toString(), getDeferred())
+    }
+
     if (sendRequest.flushImmediately || msg.sendAsBatch === false || this.batchBuilder.isFull()) {
       return await this.flush()
     } else {
-      return await this.deferred.promise
+      return await this.deferredMap.get(this.sequenceId.toString()).promise
     }
   }
 
-  private async flush (): Promise<CommandTypesResponses> {
+  private async flush (): Promise<CommandSendReceipt> {
     await this.isReadyProm
-    if (this.cnx === undefined || this.state !== 'PRODUCER_READY') {
-      const err = Error('connection is undefined')
-      this.wrappedLogger.error('failed to acquire connection', err)
-      throw err
-    }
-    const { messageMetadata, uncompressedPayload, numMessagesInBatch } = this.batchBuilder.flush()
-    if (numMessagesInBatch === 0) {
-      return
-    }
-    messageMetadata.uncompressedSize = uncompressedPayload.length
-    messageMetadata.numMessagesInBatch = numMessagesInBatch
-    this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })
 
-    const response = await this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload)
-    this.deferred.resolve(response)
-    const prom = this.deferred.promise
-    this.deferred = getDeferred()
-    return await prom
+    const currentSequenceId = this.sequenceId
+    this.sequenceId = this.sequenceId.add(1)
+
+    try {
+      if (this.cnx === undefined || this.state !== 'PRODUCER_READY') {
+        const err = Error('connection is undefined')
+        this.wrappedLogger.error('failed to acquire connection', err)
+        throw err
+      }
+      const { messageMetadata, uncompressedPayload, numMessagesInBatch } = this.batchBuilder.flush()
+      if (numMessagesInBatch === 0) {
+        return
+      }
+      messageMetadata.uncompressedSize = uncompressedPayload.length
+      messageMetadata.numMessagesInBatch = numMessagesInBatch
+      messageMetadata.sequenceId = currentSequenceId
+
+      this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })
+
+      await this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload)
+
+      return await this.deferredMap.get(currentSequenceId.toString()).promise
+    } catch (e) {
+      this.deferredMap.get(currentSequenceId.toString()).reject(e)
+    } finally {
+      this.deferredMap.delete(currentSequenceId.toString())
+    }
   }
 
   private setFailTimeoutFunc (): void {

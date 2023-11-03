@@ -3,7 +3,8 @@ import {
   CommandCloseProducer,
   CommandSendReceipt,
   MessageMetadata,
-  CommandSend
+  CommandSend,
+  CommandSuccess
 } from '../proto/PulsarApi'
 import { _ConnectionOptions } from './connectionOptions'
 import Long from 'long'
@@ -89,19 +90,25 @@ export class Connection extends BaseConnection {
     }
   }
 
-  async sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array, requestId?: Long): Promise<CommandTypesResponses> {
-    const requestTrack = (requestId !== undefined) ? this.requestTracker.get(requestId) : this.requestTracker.trackRequest()
+  async sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array): Promise<CommandTypesResponses> {
+    const requestTrack = this.requestTracker.trackRequest()
     if (requestTrack === undefined) {
       throw Error('request tracker is not found')
     }
     const sendCommand = CommandSend.fromJSON({
       producerId,
-      sequenceId: requestTrack.id
+      sequenceId: messageMetadata.sequenceId,
+      numMessages: messageMetadata.numMessagesInBatch
     })
-    messageMetadata.sequenceId = requestTrack.id
 
-    this.pulsarSocket.send(serializeBatch(sendCommand, messageMetadata, uncompressedPayload))
+    const seralizedBatch = serializeBatch(sendCommand, messageMetadata, uncompressedPayload)
+
+    await this.pulsarSocket.send(seralizedBatch)
       .catch(e => requestTrack.rejectRequest(e))
+
+    // for send messsages, request id is not returned on the SendReceipt object.  Command success is handled by
+    // producerID and the sequenceID separately.  Therefor, we don't wait for response here.
+    requestTrack.resolveRequest(CommandSuccess.create({ requestId: requestTrack.id }))
 
     return await requestTrack.prom
   }

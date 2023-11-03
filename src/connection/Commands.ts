@@ -3,9 +3,10 @@ import { Writer } from 'protobufjs'
 import crc32 from 'crc/crc32'
 
 // const magicCrc32c = 0x0e01
-const magicCrc32Bytes = new Uint8Array(2)
-magicCrc32Bytes[0] = 0x0e
-magicCrc32Bytes[1] = 0x01
+const magicCrc32Bytes = 3585
+
+let cmdsize = 0
+let msgpayloadsize = 0
 
 export const serializeBatch = (cmdSend: CommandSend, msgMetadata: MessageMetadata, uncompressedPayload: Uint8Array): Uint8Array => {
   // Wire format
@@ -25,41 +26,42 @@ export const serializeBatch = (cmdSend: CommandSend, msgMetadata: MessageMetadat
   })
 
   const commandPayload = getCommandPayload(baseCommand)
-  const msgMetadataPayload = getMsMetadataPayload(msgMetadata)
+  const messagePayload = getMessagePayload(msgMetadata, encryptedPayload)
+  const checksum = crc32(messagePayload)
+  const frameSize = commandPayload.length + messagePayload.length + 2 + 4
+  const mergedArray = new Uint8Array(4 + commandPayload.length + 4 + 4 + messagePayload.length)
 
-  const payloadSize = commandPayload.length + msgMetadataPayload.length + encryptedPayload.length
+  mergedArray.set(getFixed32BigEndian(frameSize))
+  mergedArray.set(commandPayload, 4)
+  mergedArray.set(getFixed32BigEndian(magicCrc32Bytes), 4 + commandPayload.length)
+  mergedArray.set(getFixed32BigEndian(checksum), 4 + commandPayload.length + 4)
+  mergedArray.set(getFixed32BigEndian(checksum), 4 + commandPayload.length + 4 + 4)
 
-  const payload = new Uint8Array(4 + payloadSize)
-  payload.set((new Writer()).fixed32(payloadSize).finish())
-  payload.set(commandPayload)
-  payload.set(msgMetadataPayload)
-  payload.set(encryptedPayload)
-  return payload
+  return mergedArray
+}
+
+const getFixed32BigEndian = (value: number): Uint8Array => {
+  return new Writer()
+    .fixed32(value)
+    .finish()
+    .reverse()
 }
 
 const getCommandPayload = (cmdSend: BaseCommand): Uint8Array => {
   const cmdSendPayload = BaseCommand.encode(cmdSend).finish()
 
-  // [CMD_SIZE][CMD]
-  const payload = new Uint8Array(4 + cmdSendPayload.length)
-  payload.set((new Writer()).fixed32(payload.length).finish())
-  payload.set(cmdSendPayload)
-  return payload
+  const mergedArray = new Uint8Array(4 + cmdSendPayload.length)
+  mergedArray.set(getFixed32BigEndian(cmdSendPayload.length))
+  mergedArray.set(cmdSendPayload, 4)
+  return mergedArray
 }
 
-const getMsMetadataPayload = (msgMetadata: MessageMetadata): Uint8Array => {
+const getMessagePayload = (msgMetadata: MessageMetadata, payload: Uint8Array): Uint8Array => {
   const msgMetadataPayload = MessageMetadata.encode(msgMetadata).finish()
 
-  const metadataPayload = new Uint8Array(4 + msgMetadataPayload.length)
-  metadataPayload.set((new Writer()).fixed32(msgMetadataPayload.length).finish())
-  metadataPayload.set(msgMetadataPayload)
-
-  const crc = crc32(metadataPayload)
-
-  // [MAGIC_NUMBER][CHECKSUM] [METADATA_SIZE][METADATA]
-  const payload = new Uint8Array(2 + 4 + metadataPayload.length)
-  payload.set(magicCrc32Bytes)
-  payload.set((new Writer()).fixed32(crc).finish())
-  payload.set(metadataPayload)
-  return payload
+  const mergedArray = new Uint8Array(4 + msgMetadataPayload.length + payload.length)
+  mergedArray.set(getFixed32BigEndian(msgMetadataPayload.length))
+  mergedArray.set(msgMetadataPayload, 4)
+  mergedArray.set(payload, 4 + msgMetadataPayload.length)
+  return mergedArray
 }

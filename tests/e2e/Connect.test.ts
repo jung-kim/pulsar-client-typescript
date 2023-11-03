@@ -68,9 +68,7 @@ describe('e2e connect tests', () => {
       it('should be able to send a message', async () => {
         const producer = client.createProducer({ topic: 'persistent://public/default/p0' })
 
-        const m = await producer.send('hello')
-
-        console.log(888432, m)
+        await producer.send('hello')
       })
     })
   })

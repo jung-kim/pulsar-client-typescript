@@ -1,4 +1,7 @@
-import { ProducerMessage } from './ProducerMessage'
+export interface RouterArg {
+  orderingKey?: string
+  payload?: ArrayBuffer
+}
 
 export const newDefaultRouter = (
   hashFunc: (key: string) => number,
@@ -6,14 +9,14 @@ export const newDefaultRouter = (
   maxBatchingSize: number,
   maxBatchingDelayMs: number,
   disableBatching: boolean
-): ((message: ProducerMessage, numPartitions: number) => number) => {
+): ((message: RouterArg, numPartitions: number) => number) => {
   let currentPartitionCursor: number = 0
 
   const readClockAfterNumMessages = maxBatchingMessages / 10
 
   if (disableBatching) {
     // If there's no key, we do round-robin across partition. If no batching go to next partition.
-    return (message: ProducerMessage, numPartitions: number): number => {
+    return (message: RouterArg, numPartitions: number): number => {
       const p = currentPartitionCursor % numPartitions
       currentPartitionCursor += (currentPartitionCursor + 1)
       if (currentPartitionCursor >= numPartitions) {
@@ -27,7 +30,7 @@ export const newDefaultRouter = (
   let msgCounter: number = 0
   let cumulativeBatchSize: number = 0
 
-  return (message: ProducerMessage, numPartitions: number): number => {
+  return (message: RouterArg, numPartitions: number): number => {
     if (numPartitions === 1) {
       // When there are no partitions, don't even bother
       return 0

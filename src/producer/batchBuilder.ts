@@ -4,9 +4,10 @@ import { MessageMetadata, SingleMessageMetadata } from '../proto/PulsarApi'
 import { ProducerMessage } from './ProducerMessage'
 
 export class BatchBuilder {
+  private readonly producerId: Long
   private readonly sendRequestBuffer: Uint8Array[]
 
-  private readonly totalMessageSize: number = 0
+  private totalMessageSize: number = 0
 
   // Current number of messages in the batch
   private numMessages: number = 0
@@ -21,7 +22,8 @@ export class BatchBuilder {
   private readonly maxMessageSize: number
   private messageMetadata: MessageMetadata | undefined
 
-  constructor (maxBatchCount: number, maxBatchSize: number, maxMessageSize: number) {
+  constructor (producerId: Long, maxBatchCount: number, maxBatchSize: number, maxMessageSize: number) {
+    this.producerId = Long.fromString(producerId.toString())
     this.maxBatchCount = maxBatchCount
     this.maxBatchSize = maxBatchSize
     this.maxMessageSize = maxMessageSize
@@ -65,7 +67,18 @@ export class BatchBuilder {
       })
     }
 
-    this.sendRequestBuffer[this.numMessages++] = SingleMessageMetadata.encode(smm).finish()
+    this.pushSmm(smm)
+  }
+
+  pushSmm (smm: SingleMessageMetadata): void {
+    const bytes = SingleMessageMetadata.encode(smm).finish()
+    const size = (new Writer()).uint32(bytes.length).finish()
+
+    this.sendRequestBuffer.push(size)
+    this.sendRequestBuffer.push(bytes)
+
+    this.totalMessageSize += bytes.length + 4
+    this.numMessages++
   }
 
   isFull (): boolean {
@@ -78,6 +91,13 @@ export class BatchBuilder {
     }
 
     return false
+  }
+
+  reset (): void {
+    this.sendRequestBuffer.length = 0
+    this.messageMetadata = undefined
+    this.totalMessageSize = 0
+    this.numMessages = 0
   }
 
   flush (): {
@@ -114,7 +134,7 @@ export class BatchBuilder {
         uncompressedPayload
       }
     } finally {
-      this.numMessages = 0
+      this.reset()
     }
   }
 }

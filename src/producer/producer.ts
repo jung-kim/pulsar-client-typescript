@@ -1,9 +1,11 @@
-import { CommandTypesResponses, ConnectionPool } from '../connection'
-import _ from 'lodash'
+import { ConnectionPool } from '../connection'
 import { WrappedLogger } from '../util/logger'
 import { ProducerOption, _initializeOption } from './producerOption'
 import { PartitionedProducer } from './partitionedProducer'
 import { ProducerMessage } from './ProducerMessage'
+import { RouterArg } from './defaultRouter'
+import { cloneDeep } from 'lodash'
+import { CommandSendReceipt } from '../../src/proto/PulsarApi'
 
 const encoder = new TextEncoder()
 
@@ -17,7 +19,7 @@ export class Producer {
 
   constructor (option: Partial<ProducerOption>, cnxPool: ConnectionPool) {
     this.cnxPool = cnxPool
-    this.options = _initializeOption(_.cloneDeep(option))
+    this.options = _initializeOption(cloneDeep(option))
     this.wrappedLogger = new WrappedLogger({ topic: this.options.topic })
 
     this.readyPromise = this.internalCreatePartitionsProducers()
@@ -53,13 +55,13 @@ export class Producer {
     clearInterval(this.runBackgroundPartitionDiscovery)
   }
 
-  async getPartitionIndex (msg: ProducerMessage): Promise<number> {
+  async getPartitionIndex (msg: RouterArg): Promise<number> {
     await this.readyPromise
     // @todo: implement
     return this.options.messageRouter(msg, this.partitionedProducers.length + 1)
   }
 
-  async getPartitionedProducer (msg: ProducerMessage): Promise<PartitionedProducer> {
+  async getPartitionedProducer (msg: RouterArg): Promise<PartitionedProducer> {
     const partitionIndex = await this.getPartitionIndex(msg)
 
     if (this.partitionedProducers[partitionIndex - 1] === undefined) {
@@ -69,14 +71,18 @@ export class Producer {
     return this.partitionedProducers[partitionIndex - 1]
   }
 
-  async send (msg: ProducerMessage | ArrayBuffer | String): Promise<CommandTypesResponses> {
+  private getProducerMessage (msg: ProducerMessage | ArrayBuffer | string): ProducerMessage {
     if (typeof msg === 'string') {
-      msg = { payload: encoder.encode(msg).buffer }
+      return { payload: encoder.encode(msg).buffer }
     } else if (msg instanceof ArrayBuffer) {
-      msg = { payload: msg }
+      return { payload: msg }
+    } else {
+      return msg
     }
+  }
 
-    const producerMessage = msg as ProducerMessage
+  async send (msg: ProducerMessage | ArrayBuffer | string): Promise<CommandSendReceipt> {
+    const producerMessage = this.getProducerMessage(msg)
     return await (await this.getPartitionedProducer(producerMessage)).send(producerMessage)
   }
 }
