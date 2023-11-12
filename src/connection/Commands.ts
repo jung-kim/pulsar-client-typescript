@@ -1,16 +1,13 @@
+import { getFixed32BigEndian } from '../util/proto'
 import { BaseCommand, BaseCommand_Type, CommandSend, MessageMetadata } from '../proto/PulsarApi'
-import { Writer } from 'protobufjs'
-import crc32 from 'crc/crc32'
 
-// const magicCrc32c = 0x0e01
-const magicCrc32Bytes = 3585
+import { Crc32c } from '@aws-crypto/crc32c'
 
-let cmdsize = 0
-let msgpayloadsize = 0
+const magicCrc32Bytes = [14, 1]
 
 export const serializeBatch = (cmdSend: CommandSend, msgMetadata: MessageMetadata, uncompressedPayload: Uint8Array): Uint8Array => {
   // Wire format
-  // [TOTAL_SIZE] [CMD_SIZE][CMD] [MAGIC_NUMBER][CHECKSUM] [METADATA_SIZE][METADATA] [PAYLOAD]
+  // [TOTAL_SIZE] [CMD_SIZE] [CMD] [MAGIC_NUMBER] [CHECKSUM] [METADATA_SIZE] [METADATA] [PAYLOAD]
 
   // compressedPayload := compressionProvider.Compress(nil, uncompressedPayload.ReadableSlice())
   const compressedPayload = uncompressedPayload
@@ -27,26 +24,21 @@ export const serializeBatch = (cmdSend: CommandSend, msgMetadata: MessageMetadat
 
   const commandPayload = getCommandPayload(baseCommand)
   const messagePayload = getMessagePayload(msgMetadata, encryptedPayload)
-  const checksum = crc32(messagePayload)
+  const crc32Digest = (new Crc32c()).update(messagePayload).digest()
+
   const frameSize = commandPayload.length + messagePayload.length + 2 + 4
-  const mergedArray = new Uint8Array(4 + commandPayload.length + 4 + 4 + messagePayload.length)
+  const mergedArray = new Uint8Array(4 + commandPayload.length + 2 + 4 + messagePayload.length)
 
   mergedArray.set(getFixed32BigEndian(frameSize))
   mergedArray.set(commandPayload, 4)
-  mergedArray.set(getFixed32BigEndian(magicCrc32Bytes), 4 + commandPayload.length)
-  mergedArray.set(getFixed32BigEndian(checksum), 4 + commandPayload.length + 4)
-  mergedArray.set(getFixed32BigEndian(checksum), 4 + commandPayload.length + 4 + 4)
+  mergedArray.set(magicCrc32Bytes, 4 + commandPayload.length)
+  mergedArray.set(getFixed32BigEndian(crc32Digest), 4 + commandPayload.length + 2)
+  mergedArray.set(messagePayload, 4 + commandPayload.length + 2 + 4)
 
   return mergedArray
 }
 
-const getFixed32BigEndian = (value: number): Uint8Array => {
-  return new Writer()
-    .fixed32(value)
-    .finish()
-    .reverse()
-}
-
+// [CMD_SIZE] [CMD]
 const getCommandPayload = (cmdSend: BaseCommand): Uint8Array => {
   const cmdSendPayload = BaseCommand.encode(cmdSend).finish()
 

@@ -21,7 +21,7 @@ export class PartitionedProducer {
 
   private readonly deferredMap: Map<string, Defered<CommandSendReceipt>> = new Map()
 
-  private sequenceId: Long = Long.fromNumber(1, true)
+  private sequenceId: Long = Long.fromNumber(0, true)
 
   private readonly producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
   private readonly pendingQueues: Array<{ sentAt: number }> = []
@@ -196,7 +196,8 @@ export class PartitionedProducer {
     this.wrappedLogger.debug('Received send request')
 
     const msg = sendRequest.msg
-    // const schemaPayload: ArrayBuffer =
+    msg.sequenceID = Long.fromValue(this.sequenceId)
+    // var schemaPayload []byte
     // var err error
     // if p.options.Schema != nil {
     //   schemaPayload, err = p.options.Schema.Encode(msg.Value)
@@ -206,8 +207,10 @@ export class PartitionedProducer {
     //   }
     // }
 
-    // const payload = msg.payload // ?? schemaPaylod
-    // this should be done at connection side
+    // if payload == nil {
+    //   payload = schemaPayload
+    // }
+
     // // if msg is too large
     // if len(payload) > int(p.cnx.GetMaxMessageSize()) {
     //   p.publishSemaphore.Release()

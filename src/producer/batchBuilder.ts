@@ -1,7 +1,7 @@
 import Long from 'long'
-import { Writer } from 'protobufjs'
 import { MessageMetadata, SingleMessageMetadata } from '../proto/PulsarApi'
 import { ProducerMessage } from './ProducerMessage'
+import { getFixed32BigEndian } from '../util/proto'
 
 export class BatchBuilder {
   private readonly producerId: Long
@@ -27,7 +27,7 @@ export class BatchBuilder {
     this.maxBatchCount = maxBatchCount
     this.maxBatchSize = maxBatchSize
     this.maxMessageSize = maxMessageSize
-    this.sendRequestBuffer = new Array(maxBatchCount)
+    this.sendRequestBuffer = new Array(0)
   }
 
   add (msg: ProducerMessage): void {
@@ -48,7 +48,7 @@ export class BatchBuilder {
 
     const smm = SingleMessageMetadata.fromJSON({
       payloadSize: payload.byteLength,
-      eventTime: msg.eventTimeMs,
+      eventTime: msg.eventTimeMs ?? Long.fromNumber(Date.now(), true),
       partitionKey: msg.key,
       orderingKey: msg.orderingKey,
       properties: Object.entries((msg.properties != null) || {}).map(([key, value]) => {
@@ -67,15 +67,16 @@ export class BatchBuilder {
       })
     }
 
-    this.pushSmm(smm)
+    this.addSingleMessageToBatch(smm, payload)
   }
 
-  pushSmm (smm: SingleMessageMetadata): void {
+  addSingleMessageToBatch (smm: SingleMessageMetadata, payload: ArrayBuffer): void {
     const bytes = SingleMessageMetadata.encode(smm).finish()
-    const size = (new Writer()).uint32(bytes.length).finish()
+    const size = getFixed32BigEndian(bytes.length)
 
     this.sendRequestBuffer.push(size)
     this.sendRequestBuffer.push(bytes)
+    this.sendRequestBuffer.push(new Uint8Array(payload))
 
     this.totalMessageSize += bytes.length + 4
     this.numMessages++
@@ -114,23 +115,19 @@ export class BatchBuilder {
       }
 
       this.messageMetadata.numMessagesInBatch = this.numMessages
-      this.messageMetadata.uncompressedSize = this.sendRequestBuffer.reduce((pv, msgPayload) => pv + msgPayload.length + 4, 0)
-      this.messageMetadata.publishTime = Long.fromNumber(Date.now(), true)
+      this.messageMetadata.uncompressedSize = this.sendRequestBuffer.reduce((pv, msgPayload) => pv + msgPayload.length, 0)
 
       const uncompressedPayload = new Uint8Array(this.messageMetadata.uncompressedSize)
-      const msgPayloads = this.sendRequestBuffer.slice(0, this.numMessages)
 
       let offSet = 0
-      msgPayloads.forEach(msgPayload => {
-        uncompressedPayload.set((new Writer()).uint32(msgPayload.length).finish(), offSet)
-        offSet += 4
+      this.sendRequestBuffer.forEach(msgPayload => {
         uncompressedPayload.set(msgPayload, offSet)
         offSet += msgPayload.length
       })
 
       return {
         messageMetadata: this.messageMetadata,
-        numMessagesInBatch: msgPayloads.length,
+        numMessagesInBatch: this.messageMetadata.numMessagesInBatch,
         uncompressedPayload
       }
     } finally {
