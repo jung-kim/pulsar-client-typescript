@@ -31,7 +31,15 @@ export class Producer {
 
   private readonly internalCreatePartitionsProducers = async (): Promise<void> => {
     const partitionResponse = await this.cnxPool.lookupService.getPartitionedTopicMetadata(this.options.topic)
-    const partitionCount = Math.max(partitionResponse.partitions, 1)
+    const partitionCount = partitionResponse.partitions
+
+    if (partitionCount === 0 && this.partitionedProducers.length !== 1) {
+      // handle none partitioned topics case separately
+      this.partitionedProducers.forEach(pp => pp.close())
+      this.partitionedProducers.length = 1
+      this.partitionedProducers[0] = new PartitionedProducer(this, -1)
+      return
+    }
 
     if (this.partitionedProducers.length === partitionCount) {
       this.wrappedLogger.debug('Number of partitions in topic has not changed', { partitionCount })
@@ -46,7 +54,7 @@ export class Producer {
     for (let i = 0; i < this.partitionedProducers.length; i++) {
       const partitionedProducer = this.partitionedProducers[i]
       if (partitionedProducer === undefined) {
-        this.partitionedProducers[i] = new PartitionedProducer(this, 0)
+        this.partitionedProducers[i] = new PartitionedProducer(this, i)
       }
     }
   }
@@ -55,17 +63,17 @@ export class Producer {
     clearInterval(this.runBackgroundPartitionDiscovery)
   }
 
-  async getPartitionIndex (msg: RouterArg): Promise<number> {
-    await this.readyPromise
-    // @todo: implement
+  getPartitionIndex (msg: RouterArg): number {
     return this.options.messageRouter(msg, this.partitionedProducers.length + 1)
   }
 
   async getPartitionedProducer (msg: RouterArg): Promise<PartitionedProducer> {
+    await this.readyPromise
     const partitionIndex = await this.getPartitionIndex(msg)
 
     if (this.partitionedProducers[partitionIndex - 1] === undefined) {
-      this.partitionedProducers[partitionIndex - 1] = new PartitionedProducer(this, partitionIndex)
+      this.wrappedLogger.error('partitioned producer is undefined', { options: this.options, partitionIndex })
+      throw Error('partitioned producer is undefined')
     }
 
     return this.partitionedProducers[partitionIndex - 1]

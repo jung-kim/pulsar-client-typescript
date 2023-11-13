@@ -35,7 +35,7 @@ export class PartitionedProducer {
   constructor (producer: Producer, partitionId: number) {
     this.parent = producer
     this.partitionId = partitionId
-    this.topicName = `${this.parent.options.topic}-partition-${this.partitionId}`
+    this.topicName = partitionId === -1 ? this.parent.options.topic : `${this.parent.options.topic}-partition-${this.partitionId}`
     this.producerId = producer.cnxPool.getProducerId()
     this.wrappedLogger = new WrappedLogger({
       producerName: this.parent.options.name,
