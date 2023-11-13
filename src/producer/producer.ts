@@ -63,20 +63,20 @@ export class Producer {
     clearInterval(this.runBackgroundPartitionDiscovery)
   }
 
-  getPartitionIndex (msg: RouterArg): number {
-    return this.options.messageRouter(msg, this.partitionedProducers.length + 1)
+  async getPartitionIndex (msg: RouterArg): Promise<number> {
+    await this.readyPromise
+    return this.options.messageRouter(msg, this.partitionedProducers.length) % this.partitionedProducers.length
   }
 
   async getPartitionedProducer (msg: RouterArg): Promise<PartitionedProducer> {
-    await this.readyPromise
     const partitionIndex = await this.getPartitionIndex(msg)
 
-    if (this.partitionedProducers[partitionIndex - 1] === undefined) {
+    if (this.partitionedProducers[partitionIndex] === undefined) {
       this.wrappedLogger.error('partitioned producer is undefined', { options: this.options, partitionIndex })
       throw Error('partitioned producer is undefined')
     }
 
-    return this.partitionedProducers[partitionIndex - 1]
+    return this.partitionedProducers[partitionIndex]
   }
 
   private getProducerMessage (msg: ProducerMessage | ArrayBuffer | string): ProducerMessage {

@@ -63,7 +63,6 @@ export class Connection extends BaseConnection {
           requestTrack = this.requestTracker.trackRequest();
           (cmdCpy[key] as any).requestId = requestTrack.id
         } else {
-          console.trace(88828411, (cmdCpy[key] as any).requestId)
           // request id is defined, using passed in request id.
           requestTrack = this.requestTracker.get((cmdCpy[key] as any).requestId as Long)
           if (requestTrack === undefined) {
