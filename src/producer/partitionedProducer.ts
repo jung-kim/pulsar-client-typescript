@@ -43,18 +43,15 @@ export class PartitionedProducer {
       topicName: this.parent.options.topic,
       partitionId
     })
-    this.batchBuilder = new BatchBuilder(
-      this.producerId,
-      this.parent.options.batchingMaxMessages,
-      this.parent.options.batchingMaxSize,
-      this.parent.options.maxMessageSize
-    )
+    this.batchBuilder = new BatchBuilder(this.parent.options)
     this.state = 'PRODUCER_INIT'
 
     this.producerSignal.add((payload: CommandSendReceipt | CommandCloseProducer) => {
       if ('sequenceId' in payload) {
+        this.wrappedLogger.debug('CommandSendReceipt received', { sequenceId: payload.sequenceId.toString() })
         this.deferredMap.get(payload.sequenceId.toString()).resolve(payload)
       } else {
+        this.wrappedLogger.info('CommandCloseProducer received, closing')
         this.close()
       }
     })

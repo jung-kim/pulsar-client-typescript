@@ -9,7 +9,7 @@ import {
 import { _ConnectionOptions } from './connectionOptions'
 import Long from 'long'
 import { Signal } from 'micro-signals'
-import { serializeBatch } from './Commands'
+import { serializeBatch } from './commands'
 import { BaseConnection } from './baseConnection'
 import { WrappedLogger } from '../util/logger'
 import { CommandTypesResponses } from '../connection'

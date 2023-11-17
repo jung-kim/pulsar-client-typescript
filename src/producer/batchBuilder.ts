@@ -2,9 +2,9 @@ import Long from 'long'
 import { MessageMetadata, SingleMessageMetadata } from '../proto/PulsarApi'
 import { ProducerMessage } from './ProducerMessage'
 import { getFixed32BigEndian } from '../util/proto'
+import { ProducerOption } from './producerOption'
 
 export class BatchBuilder {
-  private readonly producerId: Long
   private readonly sendRequestBuffer: Uint8Array[]
 
   private totalMessageSize: number = 0
@@ -22,11 +22,10 @@ export class BatchBuilder {
   private readonly maxMessageSize: number
   private messageMetadata: MessageMetadata | undefined
 
-  constructor (producerId: Long, maxBatchCount: number, maxBatchSize: number, maxMessageSize: number) {
-    this.producerId = Long.fromString(producerId.toString())
-    this.maxBatchCount = maxBatchCount
-    this.maxBatchSize = maxBatchSize
-    this.maxMessageSize = maxMessageSize
+  constructor (opt: ProducerOption) {
+    this.maxBatchCount = opt.batchingMaxMessages
+    this.maxBatchSize = opt.batchingMaxSize
+    this.maxMessageSize = opt.maxMessageSize
     this.sendRequestBuffer = new Array(0)
   }
 
