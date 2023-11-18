@@ -15,6 +15,7 @@ import { WrappedLogger } from '../util/logger'
 import { CommandTypesResponses } from '../connection'
 import { RequestTrack } from '../util/requestTracker'
 import { cloneDeep } from 'lodash'
+import { commandToPayload } from './pulsarSocket/utils'
 
 export class Connection extends BaseConnection {
   readonly wrappedLogger: WrappedLogger
@@ -77,16 +78,12 @@ export class Connection extends BaseConnection {
     }
 
     try {
-      await this.pulsarSocket.writeCommand(cmdCpy)
+      await this.pulsarSocket.send(commandToPayload(cmdCpy))
     } catch (e) {
-      if (requestTrack !== undefined) {
-        requestTrack.rejectRequest(e)
-      }
+      requestTrack.rejectRequest(e)
     }
 
-    if (requestTrack !== undefined) {
-      return await requestTrack.prom
-    }
+    return await requestTrack.prom
   }
 
   async sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array): Promise<CommandTypesResponses> {
@@ -102,12 +99,14 @@ export class Connection extends BaseConnection {
 
     const seralizedBatch = serializeBatch(sendCommand, messageMetadata, uncompressedPayload)
 
-    await this.pulsarSocket.send(seralizedBatch)
-      .catch(e => requestTrack.rejectRequest(e))
-
-    // for send messsages, request id is not returned on the SendReceipt object.  Command success is handled by
-    // producerID and the sequenceID separately.  Therefor, we don't wait for response here.
-    requestTrack.resolveRequest(CommandSuccess.create({ requestId: requestTrack.id }))
+    try {
+      // for send messsages, request id is not returned on the SendReceipt object.  Command success is handled by
+      // producerID and the sequenceID separately.  Therefor, we don't wait for response here.
+      await this.pulsarSocket.send(seralizedBatch)
+      requestTrack.resolveRequest(CommandSuccess.create({ requestId: requestTrack.id }))
+    } catch (e) {
+      requestTrack.rejectRequest(e)
+    }
 
     return await requestTrack.prom
   }
