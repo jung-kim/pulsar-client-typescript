@@ -69,7 +69,6 @@ export class ProducerListeners {
   }
 
   public registerProducerListener (id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>): void {
-    this.wrappedLogger.warn('producer listetner register failed, socket is not ready', { id })
     this.producerListeners.set(id.toString(), signal)
   }
 

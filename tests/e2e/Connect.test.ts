@@ -3,7 +3,8 @@ import { configs } from './configs'
 import { readFileSync } from 'fs'
 import { TestClient } from '../utils'
 import { expect } from 'chai'
-import { ServerError } from '../../src/proto/PulsarApi'
+import { CommandSendReceipt, ServerError } from '../../src/proto/PulsarApi'
+import { RouterArg } from '../../src/producer/defaultRouter'
 
 describe('e2e connect tests', () => {
   const sn2Oauth2KeyFile = JSON.parse(readFileSync(configs.snOauth2KeyFile).toString())
@@ -65,10 +66,26 @@ describe('e2e connect tests', () => {
     })
 
     describe('with valid producer', () => {
-      it('should be able to send a message', async () => {
+      it('should be able to send a message with non partitioned topics', async () => {
         const producer = client.createProducer({ topic: 'persistent://public/default/p0' })
 
         await producer.send('hello')
+      })
+
+      it('should be able to send a message with partitioned topic', async () => {
+        const partitionCount = 3
+        let i = 0
+        const producer = client.createProducer({
+          topic: 'persistent://public/default/p3',
+          messageRouter: (message: RouterArg, numPartitions: number): number => {
+            return i++ % numPartitions
+          }
+        })
+
+        const promises = Array(partitionCount).fill(0).map(async (v: number, i: number): Promise<CommandSendReceipt> => {
+          return await producer.send(`hello-${i}`)
+        })
+        await Promise.all(promises)
       })
     })
   })

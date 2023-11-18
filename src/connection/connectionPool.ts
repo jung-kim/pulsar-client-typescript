@@ -4,7 +4,7 @@ import { Connection } from './connection'
 import { ConnectionOptions, _ConnectionOptions } from './connectionOptions'
 import { Signal } from 'micro-signals'
 import Long from 'long'
-import { CommandTypesResponses, LOOKUP_RESULT_MAX_REDIRECT } from '.'
+import { CommandTypesResponses } from '.'
 import { LookupService } from './lookupService'
 
 export class ConnectionPool {
@@ -61,27 +61,14 @@ export class ConnectionPool {
         advertisedListenerName: listenerName
       })
     })
-    let res = (await this.getAnyAdminConnection().sendCommand(lookupCommand)) as CommandLookupTopicResponse
 
-    for (let i = 0; i < LOOKUP_RESULT_MAX_REDIRECT; i++) {
+    const res = (await this.getAnyAdminConnection().sendCommand(lookupCommand)) as CommandLookupTopicResponse
+
+    if (res.response === CommandLookupTopicResponse_LookupType.Connect) {
       const logicalAddress = this.options.isTlsEnabled
         ? res.brokerServiceUrlTls
         : res.brokerServiceUrl
-      const logicalAddrUrl = new URL(logicalAddress)
-      switch (res.response) {
-        case CommandLookupTopicResponse_LookupType.Redirect: {
-          const cnx = this.getConnection(logicalAddrUrl)
-          this.wrappedLogger.debug('lookup is redirected', { topic, listenerName })
-          res = (await cnx.sendCommand(lookupCommand)) as CommandLookupTopicResponse
-          break
-        }
-        case CommandLookupTopicResponse_LookupType.Connect:
-          this.wrappedLogger.debug('lookup is found', { topic, listenerName })
-          return logicalAddrUrl
-        default:
-          // increase counter so we can fail out
-          i = LOOKUP_RESULT_MAX_REDIRECT
-      }
+      return new URL(logicalAddress)
     }
 
     this.wrappedLogger.debug('lookup is failed', { topic, listenerName })

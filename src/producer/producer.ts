@@ -56,6 +56,8 @@ export class Producer {
       if (partitionedProducer === undefined) {
         this.partitionedProducers[i] = new PartitionedProducer(this, i)
       }
+
+      await this.partitionedProducers[i].isReadyProm
     }
   }
 
