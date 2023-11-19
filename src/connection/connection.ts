@@ -14,11 +14,13 @@ import { BaseConnection } from './baseConnection'
 import { WrappedLogger } from '../util/logger'
 import { CommandTypesResponses } from '../connection'
 import { RequestTrack } from '../util/requestTracker'
-import { cloneDeep } from 'lodash'
+import lodash from 'lodash'
 import { commandToPayload } from './pulsarSocket/utils'
+import PQueue from 'p-queue'
 
 export class Connection extends BaseConnection {
   readonly wrappedLogger: WrappedLogger
+  private readonly workQueue = new PQueue({ concurrency: 1, timeout: 2000, throwOnTimeout: true })
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     super(options, logicalAddress)
@@ -50,7 +52,7 @@ export class Connection extends BaseConnection {
   async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses> {
     let requestTrack: RequestTrack<CommandTypesResponses>
     let commandCount = 0
-    const cmdCpy = cloneDeep(cmd)
+    const cmdCpy = lodash.cloneDeep(cmd)
 
     Object.keys(cmdCpy).forEach((key: keyof BaseCommand) => {
       if (key === 'type' || cmdCpy[key] === undefined) {

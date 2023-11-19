@@ -2,11 +2,12 @@
   "name": "pulsar-client-typescript",
   "version": "0.0.1",
   "description": "Typescript client for pulsar client",
+  "type": "module",
   "scripts": {
-    "test:unit": "mocha --exit -r ts-node/register  './tests/unit/**/*.test.ts'",
+    "test:unit": "mocha --exit -r ts-node/esm  './tests/unit/**/*.test.ts'",
     "test": "export PULSAR_CLIENT_LOG_LEVEL=0; nyc --reporter=text npm run test:unit;",
     "test:e2e": "mocha --exit --timeout 5000 -r ts-node/register './tests/e2e/**/*.test.ts'",
-    "lint": "eslint .  --ext .ts",
+    "lint": "eslint . --ext .ts",
     "build": "tsc --project tsconfig.json",
     "clean": "tsc --build --clean"
   },
@@ -24,7 +25,7 @@
     "micro-signals": "^2.4.0",
     "murmurhash3js": "^3.0.1",
     "oauth": "^0.9.15",
-    "p-queue": "^7.2.0",
+    "p-queue": "^7.4.1",
     "p-retry": "^5.1.2",
     "protobufjs": "^7.2.5",
     "ts-proto": "^1.158.0",

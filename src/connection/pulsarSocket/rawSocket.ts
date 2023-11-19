@@ -1,7 +1,7 @@
 import { Message } from '..'
 import { createConnection, Socket } from 'net'
 import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
-import { Reader } from 'protobufjs'
+import proto from 'protobufjs'
 import { connect, TLSSocket } from 'tls'
 import { _ConnectionOptions } from '../connectionOptions'
 import { AbstractPulsarSocket } from './abstractPulsarSocket'
@@ -107,8 +107,8 @@ export class RawSocket extends AbstractPulsarSocket {
 
   protected parseReceived (data: Buffer): Message {
     this.lastDataReceived = (new Date()).getMilliseconds()
-    const frameSize = (new Reader(data.subarray(0, 4))).fixed32()
-    const commandSize = (new Reader(data.subarray(4, 8))).fixed32()
+    const frameSize = (new proto.Reader(data.subarray(0, 4))).fixed32()
+    const commandSize = (new proto.Reader(data.subarray(4, 8))).fixed32()
     const headersAndPayloadSize = frameSize - (commandSize + 4)
 
     const command = data.subarray(8, commandSize + 8)

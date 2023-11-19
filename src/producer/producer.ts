@@ -4,7 +4,7 @@ import { ProducerOption, _initializeOption } from './producerOption'
 import { PartitionedProducer } from './partitionedProducer'
 import { ProducerMessage } from './ProducerMessage'
 import { RouterArg } from './defaultRouter'
-import { cloneDeep } from 'lodash'
+import lodash from 'lodash'
 import { CommandSendReceipt } from '../../src/proto/PulsarApi'
 
 const encoder = new TextEncoder()
@@ -19,7 +19,7 @@ export class Producer {
 
   constructor (option: Partial<ProducerOption>, cnxPool: ConnectionPool) {
     this.cnxPool = cnxPool
-    this.options = _initializeOption(cloneDeep(option))
+    this.options = _initializeOption(lodash.cloneDeep(option))
     this.wrappedLogger = new WrappedLogger({ topic: this.options.topic })
 
     this.readyPromise = this.internalCreatePartitionsProducers()
