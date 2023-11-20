@@ -112,7 +112,9 @@ export abstract class BaseConnection {
   }
 
   handleResponse (cmd: CommandTypesResponses): void {
-    this.requestTracker.resolveRequest(cmd?.requestId, cmd)
+    if ('requestId' in cmd) {
+      this.requestTracker.resolveRequest(cmd?.requestId, cmd)
+    }
   }
 
   public async handleAuthChallenge (_: Message): Promise<void> {

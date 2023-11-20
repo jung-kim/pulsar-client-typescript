@@ -20,7 +20,11 @@ import PQueue from 'p-queue'
 
 export class Connection extends BaseConnection {
   readonly wrappedLogger: WrappedLogger
-  private readonly workQueue = new PQueue({ concurrency: 1, timeout: 2000, throwOnTimeout: true })
+
+  // pulsar broker process commands with highest request id at a time.  this means if a command with
+  // sequence ID of 7 is received before 6 is done processing, command 6 will be cancelled and not
+  // returned.  to ensure all commands are processed in order one at a time, this queue is used
+  private readonly workQueue = new PQueue({ concurrency: 1, throwOnTimeout: true })
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     super(options, logicalAddress)
@@ -40,25 +44,21 @@ export class Connection extends BaseConnection {
     return this.producerListeners.unregisterProducerListener(id)
   }
 
-  /**
-   * Send pulsar commands to the brokers
-   * @param cmd is a BaseCommand
-   *  - must include the type attribute
-   *  - must have and one and only one command
-   *  - when requestId can be undefined or uzero, request is automatically tracked with an available request id
-   *  - when requestId is set, requestTracker must have requestTrack for the requestId
-   * @returns promise for the command. Awaiting for the returned value will return the respons back from the server
-   */
-  async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses> {
+  private getCommandBytesTosend (cmd: BaseCommand): {
+    requestTrack: RequestTrack<CommandTypesResponses>
+    payload: Uint8Array
+  } {
     let requestTrack: RequestTrack<CommandTypesResponses>
-    let commandCount = 0
     const cmdCpy = lodash.cloneDeep(cmd)
 
     Object.keys(cmdCpy).forEach((key: keyof BaseCommand) => {
       if (key === 'type' || cmdCpy[key] === undefined) {
         return
       }
-      commandCount++
+
+      if (requestTrack !== undefined) {
+        throw new Error('invalid number of commands are passed in')
+      }
 
       if ('requestId' in (cmdCpy[key] as any)) {
         if ((cmdCpy[key] as any).requestId === undefined || Long.UZERO.eq((cmdCpy[key] as any).requestId)) {
@@ -75,42 +75,63 @@ export class Connection extends BaseConnection {
       }
     })
 
-    if (commandCount !== 1) {
-      throw new Error('invalid number of commands are passed in')
+    return {
+      requestTrack,
+      payload: commandToPayload(cmdCpy)
     }
-
-    try {
-      await this.pulsarSocket.send(commandToPayload(cmdCpy))
-    } catch (e) {
-      requestTrack.rejectRequest(e)
-    }
-
-    return await requestTrack.prom
   }
 
-  async sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array): Promise<CommandTypesResponses> {
-    const requestTrack = this.requestTracker.trackRequest()
-    if (requestTrack === undefined) {
-      throw Error('request tracker is not found')
-    }
-    const sendCommand = CommandSend.fromJSON({
-      producerId,
-      sequenceId: messageMetadata.sequenceId,
-      numMessages: messageMetadata.numMessagesInBatch
+  /**
+   * Send pulsar commands to the brokers.
+   * @param cmd is a BaseCommand
+   *  - must include the type attribute
+   *  - must have and one and only one command
+   *  - when requestId can be undefined or uzero, request is automatically tracked with an available request id
+   *  - when requestId is set, requestTracker must have requestTrack for the requestId
+   * @returns response back from the broker
+   */
+  async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses> {
+    const result = await this.workQueue.add(async () => {
+      const { requestTrack, payload } = this.getCommandBytesTosend(cmd)
+      await this.pulsarSocket.send(payload).catch(requestTrack.rejectRequest)
+      return await requestTrack.prom
     })
+    if (result instanceof Object) {
+      return result
+    }
+    this.wrappedLogger.error('workQueue add returned invalid object for command', { cmd })
+    throw Error('workQueue add returned invalid object for command')
+  }
 
-    const seralizedBatch = serializeBatch(sendCommand, messageMetadata, uncompressedPayload)
+  /**
+   * Send messages the brokers.
+   * @param producerId
+   * @param messageMetadata
+   * @param uncompressedPayload
+   * @returns a promise that includes  recipt.
+   */
+  async sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array): Promise<CommandSendReceipt> {
+    const result = await this.workQueue.add(async () => {
+      const requestTrack = this.requestTracker.trackRequest()
+      const sendCommand = CommandSend.fromJSON({
+        producerId,
+        sequenceId: messageMetadata.sequenceId,
+        numMessages: messageMetadata.numMessagesInBatch
+      })
 
-    try {
+      const seralizedBatch = serializeBatch(sendCommand, messageMetadata, uncompressedPayload)
+
       // for send messsages, request id is not returned on the SendReceipt object.  Command success is handled by
       // producerID and the sequenceID separately.  Therefor, we don't wait for response here.
-      await this.pulsarSocket.send(seralizedBatch)
+      await this.pulsarSocket.send(seralizedBatch).catch(requestTrack.rejectRequest)
       requestTrack.resolveRequest(CommandSuccess.create({ requestId: requestTrack.id }))
-    } catch (e) {
-      requestTrack.rejectRequest(e)
+      return (await requestTrack.prom) as CommandSendReceipt
+    })
+    if (result instanceof Object) {
+      return result
     }
-
-    return await requestTrack.prom
+    this.wrappedLogger.error('workQueue add returned invalid object for message send', { messageCount: messageMetadata.numMessagesInBatch })
+    throw Error('workQueue add returned invalid object for message send')
   }
 
   isReady (): boolean {
