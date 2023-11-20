@@ -2,7 +2,7 @@ import { NoAuth } from '../auth/noauth'
 import { Auth } from '../auth'
 import { v4 } from 'uuid'
 import ip from 'ip'
-import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, EventSignalType, Message } from './index'
+import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, DEFAULT_MAX_WORK_QUEUE_SIZE, EventSignalType, Message } from './index'
 import { Signal } from 'micro-signals'
 import { WrappedLogger } from '../util/logger'
 
@@ -13,6 +13,7 @@ export interface ConnectionOptions {
   keepAliveIntervalMs?: number
   maxMessageSize?: number
   listenerName?: string
+  maxWorkQueueSize?: number
 }
 
 export class _ConnectionOptions {
@@ -25,6 +26,7 @@ export class _ConnectionOptions {
   readonly connectionId: string
   readonly isTlsEnabled: boolean
   readonly uuid: string
+  readonly maxWorkQueueSize: number
 
   constructor (options: ConnectionOptions) {
     const urlObj = new URL(options.url)
@@ -38,6 +40,11 @@ export class _ConnectionOptions {
     this.connectionId = `${ip.address()} -> ${options.url}`
     this.isTlsEnabled = urlObj.protocol === 'pulsar+ssl:' || urlObj.protocol === 'https:'
     this.uuid = v4()
+
+    this.maxWorkQueueSize = options.maxWorkQueueSize ?? DEFAULT_MAX_WORK_QUEUE_SIZE
+    if (options.maxWorkQueueSize < 0) {
+      throw Error('maxWorkQueueSize cannot be less than 0')
+    }
   }
 
   getWrappedLogger (name: string, logicalAddress?: URL): WrappedLogger {

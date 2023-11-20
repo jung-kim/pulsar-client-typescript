@@ -81,6 +81,21 @@ export class Connection extends BaseConnection {
     }
   }
 
+  private async addToWorkQueue<T> (workFn: () => Promise<T>): Promise<T> {
+    if (this.workQueue.size >= this.options.maxWorkQueueSize) {
+      this.wrappedLogger.error('workQueue is overloaded and too many outstanding requests, broker is possibly behind in processing. please retry again later.')
+      throw Error('workQueue reached max capacity')
+    }
+
+    const result = await this.workQueue.add(workFn)
+
+    if (result instanceof Object) {
+      return result as T
+    }
+    this.wrappedLogger.error('workQueue add returned invalid object for command')
+    throw Error('workQueue add returned invalid object for command')
+  }
+
   /**
    * Send pulsar commands to the brokers.
    * @param cmd is a BaseCommand
@@ -91,16 +106,11 @@ export class Connection extends BaseConnection {
    * @returns response back from the broker
    */
   async sendCommand (cmd: BaseCommand): Promise<CommandTypesResponses> {
-    const result = await this.workQueue.add(async () => {
+    return await this.addToWorkQueue(async () => {
       const { requestTrack, payload } = this.getCommandBytesTosend(cmd)
       await this.pulsarSocket.send(payload).catch(requestTrack.rejectRequest)
       return await requestTrack.prom
     })
-    if (result instanceof Object) {
-      return result
-    }
-    this.wrappedLogger.error('workQueue add returned invalid object for command', { cmd })
-    throw Error('workQueue add returned invalid object for command')
   }
 
   /**
@@ -111,7 +121,7 @@ export class Connection extends BaseConnection {
    * @returns a promise that includes  recipt.
    */
   async sendMessages (producerId: Long, messageMetadata: MessageMetadata, uncompressedPayload: Uint8Array): Promise<CommandSendReceipt> {
-    const result = await this.workQueue.add(async () => {
+    return await this.addToWorkQueue(async () => {
       const requestTrack = this.requestTracker.trackRequest()
       const sendCommand = CommandSend.fromJSON({
         producerId,
@@ -127,11 +137,6 @@ export class Connection extends BaseConnection {
       requestTrack.resolveRequest(CommandSuccess.create({ requestId: requestTrack.id }))
       return (await requestTrack.prom) as CommandSendReceipt
     })
-    if (result instanceof Object) {
-      return result
-    }
-    this.wrappedLogger.error('workQueue add returned invalid object for message send', { messageCount: messageMetadata.numMessagesInBatch })
-    throw Error('workQueue add returned invalid object for message send')
   }
 
   isReady (): boolean {

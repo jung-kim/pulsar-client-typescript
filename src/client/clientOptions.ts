@@ -7,6 +7,7 @@ const defaultMaxConnectionsPerHost = 1
 export interface ClientOptions extends ConnectionOptions {
   operationTimeoutMs?: number
   maxConnectionsPerHost?: number
+  maxWorkQueueSize?: number
 }
 
 export class _ClientOptions extends _ConnectionOptions {

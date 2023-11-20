@@ -22,6 +22,7 @@ export interface Message {
 export const DEFAULT_CONNECTION_TIMEOUT_MS = 10 * 1000
 export const DEFAULT_KEEP_ALIVE_INTERVAL_MS = 30 * 1000
 export const DEFAULT_MAX_MESSAGE_SIZE = 5 * 1024 * 1024
+export const DEFAULT_MAX_WORK_QUEUE_SIZE = 25
 export const PROTOCOL_VERSION = ProtocolVersion.v13
 export const PULSAR_CLIENT_VERSION = 'Pulsar TS 0.1'
 export type EVENT_SIGNALS = 'handshake_start' | 'handshake_response' | 'close' | 'ping' | 'pong'
