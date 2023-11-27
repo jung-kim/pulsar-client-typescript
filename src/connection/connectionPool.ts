@@ -4,7 +4,7 @@ import { Connection } from './connection'
 import { ConnectionOptions, _ConnectionOptions } from './connectionOptions'
 import { Signal } from 'micro-signals'
 import Long from 'long'
-import { CommandTypesResponses } from '.'
+import { CommandTypesResponses, LOOKUP_RESULT_MAX_REDIRECT } from '.'
 import { LookupService } from './lookupService'
 
 export class ConnectionPool {
@@ -62,16 +62,31 @@ export class ConnectionPool {
       })
     })
 
-    const res = (await this.getAnyAdminConnection().sendCommand(lookupCommand)) as CommandLookupTopicResponse
+    let res = (await this.getAnyAdminConnection().sendCommand(lookupCommand)) as CommandLookupTopicResponse
 
-    if (res.response === CommandLookupTopicResponse_LookupType.Connect) {
+    for (let i = 0; i < LOOKUP_RESULT_MAX_REDIRECT; i++) {
       const logicalAddress = this.options.isTlsEnabled
         ? res.brokerServiceUrlTls
         : res.brokerServiceUrl
-      return new URL(logicalAddress)
+      const logicalAddrUrl = new URL(logicalAddress)
+
+      if (res.response === CommandLookupTopicResponse_LookupType.Connect) {
+        this.wrappedLogger.debug('lookup success', { topic, listenerName, logicalAddress })
+        return logicalAddrUrl
+      } else if (res.response === CommandLookupTopicResponse_LookupType.Failed) {
+        this.wrappedLogger.error('lookup failed', { topic, listenerName, res })
+        throw Error(`Failed to lookup.  topic: [${topic}] listenerName [${listenerName}] error: [${res.error}]`)
+      }
+
+      lookupCommand.lookupTopic.authoritative = res.authoritative
+
+      // handle redirects
+      this.wrappedLogger.debug('lookup is redirected', { topic, listenerName })
+      const cnx = this.getConnection(logicalAddrUrl)
+      res = (await cnx.sendCommand(lookupCommand)) as CommandLookupTopicResponse
     }
 
-    this.wrappedLogger.debug('lookup is failed', { topic, listenerName })
+    this.wrappedLogger.error('lookup is failed', { topic, listenerName, res: res.response })
     throw Error(`Failed to lookup.  topic: [${topic}] listenerName [${listenerName}]`)
   }
 
