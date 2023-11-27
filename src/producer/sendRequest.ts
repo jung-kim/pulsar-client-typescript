@@ -1,4 +1,4 @@
-import { ProducerMessage } from './ProducerMessage'
+import { ProducerMessage } from './producerMessage'
 
 export interface SendRequest {
   msg: ProducerMessage

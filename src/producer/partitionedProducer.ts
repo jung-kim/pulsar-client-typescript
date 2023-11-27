@@ -1,5 +1,5 @@
-import { Producer } from './Producer'
-import { ProducerMessage } from './ProducerMessage'
+import { Producer } from './producer'
+import { ProducerMessage } from './producerMessage'
 import { WrappedLogger } from '../util/logger'
 import { Connection } from '../connection'
 import { SendRequest } from './sendRequest'

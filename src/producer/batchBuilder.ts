@@ -1,6 +1,6 @@
 import Long from 'long'
 import { MessageMetadata, SingleMessageMetadata } from '../proto/PulsarApi'
-import { ProducerMessage } from './ProducerMessage'
+import { ProducerMessage } from './producerMessage'
 import { getFixed32BigEndian } from '../util/proto'
 import { ProducerOption } from './producerOption'
 

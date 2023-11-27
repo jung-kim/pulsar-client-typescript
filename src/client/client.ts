@@ -1,6 +1,6 @@
 import { Producer, ProducerOption } from '../producer'
 import { Connection, ConnectionPool } from '../connection'
-import { ClientOptions, _ClientOptions } from './clientOptions'
+import { ClientOptions } from './clientOptions'
 import { WrappedLogger } from '../util/logger'
 import { v4 } from 'uuid'
 import { LookupService } from '../connection/lookupService'
@@ -8,11 +8,11 @@ import { LookupService } from '../connection/lookupService'
 export class Client {
   private readonly cp: ConnectionPool
   private readonly logger: WrappedLogger
-  public readonly opt: _ClientOptions
+  public readonly opt: ClientOptions
 
   constructor (opt: ClientOptions) {
-    this.cp = new ConnectionPool(opt)
-    this.opt = new _ClientOptions(opt)
+    this.opt = opt
+    this.cp = new ConnectionPool(this.opt)
     this.logger = new WrappedLogger({ uuid: `client-${v4()}` })
   }
 
@@ -26,7 +26,7 @@ export class Client {
       return this.cp.getAnyAdminConnection()
     }
 
-    return this.getConnection(logicalAddress)
+    return this.cp.getConnection(logicalAddress)
   }
 
   public getLookupService (): LookupService {
