@@ -2,7 +2,7 @@ import { NoAuth } from '../auth/noauth'
 import { Auth } from '../auth'
 import { v4 } from 'uuid'
 import ip from 'ip'
-import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, DEFAULT_MAX_WORK_QUEUE_SIZE, EventSignalType, Message } from './index'
+import { DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_KEEP_ALIVE_INTERVAL_MS, DEFAULT_MAX_MESSAGE_SIZE, DEFAULT_MAX_WORK_QUEUE_SIZE, EventSignalType } from './index'
 import { Signal } from 'micro-signals'
 import { WrappedLogger } from '../util/logger'
 
@@ -57,9 +57,5 @@ export class _ConnectionOptions {
 
   getNewEventSignal (): Signal<EventSignalType> {
     return new Signal<EventSignalType>()
-  }
-
-  getNewDataSignal (): Signal<Message> {
-    return new Signal<Message>()
   }
 }

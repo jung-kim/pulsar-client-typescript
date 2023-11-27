@@ -68,10 +68,10 @@ export class RawSocket extends AbstractPulsarSocket {
           this._eventSignal.dispatch({ event: 'pong' })
           break
         case BaseCommand_Type.CONNECTED:
-          this._eventSignal.dispatch({ event: 'handshake_response', command: message.baseCommand })
+          this._eventSignal.dispatch({ event: 'handshake_response', message })
           break
         default:
-          this._dataSignal.dispatch(message)
+          this._eventSignal.dispatch({ event: 'message', message })
           break
       }
     })

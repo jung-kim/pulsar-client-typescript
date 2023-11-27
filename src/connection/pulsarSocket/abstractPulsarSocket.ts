@@ -1,4 +1,4 @@
-import { EventSignalType, Message, STATE } from '..'
+import { EventSignalType, STATE } from '..'
 import { ReadableSignal, Signal } from 'micro-signals'
 import { WrappedLogger } from '../../util/logger'
 import { _ConnectionOptions } from '../connectionOptions'
@@ -17,16 +17,12 @@ export abstract class AbstractPulsarSocket {
 
   protected readonly _eventSignal: Signal<EventSignalType>
   public readonly eventSignal: ReadableSignal<EventSignalType>
-  protected readonly _dataSignal: Signal<Message>
-  public readonly dataSignal: ReadableSignal<Message>
   public readonly options: _ConnectionOptions
   public readonly logicalAddress: URL
 
   constructor (options: _ConnectionOptions, logicalAddress: URL) {
     this._eventSignal = options.getNewEventSignal()
     this.eventSignal = this._eventSignal.readOnly()
-    this._dataSignal = options.getNewDataSignal()
-    this.dataSignal = this._dataSignal.readOnly()
     this.options = options
     this.logicalAddress = logicalAddress
     this.wrappedLogger = options.getWrappedLogger('pulasr-socket', logicalAddress)

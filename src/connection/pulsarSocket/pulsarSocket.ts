@@ -22,7 +22,7 @@ export class PulsarSocket extends KeepAliveSocket {
           void this.sendHandshake()
           break
         case 'handshake_response':
-          this.receiveHandshake(payload.command)
+          this.receiveHandshake(payload.message.baseCommand)
           break
       }
     })

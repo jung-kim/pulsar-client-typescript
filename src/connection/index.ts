@@ -25,8 +25,8 @@ export const DEFAULT_MAX_MESSAGE_SIZE = 5 * 1024 * 1024
 export const DEFAULT_MAX_WORK_QUEUE_SIZE = 25
 export const PROTOCOL_VERSION = ProtocolVersion.v13
 export const PULSAR_CLIENT_VERSION = 'Pulsar TS 0.1'
-export type EVENT_SIGNALS = 'handshake_start' | 'handshake_response' | 'close' | 'ping' | 'pong'
-export interface EventSignalType { event: EVENT_SIGNALS, err?: Error, command?: BaseCommand }
+export type EVENT_SIGNALS = 'handshake_start' | 'handshake_response' | 'close' | 'ping' | 'pong' | 'message'
+export interface EventSignalType { event: EVENT_SIGNALS, err?: Error, message?: Message }
 export type CommandTypesResponses =
   CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse
   | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse | CommandSendReceipt

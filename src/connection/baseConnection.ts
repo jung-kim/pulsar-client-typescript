@@ -26,7 +26,10 @@ export abstract class BaseConnection {
     this.producerListeners = new ProducerListeners(options.uuid)
     this.consumerLinsteners = new ConsumerListeners(options.uuid)
 
-    this.pulsarSocket.dataSignal.add((message: Message) => {
+    this.pulsarSocket.eventSignal.add(({ event, message }) => {
+      if (event !== 'message') {
+        return
+      }
       switch (message.baseCommand.type) {
         case BaseCommand_Type.SUCCESS:
           if (message.baseCommand.success !== undefined) {

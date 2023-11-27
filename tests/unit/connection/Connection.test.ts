@@ -1,6 +1,6 @@
 import { Connection } from '../../../src/connection/connection'
 import { expect } from 'chai'
-import { CommandTypesResponses, Message } from '../../../src/connection'
+import { CommandTypesResponses, EventSignalType, Message } from '../../../src/connection'
 import { Signal } from 'micro-signals'
 import { BaseCommand, BaseCommand_Type, CommandCloseConsumer, CommandPing, CommandSuccess } from '../../../src/proto/PulsarApi'
 import { createDummyBaseCommand, getConnection, getDefaultHandleResponseStubs, TestConnection } from './utils'
@@ -12,9 +12,9 @@ import { RequestTracker } from '../../../src/util/requestTracker'
 describe('connection.Connection', () => {
   describe('constructor', () => {
     let conn: Connection
-    let dataSignal: Signal<Message>
+    let eventSignal: Signal<EventSignalType>
 
-    beforeEach(() => ({ conn, dataSignal } = getConnection()))
+    beforeEach(() => ({ conn, eventSignal } = getConnection()))
     afterEach(() => conn.close())
 
     it('should be able to construct', () => {
@@ -30,9 +30,12 @@ describe('connection.Connection', () => {
         const baseCommand = createDummyBaseCommand(BaseCommand_Type.SUCCESS)
         baseCommand.success = { requestId: Long.fromInt(111), schema: undefined }
 
-        dataSignal.dispatch({
-          baseCommand,
-          headersAndPayload: dummyBuffer
+        eventSignal.dispatch({
+          event: 'message',
+          message: {
+            baseCommand,
+            headersAndPayload: dummyBuffer
+          }
         })
 
         await prom
@@ -54,9 +57,12 @@ describe('connection.Connection', () => {
           producerReady: false
         }
 
-        dataSignal.dispatch({
-          baseCommand,
-          headersAndPayload: dummyBuffer
+        eventSignal.dispatch({
+          event: 'message',
+          message: {
+            baseCommand,
+            headersAndPayload: dummyBuffer
+          }
         })
 
         await prom
@@ -77,9 +83,12 @@ describe('connection.Connection', () => {
           message: 'aaa'
         }
 
-        dataSignal.dispatch({
-          baseCommand,
-          headersAndPayload: dummyBuffer
+        eventSignal.dispatch({
+          event: 'message',
+          message: {
+            baseCommand,
+            headersAndPayload: dummyBuffer
+          }
         })
 
         await prom
@@ -103,9 +112,12 @@ describe('connection.Connection', () => {
           proxyThroughServiceUrl: false
         }
 
-        dataSignal.dispatch({
-          baseCommand,
-          headersAndPayload: dummyBuffer
+        eventSignal.dispatch({
+          event: 'message',
+          message: {
+            baseCommand,
+            headersAndPayload: dummyBuffer
+          }
         })
 
         await prom
@@ -137,9 +149,12 @@ describe('connection.Connection', () => {
           messageAckRate: 5
         }
 
-        dataSignal.dispatch({
-          baseCommand,
-          headersAndPayload: dummyBuffer
+        eventSignal.dispatch({
+          event: 'message',
+          message: {
+            baseCommand,
+            headersAndPayload: dummyBuffer
+          }
         })
 
         await prom
@@ -158,9 +173,12 @@ describe('connection.Connection', () => {
           consumerMarkDeletePosition: undefined
         }
 
-        dataSignal.dispatch({
-          baseCommand,
-          headersAndPayload: dummyBuffer
+        eventSignal.dispatch({
+          event: 'message',
+          message: {
+            baseCommand,
+            headersAndPayload: dummyBuffer
+          }
         })
 
         await prom
@@ -181,9 +199,12 @@ describe('connection.Connection', () => {
           changed: true
         }
 
-        dataSignal.dispatch({
-          baseCommand,
-          headersAndPayload: dummyBuffer
+        eventSignal.dispatch({
+          event: 'message',
+          message: {
+            baseCommand,
+            headersAndPayload: dummyBuffer
+          }
         })
 
         await prom
@@ -204,9 +225,12 @@ describe('connection.Connection', () => {
           schemaVersion: new Uint8Array()
         }
 
-        dataSignal.dispatch({
-          baseCommand,
-          headersAndPayload: dummyBuffer
+        eventSignal.dispatch({
+          event: 'message',
+          message: {
+            baseCommand,
+            headersAndPayload: dummyBuffer
+          }
         })
 
         await prom
@@ -230,7 +254,11 @@ describe('connection.Connection', () => {
           baseCommand,
           headersAndPayload: Buffer.from('error')
         }
-        dataSignal.dispatch(message)
+
+        eventSignal.dispatch({
+          event: 'message',
+          message
+        })
 
         await prom
 
