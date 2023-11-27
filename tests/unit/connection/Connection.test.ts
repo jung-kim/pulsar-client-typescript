@@ -6,7 +6,6 @@ import { BaseCommand, BaseCommand_Type, CommandCloseConsumer, CommandPing, Comma
 import { createDummyBaseCommand, getConnection, getDefaultHandleResponseStubs, TestConnection } from './utils'
 import Long from 'long'
 import sinon from 'sinon'
-import { PulsarSocket } from '../../../src/connection/pulsarSocket/pulsarSocket'
 import { RequestTracker } from '../../../src/util/requestTracker'
 
 describe('connection.Connection', () => {
@@ -271,16 +270,16 @@ describe('connection.Connection', () => {
   describe('sendCommand()', () => {
     let conn: TestConnection
     let rt: RequestTracker<CommandTypesResponses>
-    let ps: PulsarSocket
+    let sendStub: sinon.SinonStub<[buffer: Uint8Array | Buffer], Promise<void>>
 
     beforeEach(() => {
-      ({ conn } = getConnection())
+      ({ conn, sendStub } = getConnection())
       rt = conn.getRequestTracker()
-      ps = conn.getPulsarSocket()
     })
     afterEach(() => conn.close())
 
     it('should create a request tracker if not passed in', async () => {
+      await conn.ensureReady()
       const closeConsumerCommand = BaseCommand.fromJSON({
         type: BaseCommand_Type.CLOSE_CONSUMER,
         closeConsumer: CommandCloseConsumer.fromJSON({
@@ -289,7 +288,6 @@ describe('connection.Connection', () => {
       })
 
       const requestId = Long.UONE
-      const writeCommandStub = sinon.stub(ps, 'writeCommand')
 
       const closeConsumerCommandResultProm = conn.sendCommand(closeConsumerCommand)
       const interval = setInterval(() => {
@@ -304,7 +302,7 @@ describe('connection.Connection', () => {
       }, 25)
       const closeConsumerCommandResult = await closeConsumerCommandResultProm as CommandSuccess
 
-      expect(writeCommandStub.callCount).to.eq(1)
+      expect(sendStub.callCount).to.eq(1)
       expect(closeConsumerCommandResult.requestId.eq(requestId)).to.eq(true)
     })
 
@@ -321,8 +319,6 @@ describe('connection.Connection', () => {
         })
       })
 
-      const writeCommandStub = sinon.stub(ps, 'writeCommand')
-
       const closeConsumerCommandResultProm = conn.sendCommand(closeConsumerCommand)
       const interval = setInterval(() => {
         if (rt.get(requestId) === undefined) {
@@ -336,7 +332,7 @@ describe('connection.Connection', () => {
       }, 25)
       const closeConsumerCommandResult = await closeConsumerCommandResultProm as CommandSuccess
 
-      expect(writeCommandStub.callCount).to.eq(1)
+      expect(sendStub.callCount).to.eq(1)
       expect(closeConsumerCommandResult.requestId.eq(requestId)).to.eq(true)
     })
 
@@ -383,8 +379,7 @@ describe('connection.Connection', () => {
         })
       })
 
-      const writeCommandStub = sinon.stub(ps, 'writeCommand')
-      writeCommandStub.throws(new Error('some error'))
+      sendStub.throws(new Error('some error'))
 
       try {
         await conn.sendCommand(closeConsumerCommand)

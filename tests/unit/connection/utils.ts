@@ -15,9 +15,18 @@ export class TestConnection extends Connection {
   getRequestTracker (): RequestTracker<CommandTypesResponses> { return this.requestTracker }
 }
 
+export class TestMockConnectedConnection extends TestConnection {
+  getPulsarSocket (): PulsarSocket { return this.pulsarSocket }
+  getProducerListeners (): ProducerListeners { return this.producerListeners }
+  getConsumerListeners (): ConsumerListeners { return this.consumerLinsteners }
+  getRequestTracker (): RequestTracker<CommandTypesResponses> { return this.requestTracker }
+}
+
 export const getConnection = (): {
   conn: TestConnection
   eventSignal: Signal<EventSignalType>
+  sendStub: sinon.SinonStub<[buffer: Uint8Array | Buffer], Promise<void>>
+  ensureReadyStub: sinon.SinonStub<[], Promise<void>>
 } => {
   const options = new _ConnectionOptions({ url: 'pulsar://a.b:6651' })
   const logicalAddress = new URL('pulsar://a.b:6651')
@@ -25,7 +34,11 @@ export const getConnection = (): {
   sinon.stub(options, 'getNewEventSignal').returns(eventSignal)
   const conn = new TestConnection(options, logicalAddress)
 
-  return { conn, eventSignal }
+  const sendStub = sinon.stub(conn.getPulsarSocket(), 'send')
+    .returns(Promise.resolve())
+  const ensureReadyStub = sinon.stub(conn, 'ensureReady').returns(Promise.resolve())
+
+  return { conn, eventSignal, sendStub, ensureReadyStub }
 }
 
 export const getDefaultHandleResponseStubs = (conn: Connection): {
