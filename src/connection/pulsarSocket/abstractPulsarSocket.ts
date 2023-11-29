@@ -1,7 +1,7 @@
 import { EventSignalType, STATE } from '..'
 import { ReadableSignal, Signal } from 'micro-signals'
 import { WrappedLogger } from '../../util/logger'
-import { _ConnectionOptions } from '../connectionOptions'
+import { ConnectionOptions } from '../connectionOptions'
 import { BaseCommand } from '../../../src/proto/PulsarApi'
 import { commandToPayload } from './utils'
 import type { Defered } from '../../util/deferred'
@@ -12,21 +12,23 @@ import type { Defered } from '../../util/deferred'
 export abstract class AbstractPulsarSocket {
   private state: STATE = 'INITIALIZING'
   protected initializeDeferrred: Defered<void> | undefined = undefined
-  private readonly id: string
   protected readonly wrappedLogger: WrappedLogger
 
   protected readonly _eventSignal: Signal<EventSignalType>
   public readonly eventSignal: ReadableSignal<EventSignalType>
-  public readonly options: _ConnectionOptions
+  public readonly options: ConnectionOptions
   public readonly logicalAddress: URL
 
-  constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    this._eventSignal = options.getNewEventSignal()
+  constructor (options: ConnectionOptions, logicalAddress: URL, _eventSignal: Signal<EventSignalType>) {
+    this._eventSignal = _eventSignal
     this.eventSignal = this._eventSignal.readOnly()
     this.options = options
     this.logicalAddress = logicalAddress
-    this.wrappedLogger = options.getWrappedLogger('pulasr-socket', logicalAddress)
-    this.id = `${options.connectionId}-${logicalAddress.host}`
+    this.wrappedLogger = new WrappedLogger({
+      name: 'pulsar-socket',
+      uuid: this.options.uuid,
+      host: logicalAddress.host
+    })
   }
 
   protected close (): void {
@@ -40,10 +42,6 @@ export abstract class AbstractPulsarSocket {
   }
 
   public abstract send (buffer: Uint8Array | Buffer): Promise<void>
-
-  public getId (): string {
-    return this.id
-  }
 
   public async writeCommand (command: BaseCommand): Promise<void> {
     return await this.send(commandToPayload(command))

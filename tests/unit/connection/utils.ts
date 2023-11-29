@@ -1,7 +1,7 @@
 import { Signal } from 'micro-signals'
 import sinon from 'sinon'
 import { CommandTypesResponses, Connection, EventSignalType, Message } from '../../../src/connection'
-import { _ConnectionOptions } from '../../../src/connection/connectionOptions'
+import { _initializeOption } from '../../../src/connection/connectionOptions'
 import { ConsumerListeners } from '../../../src/connection/consumerListeners'
 import { ProducerListeners } from '../../../src/connection/producerListeners'
 import { PulsarSocket } from '../../../src/connection/pulsarSocket/pulsarSocket'
@@ -13,6 +13,7 @@ export class TestConnection extends Connection {
   getProducerListeners (): ProducerListeners { return this.producerListeners }
   getConsumerListeners (): ConsumerListeners { return this.consumerLinsteners }
   getRequestTracker (): RequestTracker<CommandTypesResponses> { return this.requestTracker }
+  getEventSignal (): Signal<EventSignalType> { return this._eventSignal }
 }
 
 export class TestMockConnectedConnection extends TestConnection {
@@ -28,17 +29,15 @@ export const getConnection = (): {
   sendStub: sinon.SinonStub<[buffer: Uint8Array | Buffer], Promise<void>>
   ensureReadyStub: sinon.SinonStub<[], Promise<void>>
 } => {
-  const options = new _ConnectionOptions({ url: 'pulsar://a.b:6651' })
+  const options = _initializeOption({ url: 'pulsar://a.b:6651' })
   const logicalAddress = new URL('pulsar://a.b:6651')
-  const eventSignal = new Signal<EventSignalType>()
-  sinon.stub(options, 'getNewEventSignal').returns(eventSignal)
   const conn = new TestConnection(options, logicalAddress)
 
   const sendStub = sinon.stub(conn.getPulsarSocket(), 'send')
     .returns(Promise.resolve())
   const ensureReadyStub = sinon.stub(conn, 'ensureReady').returns(Promise.resolve())
 
-  return { conn, eventSignal, sendStub, ensureReadyStub }
+  return { conn, eventSignal: conn.getEventSignal(), sendStub, ensureReadyStub }
 }
 
 export const getDefaultHandleResponseStubs = (conn: Connection): {

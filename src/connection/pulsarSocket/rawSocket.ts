@@ -1,11 +1,12 @@
-import { Message } from '..'
+import { EventSignalType, Message } from '..'
 import { createConnection, Socket } from 'net'
 import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
 import proto from 'protobufjs'
 import { connect, TLSSocket } from 'tls'
-import { _ConnectionOptions } from '../connectionOptions'
+import { ConnectionOptions } from '../connectionOptions'
 import { AbstractPulsarSocket } from './abstractPulsarSocket'
 import { getDeferred } from '../../util/deferred'
+import { Signal } from 'micro-signals'
 
 /**
  * Has raw TCP socket conenction and raw functions for raw sockets
@@ -14,8 +15,8 @@ export class RawSocket extends AbstractPulsarSocket {
   protected socket: Socket | TLSSocket | undefined = undefined
   private lastDataReceived: number = 0
 
-  constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    super(options, logicalAddress)
+  constructor (options: ConnectionOptions, logicalAddress: URL, _eventSignal: Signal<EventSignalType>) {
+    super(options, logicalAddress, _eventSignal)
     this.wrappedLogger.info('base socket created')
   }
 
@@ -26,7 +27,7 @@ export class RawSocket extends AbstractPulsarSocket {
 
     this.initializeDeferrred = getDeferred()
 
-    this.socket = this.options.isTlsEnabled
+    this.socket = this.options._isTlsEnabled
       ? connect({
         host: this.logicalAddress.hostname,
         port: parseInt(this.logicalAddress.port),

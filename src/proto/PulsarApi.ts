@@ -2825,12 +2825,12 @@ function createBaseMessageMetadata(): MessageMetadata {
 
 export const MessageMetadata = {
   encode(message: MessageMetadata, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    // if (message.producerName !== "") {
+    if (message.producerName !== "") {
       writer.uint32(10).string(message.producerName);
-    // }
-    // if (!message.sequenceId.isZero()) {
+    }
+    if (!message.sequenceId.isZero()) {
       writer.uint32(16).uint64(message.sequenceId);
-    // }
+    }
     if (!message.publishTime.isZero()) {
       writer.uint32(24).uint64(message.publishTime);
     }
@@ -5590,9 +5590,9 @@ export const CommandSend = {
     if (!message.producerId.isZero()) {
       writer.uint32(8).uint64(message.producerId);
     }
-    // if (!message.sequenceId.isZero()) {
+    if (!message.sequenceId.isZero()) {
       writer.uint32(16).uint64(message.sequenceId);
-    // }
+    }
     if (message.numMessages !== 0) {
       writer.uint32(24).int32(message.numMessages);
     }

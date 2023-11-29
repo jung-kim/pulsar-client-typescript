@@ -1,10 +1,12 @@
+import { Signal } from 'micro-signals'
 import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
-import { _ConnectionOptions } from '../connectionOptions'
+import { ConnectionOptions } from '../connectionOptions'
 import { RawSocket } from './rawSocket'
+import { EventSignalType } from '..'
 
 export class KeepAliveSocket extends RawSocket {
-  constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    super(options, logicalAddress)
+  constructor (options: ConnectionOptions, logicalAddress: URL, _eventSignal: Signal<EventSignalType>) {
+    super(options, logicalAddress, _eventSignal)
 
     this._eventSignal.add(payload => {
       switch (payload.event) {

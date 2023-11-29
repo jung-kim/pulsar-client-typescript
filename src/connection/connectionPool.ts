@@ -1,27 +1,27 @@
 import { WrappedLogger } from '../util/logger'
-import { BaseCommand, BaseCommand_Type, CommandCloseProducer, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, CommandSendReceipt, KeyValue } from '../proto/PulsarApi'
+import { BaseCommand, BaseCommand_Type, CommandCloseProducer, CommandLookupTopic, CommandLookupTopicResponse, CommandLookupTopicResponse_LookupType, CommandProducer, CommandProducerSuccess, CommandSendReceipt, KeyValue } from '../proto/PulsarApi'
 import { Connection } from './connection'
-import { ConnectionOptions, _ConnectionOptions } from './connectionOptions'
+import { ConnectionOptions } from './connectionOptions'
 import { Signal } from 'micro-signals'
 import Long from 'long'
-import { CommandTypesResponses, LOOKUP_RESULT_MAX_REDIRECT } from '.'
+import { LOOKUP_RESULT_MAX_REDIRECT } from '.'
 import { LookupService } from './lookupService'
 
 export class ConnectionPool {
   // These connections are not used for topic message traffics.  Rather
   // they are use for look ups and other administrative tasks.
   private readonly connections: Map<string, Connection> = new Map()
-  private readonly options: _ConnectionOptions
+  private readonly options: ConnectionOptions
   private readonly wrappedLogger: WrappedLogger
   private producerId = new Long(1, undefined, true)
   public readonly lookupService: LookupService
 
   constructor (options: ConnectionOptions) {
-    this.options = new _ConnectionOptions(options)
+    this.options = options
     this.wrappedLogger = new WrappedLogger({
-      name: 'ConnectionPool',
+      name: 'connection-pool',
       uuid: this.options.uuid,
-      id: `${this.options.connectionId}`
+      host: this.options._urlObj.host
     })
     this.lookupService = new LookupService(this)
   }
@@ -35,7 +35,7 @@ export class ConnectionPool {
     if (cnx !== undefined) {
       return cnx
     }
-    return this.getConnection(this.options.urlObj)
+    return this.getConnection(this.options._urlObj)
   }
 
   getConnection (logicalAddress: URL): Connection {
@@ -65,7 +65,7 @@ export class ConnectionPool {
     let res = (await this.getAnyAdminConnection().sendCommand(lookupCommand)) as CommandLookupTopicResponse
 
     for (let i = 0; i < LOOKUP_RESULT_MAX_REDIRECT; i++) {
-      const logicalAddress = this.options.isTlsEnabled
+      const logicalAddress = this.options._isTlsEnabled
         ? res.brokerServiceUrlTls
         : res.brokerServiceUrl
       const logicalAddrUrl = new URL(logicalAddress)
@@ -110,7 +110,7 @@ export class ConnectionPool {
     producerSignal: Signal<CommandSendReceipt | CommandCloseProducer>,
     epoch: Long,
     metadata: KeyValue[]
-  ): Promise<{ cnx: Connection, commandProducerResponse: CommandTypesResponses }> {
+  ): Promise<{ cnx: Connection, commandProducerResponse: CommandProducerSuccess }> {
     // PartitionedProducer.grabCnx()
 
     // pbSchema := new(pb.Schema)
@@ -161,7 +161,7 @@ export class ConnectionPool {
     //   encryptor = internalcrypto.NewNoopEncryptor()
     // }
 
-    const commandProducerResponse = await cnx.sendCommand(cmdProducer)
+    const commandProducerResponse = await cnx.sendCommand(cmdProducer) as CommandProducerSuccess
     cnx.registerProducerListener(producerId, producerSignal)
 
     return {

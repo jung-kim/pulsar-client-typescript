@@ -21,8 +21,8 @@ export class PartitionedProducer {
 
   private readonly deferredMap: Map<string, Defered<CommandSendReceipt>> = new Map()
 
-  private sequenceId: Long = Long.fromNumber(0, true)
-
+  private sequenceId: Long = Long.fromNumber(1, true)
+  private producerName: string = ''
   private readonly producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
   private readonly pendingQueues: Array<{ sentAt: number }> = []
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
@@ -38,9 +38,11 @@ export class PartitionedProducer {
     this.topicName = partitionId === -1 ? this.parent.options.topic : `${this.parent.options.topic}-partition-${this.partitionId}`
     this.producerId = producer.cnxPool.getProducerId()
     this.wrappedLogger = new WrappedLogger({
-      producerName: this.parent.options.name,
+      name: 'partitioned-producer',
+      producerName: 'uninitialized',
       producerId: this.producerId,
       topicName: this.parent.options.topic,
+      uuid: producer.options._uuid,
       partitionId
     })
     this.batchBuilder = new BatchBuilder(this.parent.options)
@@ -89,10 +91,9 @@ export class PartitionedProducer {
 
     this.isReadyProm = this.grabCnx()
 
-    // // Not sure if this is needed
-    // if p.options.SendTimeout > 0 {
-    //   go p.failTimeoutMessages()
-    // }
+    if (producer.options.sendTimeoutMs > 0) {
+      this.setFailTimeoutFunc()
+    }
 
     // // event loop probably is not needed
     // go p.runEventsLoop()
@@ -113,13 +114,15 @@ export class PartitionedProducer {
   }
 
   async grabCnx (): Promise<void> {
-    const { cnx } = await this.parent.cnxPool.getProducerConnection(
+    const { cnx, commandProducerResponse } = await this.parent.cnxPool.getProducerConnection(
       this.producerId,
       this.topicName,
       this.producerSignal,
       this.epoch,
       this.parent.options._properties)
     this.cnx = cnx
+    this.producerName = commandProducerResponse.producerName
+    this.wrappedLogger.updateMetadata('producerName', this.producerName)
 
     if (this.state === 'PRODUCER_INIT') {
       this.state = 'PRODUCER_READY'
@@ -283,7 +286,7 @@ export class PartitionedProducer {
 
       const now = Date.now()
 
-      // message have processed sicne setFailTimeoutFunc but other messages hasn't been
+      // message have processed since setFailTimeoutFunc but other messages hasn't been
       // around long enough to trigger timeout.
       if (now - this.pendingQueues[0].sentAt < this.parent.options.sendTimeoutMs) {
         this.failTimeoutFunc = undefined

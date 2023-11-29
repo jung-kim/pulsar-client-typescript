@@ -147,6 +147,7 @@ export interface ProducerOption {
   maxMessageSize: number
 
   _properties: KeyValue[]
+  _uuid: string
 }
 
 export const _initializeOption = (option: Partial<ProducerOption>): ProducerOption => {

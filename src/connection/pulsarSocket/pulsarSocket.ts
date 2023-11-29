@@ -1,8 +1,9 @@
 import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
-import { _ConnectionOptions } from '../connectionOptions'
-import { DEFAULT_MAX_MESSAGE_SIZE, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from '..'
+import { ConnectionOptions } from '../connectionOptions'
+import { DEFAULT_MAX_MESSAGE_SIZE, EventSignalType, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION } from '..'
 import { commandToPayload } from './utils'
 import { KeepAliveSocket } from './keepAliveSocket'
+import { Signal } from 'micro-signals'
 
 /**
  * contains pulsar specifc socket logic
@@ -10,8 +11,8 @@ import { KeepAliveSocket } from './keepAliveSocket'
 export class PulsarSocket extends KeepAliveSocket {
   private interval: ReturnType<typeof setInterval> | undefined = undefined
 
-  constructor (options: _ConnectionOptions, logicalAddress: URL) {
-    super(options, logicalAddress)
+  constructor (options: ConnectionOptions, logicalAddress: URL, _eventSignal: Signal<EventSignalType>) {
+    super(options, logicalAddress, _eventSignal)
 
     this._eventSignal.add(payload => {
       switch (payload.event) {
@@ -54,7 +55,7 @@ export class PulsarSocket extends KeepAliveSocket {
           featureFlags: {
             supportsAuthRefresh: true
           },
-          proxyToBrokerUrl: this.logicalAddress.href === this.options.urlObj.href ? undefined : this.logicalAddress.host
+          proxyToBrokerUrl: this.logicalAddress.href === this.options._urlObj.href ? undefined : this.logicalAddress.host
         }
       })
       await super.send(commandToPayload(handshake))

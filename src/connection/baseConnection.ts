@@ -1,8 +1,8 @@
-import { Message, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION, CommandTypesResponses } from '.'
+import { Message, PROTOCOL_VERSION, PULSAR_CLIENT_VERSION, CommandTypesResponses, EventSignalType } from '.'
 import { BaseCommand, BaseCommand_Type, CommandCloseConsumer } from '../proto/PulsarApi'
 import { WrappedLogger } from '../util/logger'
 import { RequestTracker } from '../util/requestTracker'
-import { _ConnectionOptions } from './connectionOptions'
+import { ConnectionOptions } from './connectionOptions'
 import { ConsumerListeners } from './consumerListeners'
 import { ProducerListeners } from './producerListeners'
 import { PulsarSocket } from './pulsarSocket/pulsarSocket'
@@ -14,13 +14,14 @@ export abstract class BaseConnection {
   protected readonly producerListeners: ProducerListeners
   protected readonly consumerLinsteners: ConsumerListeners
   protected readonly requestTracker = new RequestTracker<CommandTypesResponses>()
+  protected readonly _eventSignal = new Signal<EventSignalType>()
 
-  public readonly options: _ConnectionOptions
+  public readonly options: ConnectionOptions
   abstract readonly wrappedLogger: WrappedLogger
 
-  constructor (options: _ConnectionOptions, logicalAddress: URL) {
+  constructor (options: ConnectionOptions, logicalAddress: URL) {
     this.options = options
-    this.pulsarSocket = new PulsarSocket(options, logicalAddress)
+    this.pulsarSocket = new PulsarSocket(options, logicalAddress, this._eventSignal)
 
     // register producer listener
     this.producerListeners = new ProducerListeners(options.uuid)

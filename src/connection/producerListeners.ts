@@ -12,7 +12,7 @@ export class ProducerListeners {
   private readonly producerListeners: Map<string, Signal<CommandSendReceipt | CommandCloseProducer>> = new Map()
 
   constructor (uuid: string) {
-    this.wrappedLogger = new WrappedLogger({ name: ProducerListeners, uuid })
+    this.wrappedLogger = new WrappedLogger({ name: 'producer-listeners', uuid })
     this.wrappedLogger.debug('created producer listeners')
   }
 

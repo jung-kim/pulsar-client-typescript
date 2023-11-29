@@ -20,7 +20,7 @@ export class Producer {
   constructor (option: Partial<ProducerOption>, cnxPool: ConnectionPool) {
     this.cnxPool = cnxPool
     this.options = _initializeOption(lodash.cloneDeep(option))
-    this.wrappedLogger = new WrappedLogger({ topic: this.options.topic })
+    this.wrappedLogger = new WrappedLogger({ name: 'producer', topic: this.options.topic, uuid: option._uuid })
 
     this.readyPromise = this.internalCreatePartitionsProducers()
     this.runBackgroundPartitionDiscovery = setInterval(

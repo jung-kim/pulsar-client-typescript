@@ -22,10 +22,10 @@ export class BatchBuilder {
   private readonly maxMessageSize: number
   private messageMetadata: MessageMetadata | undefined
 
-  constructor (opt: ProducerOption) {
-    this.maxBatchCount = opt.batchingMaxMessages
-    this.maxBatchSize = opt.batchingMaxSize
-    this.maxMessageSize = opt.maxMessageSize
+  constructor (option: ProducerOption) {
+    this.maxBatchCount = option.batchingMaxMessages
+    this.maxBatchSize = option.batchingMaxSize
+    this.maxMessageSize = option.maxMessageSize
     this.sendRequestBuffer = new Array(0)
   }
 

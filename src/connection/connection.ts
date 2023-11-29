@@ -6,7 +6,7 @@ import {
   CommandSend,
   CommandSuccess
 } from '../proto/PulsarApi'
-import { _ConnectionOptions } from './connectionOptions'
+import { ConnectionOptions } from './connectionOptions'
 import Long from 'long'
 import { Signal } from 'micro-signals'
 import { serializeBatch } from './commands'
@@ -26,9 +26,13 @@ export class Connection extends BaseConnection {
   // returned.  to ensure all commands are processed in order one at a time, this queue is used
   private readonly workQueue = new PQueue({ concurrency: 1, throwOnTimeout: true })
 
-  constructor (options: _ConnectionOptions, logicalAddress: URL) {
+  constructor (options: ConnectionOptions, logicalAddress: URL) {
     super(options, logicalAddress)
-    this.wrappedLogger = options.getWrappedLogger('connection', logicalAddress)
+    this.wrappedLogger = new WrappedLogger({
+      name: 'connections',
+      uuid: this.options.uuid,
+      host: this.options._urlObj.host
+    })
   }
 
   close (): void {

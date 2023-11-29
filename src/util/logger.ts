@@ -14,9 +14,13 @@ export const logger = createLogger({
 })
 
 export class WrappedLogger {
-  private readonly logMetadata: any
-  constructor (logMetadata: any) {
+  private readonly logMetadata: Record<string, any>
+  constructor (logMetadata: Record<string, any>) {
     this.logMetadata = logMetadata
+  }
+
+  updateMetadata (key: string, value: any): void {
+    this.logMetadata[key] = value
   }
 
   info (message: string, meta?: Record<string, any>): void {

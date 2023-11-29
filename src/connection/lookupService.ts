@@ -10,7 +10,7 @@ export class LookupService {
 
   constructor (cnxPool: ConnectionPool) {
     this.uuid = `lookup-${v4()}`
-    this.logger = new WrappedLogger({ uuid: this.uuid })
+    this.logger = new WrappedLogger({ name: 'lookup-service', uuid: this.uuid })
     this.cnxPool = cnxPool
   }
 

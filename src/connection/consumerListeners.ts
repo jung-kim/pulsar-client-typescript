@@ -9,7 +9,7 @@ export class ConsumerListeners {
   private readonly consumerListeners: Map<string, Signal<Message | CommandCloseConsumer>> = new Map()
 
   constructor (uuid: string) {
-    this.wrappedLogger = new WrappedLogger({ name: 'ConsumerListeners', uuid })
+    this.wrappedLogger = new WrappedLogger({ name: 'consumer-listeners', uuid })
     this.wrappedLogger.debug('created a consumer listener')
   }
 

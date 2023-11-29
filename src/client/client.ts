@@ -2,18 +2,18 @@ import { Producer, ProducerOption } from '../producer'
 import { Connection, ConnectionPool } from '../connection'
 import { ClientOptions } from './clientOptions'
 import { WrappedLogger } from '../util/logger'
-import { v4 } from 'uuid'
 import { LookupService } from '../connection/lookupService'
+import { _initializeOption } from '../connection/connectionOptions'
 
 export class Client {
   private readonly cp: ConnectionPool
   private readonly logger: WrappedLogger
-  public readonly opt: ClientOptions
+  public readonly option: ClientOptions
 
-  constructor (opt: ClientOptions) {
-    this.opt = opt
-    this.cp = new ConnectionPool(this.opt)
-    this.logger = new WrappedLogger({ uuid: `client-${v4()}` })
+  constructor (option: Partial<ClientOptions>) {
+    this.option = _initializeOption(option)
+    this.cp = new ConnectionPool(this.option)
+    this.logger = new WrappedLogger({ name: 'client', uuid: this.option.uuid })
   }
 
   /**
@@ -41,6 +41,7 @@ export class Client {
   }
 
   public createProducer (option: Partial<ProducerOption>): Producer {
+    option._uuid = this.option.uuid
     return new Producer(option, this.cp)
   }
 }
