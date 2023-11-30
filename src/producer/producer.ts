@@ -9,8 +9,13 @@ import { CommandSendReceipt } from '../../src/proto/PulsarApi'
 
 const encoder = new TextEncoder()
 
+/**
+ * Handles message send to pulsar cluster.  Each producers will have a number of partitionedProducers
+ * equal to the topic partition count.  Each partitioned producers will have each own exclusive
+ * connections for it self even though each connections may point to a same logical address.
+ */
 export class Producer {
-  public readonly cnxPool: ConnectionPool
+  private readonly cnxPool: ConnectionPool
   readonly options: ProducerOption
   private readonly partitionedProducers: PartitionedProducer[] = []
   private readonly wrappedLogger: WrappedLogger
@@ -37,7 +42,7 @@ export class Producer {
       // handle none partitioned topics case separately
       this.partitionedProducers.forEach(pp => pp.close())
       this.partitionedProducers.length = 1
-      this.partitionedProducers[0] = new PartitionedProducer(this, -1)
+      this.partitionedProducers[0] = new PartitionedProducer(this, -1, this.cnxPool)
       return
     }
 
@@ -54,7 +59,7 @@ export class Producer {
     for (let i = 0; i < this.partitionedProducers.length; i++) {
       const partitionedProducer = this.partitionedProducers[i]
       if (partitionedProducer === undefined) {
-        this.partitionedProducers[i] = new PartitionedProducer(this, i)
+        this.partitionedProducers[i] = new PartitionedProducer(this, i, this.cnxPool)
       }
     }
   }
@@ -63,12 +68,12 @@ export class Producer {
     clearInterval(this.runBackgroundPartitionDiscovery)
   }
 
-  async getPartitionIndex (msg: RouterArg): Promise<number> {
+  private async getPartitionIndex (msg: RouterArg): Promise<number> {
     await this.readyPromise
     return this.options.messageRouter(msg, this.partitionedProducers.length) % this.partitionedProducers.length
   }
 
-  async getPartitionedProducer (msg: RouterArg): Promise<PartitionedProducer> {
+  private async getPartitionedProducer (msg: RouterArg): Promise<PartitionedProducer> {
     const partitionIndex = await this.getPartitionIndex(msg)
 
     if (this.partitionedProducers[partitionIndex] === undefined) {

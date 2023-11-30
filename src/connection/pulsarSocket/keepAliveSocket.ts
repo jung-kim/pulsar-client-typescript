@@ -4,6 +4,9 @@ import { ConnectionOptions } from '../connectionOptions'
 import { RawSocket } from './rawSocket'
 import { EventSignalType } from '..'
 
+/**
+ * Handles heartbeat logic to keep the connection alive.
+ */
 export class KeepAliveSocket extends RawSocket {
   constructor (options: ConnectionOptions, logicalAddress: URL, _eventSignal: Signal<EventSignalType>) {
     super(options, logicalAddress, _eventSignal)

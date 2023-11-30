@@ -18,6 +18,12 @@ import lodash from 'lodash'
 import { commandToPayload } from './pulsarSocket/utils'
 import PQueue from 'p-queue'
 
+/**
+ * Connection object holds a persistent TCP socket connection to a pulsar broker and is able to
+ * send and receive payloads based on the pulsar protobuf specifications.  A single connection is
+ * connected to a single pulsar broker and is dedicated to a single producer, consumer, or client.
+ * Although each producer, consumer, and client may have multiple connections.
+ */
 export class Connection extends BaseConnection {
   readonly wrappedLogger: WrappedLogger
 

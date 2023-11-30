@@ -1,13 +1,18 @@
 import { Producer } from './producer'
 import { ProducerMessage } from './producerMessage'
 import { WrappedLogger } from '../util/logger'
-import { Connection } from '../connection'
-import { SendRequest } from './sendRequest'
+import { Connection, ConnectionPool } from '../connection'
 import { CommandCloseProducer, CommandSendReceipt } from '../proto/PulsarApi'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 import { BatchBuilder } from './batchBuilder'
 import { Defered, getDeferred } from '../util/deferred'
+
+export interface SendRequest {
+  msg: ProducerMessage
+  publishTimeMs: number
+  flushImmediately: boolean
+}
 
 export class PartitionedProducer {
   readonly parent: Producer
@@ -26,17 +31,17 @@ export class PartitionedProducer {
   private readonly producerSignal = new Signal<CommandSendReceipt | CommandCloseProducer>()
   private readonly pendingQueues: Array<{ sentAt: number }> = []
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
-
   private readonly batchBuilder: BatchBuilder
-
   private readonly batchFlushTicker: NodeJS.Timer
+  private readonly cnxPool: ConnectionPool
   readonly isReadyProm: Promise<void>
 
-  constructor (producer: Producer, partitionId: number) {
+  constructor (producer: Producer, partitionId: number, cnxPool: ConnectionPool) {
     this.parent = producer
     this.partitionId = partitionId
+    this.cnxPool = cnxPool
     this.topicName = partitionId === -1 ? this.parent.options.topic : `${this.parent.options.topic}-partition-${this.partitionId}`
-    this.producerId = producer.cnxPool.getProducerId()
+    this.producerId = this.cnxPool.getProducerId()
     this.wrappedLogger = new WrappedLogger({
       name: 'partitioned-producer',
       producerName: 'uninitialized',
@@ -114,7 +119,7 @@ export class PartitionedProducer {
   }
 
   async grabCnx (): Promise<void> {
-    const { cnx, commandProducerResponse } = await this.parent.cnxPool.getProducerConnection(
+    const { cnx, commandProducerResponse } = await this.cnxPool.getProducerConnection(
       this.producerId,
       this.topicName,
       this.producerSignal,

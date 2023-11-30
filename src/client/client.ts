@@ -1,16 +1,22 @@
 import { Producer, ProducerOption } from '../producer'
 import { Connection, ConnectionPool } from '../connection'
-import { ClientOptions } from './clientOptions'
 import { WrappedLogger } from '../util/logger'
 import { LookupService } from '../connection/lookupService'
-import { _initializeOption } from '../connection/connectionOptions'
+import { _initializeOption, ConnectionOptions } from '../connection/connectionOptions'
 
+/**
+ * Client object is a factory for producers and consumers given an client option.  A client
+ * knows how to connect to a pulsar cluster and maintain a connection pools that may create
+ * a single connecions per brokers.  These connections in connection pool are not shared
+ * with consumers and producers and they are exclusive for administrative purpose such as
+ * topic partition count lookup.
+ */
 export class Client {
   private readonly cp: ConnectionPool
   private readonly logger: WrappedLogger
-  public readonly option: ClientOptions
+  public readonly option: ConnectionOptions
 
-  constructor (option: Partial<ClientOptions>) {
+  constructor (option: Partial<ConnectionOptions>) {
     this.option = _initializeOption(option)
     this.cp = new ConnectionPool(this.option)
     this.logger = new WrappedLogger({ name: 'client', uuid: this.option.uuid })

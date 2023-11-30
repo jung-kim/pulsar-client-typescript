@@ -25,8 +25,6 @@ Client is a basic pulsar client object that know how to connect to a pulsar clus
 
 Producers and consumers created from a client may share connections.  Conversely, producers and consumers created from different client doesn't share connections.
 
-More about client can be found at the [client page](./src/client/CLIENT.md).
-
 ```typescript
 import { Client } from 'pulsar-client-typescript'
 
@@ -62,8 +60,6 @@ const clientFromOauth = new Client({
 producer is an object to send messages to pulsar brokers.  
 
 A partitioned producer may use multiple connections per topic if a topic is partitioned. A partitioned producer uses at least 1 connection per each partition but each connection per each partition may not be exclusive to the producer.
-
-More about producer can be found at the [producer page](./src/producer/PRODUCER.md)
 
 ```typescript
 const producer = client.createProducer({ topic: 'persistent://public/default/my-first-topic' })

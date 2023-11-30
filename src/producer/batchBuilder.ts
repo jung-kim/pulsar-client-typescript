@@ -4,6 +4,11 @@ import { ProducerMessage } from './producerMessage'
 import { getFixed32BigEndian } from '../util/proto'
 import { ProducerOption } from './producerOption'
 
+/**
+ * Handles message batching per each partitioned producers.  As messages are sent, they
+ * are temporarily held in a queue and flushed at an interval defined by
+ * `batchingMaxPublishDelayMs`, unless explicitly requested to be flushed right away.
+ */
 export class BatchBuilder {
   private readonly sendRequestBuffer: Uint8Array[]
 

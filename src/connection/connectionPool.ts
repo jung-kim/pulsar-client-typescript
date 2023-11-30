@@ -7,6 +7,12 @@ import Long from 'long'
 import { LOOKUP_RESULT_MAX_REDIRECT } from '.'
 import { LookupService } from './lookupService'
 
+/**
+ * Connection pool is a collection of connections to an instance of pulsar brokers.  A connection pool
+ * at most have a number of connections equal to the number of brokers within a pulsar cluster.
+ *
+ * Connection pool is used by a client object.
+ */
 export class ConnectionPool {
   // These connections are not used for topic message traffics.  Rather
   // they are use for look ups and other administrative tasks.
@@ -38,6 +44,10 @@ export class ConnectionPool {
     return this.getConnection(this.options._urlObj)
   }
 
+  /**
+   * returns a persistant connection to a pulsar broker's logical address.  previously created connection
+   * is returned if same logical addresss is requested.
+   */
   getConnection (logicalAddress: URL): Connection {
     let cnx = this.connections.get(logicalAddress.href)
     if (cnx !== undefined) {
