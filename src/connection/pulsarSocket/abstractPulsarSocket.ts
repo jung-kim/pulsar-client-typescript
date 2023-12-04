@@ -4,14 +4,14 @@ import { WrappedLogger } from '../../util/logger'
 import { ConnectionOptions } from '../connectionOptions'
 import { BaseCommand } from '../../../src/proto/PulsarApi'
 import { commandToPayload } from './utils'
-import type { Defered } from '../../util/deferred'
+import type { Deferred } from '../../util/deferred'
 
 /**
  * handles state and state's transitions for the pulsar socket
  */
 export abstract class AbstractPulsarSocket {
   private state: STATE = 'INITIALIZING'
-  protected initializeDeferrred: Defered<void> | undefined = undefined
+  protected initializeDeferrred: Deferred<void> | undefined = undefined
   protected readonly wrappedLogger: WrappedLogger
 
   protected readonly _eventSignal: Signal<EventSignalType>

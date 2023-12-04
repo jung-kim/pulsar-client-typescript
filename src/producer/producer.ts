@@ -1,6 +1,6 @@
 import { ConnectionPool } from '../connection'
 import { WrappedLogger } from '../util/logger'
-import { ProducerOption, _initializeOption } from './producerOption'
+import { ProducerOptions, _initializeOption } from './producerOptions'
 import { PartitionedProducer } from './partitionedProducer'
 import { ProducerMessage } from './producerMessage'
 import { RouterArg } from './defaultRouter'
@@ -16,16 +16,16 @@ const encoder = new TextEncoder()
  */
 export class Producer {
   private readonly cnxPool: ConnectionPool
-  readonly options: ProducerOption
+  readonly options: ProducerOptions
   private readonly partitionedProducers: PartitionedProducer[] = []
   private readonly wrappedLogger: WrappedLogger
   private readonly runBackgroundPartitionDiscovery: ReturnType<typeof setInterval>
   private readyPromise
 
-  constructor (option: Partial<ProducerOption>, cnxPool: ConnectionPool) {
+  constructor (option: Partial<ProducerOptions>, cnxPool: ConnectionPool) {
     this.cnxPool = cnxPool
     this.options = _initializeOption(lodash.cloneDeep(option))
-    this.wrappedLogger = new WrappedLogger({ name: 'producer', topic: this.options.topic, uuid: option._uuid })
+    this.wrappedLogger = new WrappedLogger({ name: 'producer', topic: this.options.topic, uuid: option._connectionOptions.uuid })
 
     this.readyPromise = this.internalCreatePartitionsProducers()
     this.runBackgroundPartitionDiscovery = setInterval(

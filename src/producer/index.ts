@@ -1,5 +1,5 @@
 
 export { Producer } from './producer'
-export { ProducerOption } from './producerOption'
+export { ProducerOptions } from './producerOptions'
 export { ProducerMessage } from './producerMessage'
 export { CommandSendReceipt } from '../proto/PulsarApi'

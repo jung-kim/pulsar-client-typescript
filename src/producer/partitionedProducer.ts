@@ -6,7 +6,7 @@ import { CommandCloseProducer, CommandSendReceipt } from '../proto/PulsarApi'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 import { BatchBuilder } from './batchBuilder'
-import { Defered, getDeferred } from '../util/deferred'
+import { Deferred, getDeferred } from '../util/deferred'
 
 export interface SendRequest {
   msg: ProducerMessage
@@ -24,7 +24,7 @@ export class PartitionedProducer {
   private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
   private readonly epoch: Long = Long.UZERO
 
-  private readonly deferredMap: Map<string, Defered<CommandSendReceipt>> = new Map()
+  private readonly deferredMap: Map<string, Deferred<CommandSendReceipt>> = new Map()
 
   private sequenceId: Long = Long.fromNumber(1, true)
   private producerName: string = ''
@@ -47,7 +47,7 @@ export class PartitionedProducer {
       producerName: 'uninitialized',
       producerId: this.producerId,
       topicName: this.parent.options.topic,
-      uuid: producer.options._uuid,
+      uuid: producer.options._connectionOptions.uuid,
       partitionId
     })
     this.batchBuilder = new BatchBuilder(this.parent.options)

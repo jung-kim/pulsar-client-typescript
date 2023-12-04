@@ -2,7 +2,7 @@ import Long from 'long'
 import { MessageMetadata, SingleMessageMetadata } from '../proto/PulsarApi'
 import { ProducerMessage } from './producerMessage'
 import { getFixed32BigEndian } from '../util/proto'
-import { ProducerOption } from './producerOption'
+import { ProducerOptions } from './producerOptions'
 
 /**
  * Handles message batching per each partitioned producers.  As messages are sent, they
@@ -27,7 +27,7 @@ export class BatchBuilder {
   private readonly maxMessageSize: number
   private messageMetadata: MessageMetadata | undefined
 
-  constructor (option: ProducerOption) {
+  constructor (option: ProducerOptions) {
     this.maxBatchCount = option.batchingMaxMessages
     this.maxBatchSize = option.batchingMaxSize
     this.maxMessageSize = option.maxMessageSize

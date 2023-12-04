@@ -1,7 +1,7 @@
 import { RouterArg, newDefaultRouter } from './defaultRouter'
 import murmurHash3 from 'murmurhash3js'
 import { KeyValue } from '../proto/PulsarApi'
-import { DEFAULT_MAX_MESSAGE_SIZE } from '../connection'
+import { ConnectionOptions, DEFAULT_MAX_MESSAGE_SIZE } from '../connection'
 
 // defaultSendTimeout init default timeout for ack since sent.
 export const DEFAULT_SEND_TIMEOUT_MS = 30 * 1000 // 30 sec
@@ -37,7 +37,7 @@ export const DEFAULT_COMPRESSION_LEVEL = 0
 export const FASTER_COMPRESSION_LEVEL = 1
 export const BETTER_COMPRESSION_LEVEL = 2
 
-export interface ProducerOption {
+export interface ProducerOptions {
   // Topic specify the topic this producer will be publishing on.
   // This argument is required when constructing the producer.
   topic: string
@@ -147,10 +147,10 @@ export interface ProducerOption {
   maxMessageSize: number
 
   _properties: KeyValue[]
-  _uuid: string
+  _connectionOptions: ConnectionOptions
 }
 
-export const _initializeOption = (option: Partial<ProducerOption>): ProducerOption => {
+export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOptions => {
   if (option.topic === undefined || option.topic === '') {
     throw new Error('Topic name is required for producer')
   }
@@ -243,7 +243,7 @@ export const _initializeOption = (option: Partial<ProducerOption>): ProducerOpti
     }
   }
 
-  return option as ProducerOption
+  return option as ProducerOptions
 }
 
 // source: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0
