@@ -15,12 +15,15 @@ export abstract class BaseConnection {
   protected readonly consumerLinsteners: ConsumerListeners
   protected readonly requestTracker = new RequestTracker<CommandTypesResponses>()
   protected readonly _eventSignal = new Signal<EventSignalType>()
+  public readonly eventSignal = this._eventSignal.readOnly()
 
   public readonly options: ConnectionOptions
+  public readonly logicalAddress: URL
   abstract readonly wrappedLogger: WrappedLogger
 
   constructor (options: ConnectionOptions, logicalAddress: URL) {
     this.options = options
+    this.logicalAddress = logicalAddress
     this.pulsarSocket = new PulsarSocket(options, logicalAddress, this._eventSignal)
 
     // register producer listener
@@ -101,7 +104,10 @@ export abstract class BaseConnection {
     })
   }
 
-  abstract close (): void
+  close (): void {
+    this.requestTracker.clear()
+    this.pulsarSocket.close()
+  }
 
   registerConsumeHandler (id: Long, signal: Signal<Message | CommandCloseConsumer>): void {
     this.consumerLinsteners.registerConsumeHandler(id, signal)

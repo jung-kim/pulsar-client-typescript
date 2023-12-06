@@ -29,7 +29,7 @@ export class KeepAliveSocket extends RawSocket {
     if (this.getLastDataReceived() + (this.options.keepAliveIntervalMs * 2) < new Date().getMilliseconds()) {
       // stale connection, closing
       this.wrappedLogger.info('stale connection, closing')
-      this._eventSignal.dispatch({ event: 'close' })
+      this.reconnect()
     }
   }
 

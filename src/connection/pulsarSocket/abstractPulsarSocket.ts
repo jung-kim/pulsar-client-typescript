@@ -4,14 +4,12 @@ import { WrappedLogger } from '../../util/logger'
 import { ConnectionOptions } from '../connectionOptions'
 import { BaseCommand } from '../../../src/proto/PulsarApi'
 import { commandToPayload } from './utils'
-import type { Deferred } from '../../util/deferred'
 
 /**
  * handles state and state's transitions for the pulsar socket
  */
 export abstract class AbstractPulsarSocket {
-  private state: STATE = 'INITIALIZING'
-  protected initializeDeferrred: Deferred<void> | undefined = undefined
+  private state: STATE = 'CLOSED'
   protected readonly wrappedLogger: WrappedLogger
 
   protected readonly _eventSignal: Signal<EventSignalType>
@@ -31,27 +29,25 @@ export abstract class AbstractPulsarSocket {
     })
   }
 
-  protected close (): void {
-    this.initializeDeferrred?.resolve(undefined)
+  protected setClosed (): void {
     this.state = 'CLOSED'
+    this._eventSignal.dispatch({ event: 'socket-closed' })
   }
 
   protected setReady (): void {
-    this.initializeDeferrred?.resolve(undefined)
     this.state = 'READY'
+    this._eventSignal.dispatch({ event: 'socket-ready' })
+  }
+
+  protected setInitializing (): void {
+    this.state = 'INITIALIZING'
+    this._eventSignal.dispatch({ event: 'socket-initializing' })
   }
 
   public abstract send (buffer: Uint8Array | Buffer): Promise<void>
 
   public async writeCommand (command: BaseCommand): Promise<void> {
     return await this.send(commandToPayload(command))
-  }
-
-  public async ensureReady (): Promise<void> {
-    await this.initializeDeferrred.promise
-    if (this.state !== 'READY') {
-      throw Error('Not initialized')
-    }
   }
 
   public getState (): STATE {

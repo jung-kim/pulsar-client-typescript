@@ -41,11 +41,6 @@ export class Connection extends BaseConnection {
     })
   }
 
-  close (): void {
-    this.requestTracker.clear()
-    this.pulsarSocket.close()
-  }
-
   registerProducerListener (id: Long, signal: Signal<CommandSendReceipt | CommandCloseProducer>): void {
     return this.producerListeners.registerProducerListener(id, signal)
   }
@@ -154,6 +149,12 @@ export class Connection extends BaseConnection {
   }
 
   async ensureReady (): Promise<void> {
-    return await this.pulsarSocket.ensureReady()
+    if (this.pulsarSocket.getState() === 'READY') {
+      return
+    }
+
+    const successSignal = this._eventSignal.filter(p => p.event === 'socket-ready')
+    const failurePromise = new Promise((resolve, reject) => setTimeout(reject, this.options.connectionTimeoutMs))
+    await Promise.race([Signal.promisify(successSignal), failurePromise])
   }
 }

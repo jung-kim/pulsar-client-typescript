@@ -16,9 +16,6 @@ export class PulsarSocket extends KeepAliveSocket {
 
     this._eventSignal.add(payload => {
       switch (payload.event) {
-        case 'close':
-          this.close()
-          break
         case 'handshake_start':
           void this.sendHandshake()
           break
@@ -61,7 +58,7 @@ export class PulsarSocket extends KeepAliveSocket {
       await super.send(commandToPayload(handshake))
     } catch (e) {
       this.wrappedLogger.error('failed to send handshake', e)
-      this._eventSignal.dispatch({ event: 'close', err: e })
+      this.reconnect()
     }
   }
 
@@ -81,10 +78,7 @@ export class PulsarSocket extends KeepAliveSocket {
         baseCommand.error,
         { baseCommandType: baseCommand.type }
       )
-      this._eventSignal.dispatch({
-        event: 'close',
-        err: Error('error while receiving handshake', { cause: baseCommand.error })
-      })
+      this.reconnect()
       return
     }
 
@@ -100,7 +94,9 @@ export class PulsarSocket extends KeepAliveSocket {
   }
 
   public async send (buffer: Uint8Array | Buffer): Promise<void> {
-    await this.ensureReady()
+    if (this.getState() !== 'READY') {
+      throw Error(`connection not ready at ${this.getState()}`)
+    }
     return await super.send(buffer)
   }
 }

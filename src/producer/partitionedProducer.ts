@@ -111,6 +111,7 @@ export class PartitionedProducer {
   }
 
   close (): void {
+    this.cnx.close()
     clearInterval(this.batchFlushTicker)
   }
 

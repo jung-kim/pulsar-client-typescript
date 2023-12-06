@@ -5,8 +5,8 @@ import proto from 'protobufjs'
 import { connect, TLSSocket } from 'tls'
 import { ConnectionOptions } from '../connectionOptions'
 import { AbstractPulsarSocket } from './abstractPulsarSocket'
-import { getDeferred } from '../../util/deferred'
 import { Signal } from 'micro-signals'
+import _ from 'lodash'
 
 /**
  * Has raw TCP socket conenction and raw functions for raw sockets
@@ -20,12 +20,17 @@ export class RawSocket extends AbstractPulsarSocket {
     this.wrappedLogger.info('base socket created')
   }
 
-  protected initializeRawSocket = async (): Promise<void> => {
-    if (this.initializeDeferrred !== undefined) {
-      return await this.ensureReady()
-    }
+  protected reconnect = (): void => {
+    this.close()
+    void this.initializeRawSocket()
+  }
 
-    this.initializeDeferrred = getDeferred()
+  protected initializeRawSocket = _.debounce(async (): Promise<void> => {
+    if (this.getState() === 'CLOSED') {
+      this.setInitializing()
+    } else {
+      return
+    }
 
     this.socket = this.options._isTlsEnabled
       ? connect({
@@ -43,19 +48,19 @@ export class RawSocket extends AbstractPulsarSocket {
 
     const timeout = setTimeout(() => {
       this.wrappedLogger.error('raw socket connection timeout')
-      this._eventSignal.dispatch({ event: 'close' })
+      this.reconnect()
     }, this.options.connectionTimeoutMs)
 
     this.socket.on('close', () => {
       clearTimeout(timeout)
       this.wrappedLogger.info('raw socket close requested by server')
-      this._eventSignal.dispatch({ event: 'close' })
+      this.reconnect()
     })
 
     this.socket.on('error', (err: Error) => {
       clearTimeout(timeout)
-      this.wrappedLogger.info('raw socket error')
-      this._eventSignal.dispatch({ event: 'close', err })
+      this.wrappedLogger.error('raw socket error', err)
+      this.reconnect()
     })
 
     this.socket.on('data', (data: Buffer) => {
@@ -81,14 +86,13 @@ export class RawSocket extends AbstractPulsarSocket {
     this.socket.once('connect', () => {
       this._eventSignal.dispatch({ event: 'handshake_start' })
     })
-    return await this.ensureReady()
-  }
+  }, this.options.connectionTimeoutMs, { leading: true, trailing: false })
 
   /**
    * closes the connection.
    */
   public close (): void {
-    super.close()
+    super.setClosed()
     this.socket?.destroy()
     this.socket = undefined
   }
