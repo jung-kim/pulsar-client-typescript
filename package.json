@@ -24,6 +24,7 @@
     "long": "^5.2.0",
     "micro-signals": "^2.4.0",
     "murmurhash3js": "^3.0.1",
+    "node-cache": "^5.1.2",
     "oauth": "^0.9.15",
     "p-queue": "^7.4.1",
     "p-retry": "^5.1.2",

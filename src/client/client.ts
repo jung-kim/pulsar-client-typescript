@@ -38,7 +38,7 @@ export class Client {
     return producer
   }
 
-  public async lookup (topic: String): Promise<CommandLookupTopicResponse> {
+  public async lookup (topic: string): Promise<CommandLookupTopicResponse> {
     return await this.lookupService.lookup(topic)
   }
 

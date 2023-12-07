@@ -1,23 +1,32 @@
 import * as PulsarApi from '../proto/PulsarApi'
-import { WrappedLogger } from '../util/logger'
 import { ConnectionPool } from './connectionPool'
 import { Connection, ConnectionOptions } from '../connection'
 import { Signal } from 'micro-signals'
 import Long from 'long'
+import NodeCache from 'node-cache'
+
+const DEFAULT_CACHE_TTL = 1000
 
 export class LookupService {
-  readonly uuid: string
-  readonly logger: WrappedLogger
-  readonly cnxPool: ConnectionPool
+  private readonly cnxPool: ConnectionPool
   private readonly options: ConnectionOptions
+  private readonly cache: NodeCache = new NodeCache({ stdTTL: DEFAULT_CACHE_TTL })
 
   constructor (options: ConnectionOptions) {
-    this.logger = new WrappedLogger({ name: 'lookup-service', uuid: options.uuid })
     this.options = options
     this.cnxPool = new ConnectionPool(options)
   }
 
-  public async lookup (topic: String): Promise<PulsarApi.CommandLookupTopicResponse> {
+  public close (): void {
+    this.cnxPool.close()
+  }
+
+  public async lookup (topic: string): Promise<PulsarApi.CommandLookupTopicResponse> {
+    const key = `lookup-${topic}`
+    if (this.cache.get(key) !== undefined) {
+      return await this.cache.get(key)
+    }
+
     const conn = await this.cnxPool.getAnyAdminConnection()
     const command = PulsarApi.BaseCommand.fromJSON({
       type: PulsarApi.BaseCommand_Type.LOOKUP,
@@ -27,29 +36,39 @@ export class LookupService {
         advertisedListenerName: ''
       }
     })
-    return await conn.sendCommand(command) as PulsarApi.CommandLookupTopicResponse
-  }
-
-  public close (): void {
-    this.cnxPool.close()
+    const res = await conn.sendCommand(command) as PulsarApi.CommandLookupTopicResponse
+    this.cache.set(key, res)
+    return res
   }
 
   public async getPartitionedTopicMetadata (topic: string): Promise<PulsarApi.CommandPartitionedTopicMetadataResponse> {
+    const key = `partitioned_topic_metadata-${topic}`
+    if (this.cache.get(key) !== undefined) {
+      return await this.cache.get(key)
+    }
     const conn = await this.cnxPool.getAnyAdminConnection()
     const command = PulsarApi.BaseCommand.fromJSON({
       type: PulsarApi.BaseCommand_Type.PARTITIONED_METADATA,
       partitionMetadata: { topic }
     })
-    return await conn.sendCommand(command) as PulsarApi.CommandPartitionedTopicMetadataResponse
+    const res = await conn.sendCommand(command) as PulsarApi.CommandPartitionedTopicMetadataResponse
+    this.cache.set(key, res)
+    return res
   }
 
   public async getTopicsOfNamespace (namespace: string, mode: PulsarApi.CommandGetTopicsOfNamespace_Mode): Promise<PulsarApi.CommandGetTopicsOfNamespaceResponse> {
+    const key = `namespace_topics-${namespace}-${mode}`
+    if (this.cache.get(key) !== undefined) {
+      return await this.cache.get(key)
+    }
     const conn = await this.cnxPool.getAnyAdminConnection()
     const command = PulsarApi.BaseCommand.fromJSON({
       type: PulsarApi.BaseCommand_Type.GET_TOPICS_OF_NAMESPACE,
       getTopicsOfNamespace: { namespace, mode }
     })
-    return await conn.sendCommand(command) as PulsarApi.CommandGetTopicsOfNamespaceResponse
+    const res = await conn.sendCommand(command) as PulsarApi.CommandGetTopicsOfNamespaceResponse
+    this.cache.set(key, res)
+    return res
   }
 
   public async lookupTopic (topic: string, listenerName: string = this.options.listenerName): Promise<URL> {
