@@ -12,7 +12,6 @@ import {
 } from '../proto/PulsarApi'
 
 export { Connection } from './connection'
-export { ConnectionPool } from './connectionPool'
 export { ConnectionOptions } from './connectionOptions'
 export interface Message {
   baseCommand: BaseCommand
@@ -30,5 +29,4 @@ export interface EventSignalType { event: EVENT_SIGNALS, err?: Error, message?: 
 export type CommandTypesResponses =
   CommandSuccess | CommandProducerSuccess | CommandPartitionedTopicMetadataResponse | CommandLookupTopicResponse
   | CommandConsumerStatsResponse | CommandGetLastMessageIdResponse | CommandGetTopicsOfNamespaceResponse | CommandSendReceipt
-export const LOOKUP_RESULT_MAX_REDIRECT = 20
 export type STATE = 'INITIALIZING' | 'READY' | 'CLOSED'

@@ -1,4 +1,3 @@
-import { ConnectionPool } from '../connection'
 import { WrappedLogger } from '../util/logger'
 import { ProducerOptions, _initializeOption } from './producerOptions'
 import { PartitionedProducer } from './partitionedProducer'
@@ -6,6 +5,7 @@ import { ProducerMessage } from './producerMessage'
 import { RouterArg } from './defaultRouter'
 import lodash from 'lodash'
 import { CommandSendReceipt } from '../../src/proto/PulsarApi'
+import { LookupService } from '../lookupService'
 
 const encoder = new TextEncoder()
 
@@ -15,15 +15,15 @@ const encoder = new TextEncoder()
  * connections for it self even though each connections may point to a same logical address.
  */
 export class Producer {
-  private readonly cnxPool: ConnectionPool
+  private readonly lookupService: LookupService
   readonly options: ProducerOptions
   private readonly partitionedProducers: PartitionedProducer[] = []
   private readonly wrappedLogger: WrappedLogger
   private readonly runBackgroundPartitionDiscovery: ReturnType<typeof setInterval>
   private readyPromise
 
-  constructor (option: Partial<ProducerOptions>, cnxPool: ConnectionPool) {
-    this.cnxPool = cnxPool
+  constructor (option: Partial<ProducerOptions>, lookupService: LookupService) {
+    this.lookupService = lookupService
     this.options = _initializeOption(lodash.cloneDeep(option))
     this.wrappedLogger = new WrappedLogger({ name: 'producer', topic: this.options.topic, uuid: option._connectionOptions.uuid })
 
@@ -35,14 +35,14 @@ export class Producer {
   }
 
   private readonly internalCreatePartitionsProducers = async (): Promise<void> => {
-    const partitionResponse = await this.cnxPool.lookupService.getPartitionedTopicMetadata(this.options.topic)
+    const partitionResponse = await this.lookupService.getPartitionedTopicMetadata(this.options.topic)
     const partitionCount = partitionResponse.partitions
 
     if (partitionCount === 0 && this.partitionedProducers.length !== 1) {
       // handle none partitioned topics case separately
       this.partitionedProducers.forEach(pp => pp.close())
       this.partitionedProducers.length = 1
-      this.partitionedProducers[0] = new PartitionedProducer(this, -1, this.cnxPool)
+      this.partitionedProducers[0] = new PartitionedProducer(this, -1, this.lookupService)
       return
     }
 
@@ -59,7 +59,7 @@ export class Producer {
     for (let i = 0; i < this.partitionedProducers.length; i++) {
       const partitionedProducer = this.partitionedProducers[i]
       if (partitionedProducer === undefined) {
-        this.partitionedProducers[i] = new PartitionedProducer(this, i, this.cnxPool)
+        this.partitionedProducers[i] = new PartitionedProducer(this, i, this.lookupService)
       }
     }
   }

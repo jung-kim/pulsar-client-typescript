@@ -2,6 +2,7 @@ import { RouterArg, newDefaultRouter } from './defaultRouter'
 import murmurHash3 from 'murmurhash3js'
 import { KeyValue } from '../proto/PulsarApi'
 import { ConnectionOptions, DEFAULT_MAX_MESSAGE_SIZE } from '../connection'
+import { IncrementalIdGenerator } from '../util/idGenerator'
 
 // defaultSendTimeout init default timeout for ack since sent.
 export const DEFAULT_SEND_TIMEOUT_MS = 30 * 1000 // 30 sec
@@ -148,11 +149,16 @@ export interface ProducerOptions {
 
   _properties: KeyValue[]
   _connectionOptions: ConnectionOptions
+  _producerIdGenerator: IncrementalIdGenerator
 }
 
 export const _initializeOption = (option: Partial<ProducerOptions>): ProducerOptions => {
   if (option.topic === undefined || option.topic === '') {
     throw new Error('Topic name is required for producer')
+  }
+
+  if (option._producerIdGenerator === undefined) {
+    throw new Error('producerIdGenerator is required for producer')
   }
 
   // if (option.name === undefined) {

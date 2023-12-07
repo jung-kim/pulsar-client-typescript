@@ -1,12 +1,13 @@
 import { Producer } from './producer'
 import { ProducerMessage } from './producerMessage'
 import { WrappedLogger } from '../util/logger'
-import { Connection, ConnectionPool } from '../connection'
+import { Connection } from '../connection'
 import { CommandCloseProducer, CommandSendReceipt } from '../proto/PulsarApi'
 import { Signal } from 'micro-signals'
 import Long from 'long'
 import { BatchBuilder } from './batchBuilder'
 import { Deferred, getDeferred } from '../util/deferred'
+import { LookupService } from '../lookupService'
 
 export interface SendRequest {
   msg: ProducerMessage
@@ -33,15 +34,15 @@ export class PartitionedProducer {
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
   private readonly batchBuilder: BatchBuilder
   private readonly batchFlushTicker: NodeJS.Timer
-  private readonly cnxPool: ConnectionPool
+  private readonly lookupService: LookupService
   readonly isReadyProm: Promise<void>
 
-  constructor (producer: Producer, partitionId: number, cnxPool: ConnectionPool) {
+  constructor (producer: Producer, partitionId: number, lookupService: LookupService) {
     this.parent = producer
     this.partitionId = partitionId
-    this.cnxPool = cnxPool
+    this.lookupService = lookupService
     this.topicName = partitionId === -1 ? this.parent.options.topic : `${this.parent.options.topic}-partition-${this.partitionId}`
-    this.producerId = this.cnxPool.getProducerId()
+    this.producerId = producer.options._producerIdGenerator.getAndIncrement()
     this.wrappedLogger = new WrappedLogger({
       name: 'partitioned-producer',
       producerName: 'uninitialized',
@@ -120,7 +121,7 @@ export class PartitionedProducer {
   }
 
   async grabCnx (): Promise<void> {
-    const { cnx, commandProducerResponse } = await this.cnxPool.getProducerConnection(
+    const { cnx, commandProducerResponse } = await this.lookupService.getProducerConnection(
       this.producerId,
       this.topicName,
       this.producerSignal,
