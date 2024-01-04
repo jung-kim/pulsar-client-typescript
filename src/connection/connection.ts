@@ -155,6 +155,11 @@ export class Connection extends BaseConnection {
 
     const successSignal = this._eventSignal.filter(p => p.event === 'socket-ready')
     const failurePromise = new Promise((resolve, reject) => setTimeout(reject, this.options.connectionTimeoutMs))
-    await Promise.race([Signal.promisify(successSignal), failurePromise])
+    try {
+      await Promise.race([Signal.promisify(successSignal), failurePromise])
+    } catch (e) {
+      this._eventSignal.dispatch({ event: 'close' })
+      throw e
+    }
   }
 }

@@ -31,75 +31,76 @@ export abstract class BaseConnection {
     this.consumerLinsteners = new ConsumerListeners(options.uuid)
 
     this.pulsarSocket.eventSignal.add(({ event, message }) => {
-      if (event !== 'message') {
-        return
-      }
-      switch (message.baseCommand.type) {
-        case BaseCommand_Type.SUCCESS:
-          if (message.baseCommand.success !== undefined) {
-            this.handleResponse(message.baseCommand.success)
-          }
-          break
-        case BaseCommand_Type.PRODUCER_SUCCESS:
-          if (message.baseCommand.producerSuccess !== undefined) {
-            this.handleResponse(message.baseCommand.producerSuccess)
-          }
-          break
-        case BaseCommand_Type.PARTITIONED_METADATA_RESPONSE:
-          if (message.baseCommand.partitionMetadataResponse !== undefined) {
-            this.handleResponse(message.baseCommand.partitionMetadataResponse)
-          }
-          break
-        case BaseCommand_Type.LOOKUP_RESPONSE:
-          if (message.baseCommand.lookupTopicResponse !== undefined) {
-            this.handleResponse(message.baseCommand.lookupTopicResponse)
-          }
-          break
-        case BaseCommand_Type.CONSUMER_STATS_RESPONSE:
-          if (message.baseCommand.consumerStatsResponse !== undefined) {
-            this.handleResponse(message.baseCommand.consumerStatsResponse)
-          }
-          break
-        case BaseCommand_Type.GET_LAST_MESSAGE_ID_RESPONSE:
-          if (message.baseCommand.getLastMessageIdResponse !== undefined) {
-            this.handleResponse(message.baseCommand.getLastMessageIdResponse)
-          }
-          break
-        case BaseCommand_Type.GET_TOPICS_OF_NAMESPACE_RESPONSE:
-          if (message.baseCommand.getTopicsOfNamespaceResponse !== undefined) {
-            this.handleResponse(message.baseCommand.getTopicsOfNamespaceResponse)
-          }
-          break
-        case BaseCommand_Type.GET_SCHEMA_RESPONSE:
-          if (message.baseCommand.getSchemaResponse !== undefined) {
-            this.handleResponse(message.baseCommand.getSchemaResponse)
-          }
-          break
-        case BaseCommand_Type.ERROR:
-          this.handleResponseError(message)
-          break
-        case BaseCommand_Type.SEND_ERROR:
-          if (this.producerListeners.handleSendError(message)) {
-            this.close()
-          }
-          break
-        case BaseCommand_Type.CLOSE_PRODUCER:
-          this.producerListeners.handleCloseProducer(message)
-          break
-        case BaseCommand_Type.CLOSE_CONSUMER:
-          this.consumerLinsteners.handleCloseConsumer(message)
-          break
-        case BaseCommand_Type.AUTH_CHALLENGE:
-          this.handleAuthChallenge(message)
-            .catch((err) => {
-              this.wrappedLogger.error('auth challenge error', err)
-            })
-          break
-        case BaseCommand_Type.SEND_RECEIPT:
-          this.producerListeners.handleSendReceipt(message)
-          break
-        default:
-          break
+      if (event === 'close') {
+        this.close()
+      } else if (event === 'message') {
+        switch (message.baseCommand.type) {
+          case BaseCommand_Type.SUCCESS:
+            if (message.baseCommand.success !== undefined) {
+              this.handleResponse(message.baseCommand.success)
+            }
+            break
+          case BaseCommand_Type.PRODUCER_SUCCESS:
+            if (message.baseCommand.producerSuccess !== undefined) {
+              this.handleResponse(message.baseCommand.producerSuccess)
+            }
+            break
+          case BaseCommand_Type.PARTITIONED_METADATA_RESPONSE:
+            if (message.baseCommand.partitionMetadataResponse !== undefined) {
+              this.handleResponse(message.baseCommand.partitionMetadataResponse)
+            }
+            break
+          case BaseCommand_Type.LOOKUP_RESPONSE:
+            if (message.baseCommand.lookupTopicResponse !== undefined) {
+              this.handleResponse(message.baseCommand.lookupTopicResponse)
+            }
+            break
+          case BaseCommand_Type.CONSUMER_STATS_RESPONSE:
+            if (message.baseCommand.consumerStatsResponse !== undefined) {
+              this.handleResponse(message.baseCommand.consumerStatsResponse)
+            }
+            break
+          case BaseCommand_Type.GET_LAST_MESSAGE_ID_RESPONSE:
+            if (message.baseCommand.getLastMessageIdResponse !== undefined) {
+              this.handleResponse(message.baseCommand.getLastMessageIdResponse)
+            }
+            break
+          case BaseCommand_Type.GET_TOPICS_OF_NAMESPACE_RESPONSE:
+            if (message.baseCommand.getTopicsOfNamespaceResponse !== undefined) {
+              this.handleResponse(message.baseCommand.getTopicsOfNamespaceResponse)
+            }
+            break
+          case BaseCommand_Type.GET_SCHEMA_RESPONSE:
+            if (message.baseCommand.getSchemaResponse !== undefined) {
+              this.handleResponse(message.baseCommand.getSchemaResponse)
+            }
+            break
+          case BaseCommand_Type.ERROR:
+            this.handleResponseError(message)
+            break
+          case BaseCommand_Type.SEND_ERROR:
+            if (this.producerListeners.handleSendError(message)) {
+              this._eventSignal.dispatch({ event: 'close' })
+            }
+            break
+          case BaseCommand_Type.CLOSE_PRODUCER:
+            this.producerListeners.handleCloseProducer(message)
+            break
+          case BaseCommand_Type.CLOSE_CONSUMER:
+            this.consumerLinsteners.handleCloseConsumer(message)
+            break
+          case BaseCommand_Type.AUTH_CHALLENGE:
+            this.handleAuthChallenge(message)
+              .catch((err) => {
+                this.wrappedLogger.error('auth challenge error', err)
+              })
+            break
+          case BaseCommand_Type.SEND_RECEIPT:
+            this.producerListeners.handleSendReceipt(message)
+            break
+          default:
+            break
+        }
       }
     })
   }

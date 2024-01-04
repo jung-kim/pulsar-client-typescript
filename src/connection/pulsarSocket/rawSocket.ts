@@ -20,11 +20,6 @@ export class RawSocket extends AbstractPulsarSocket {
     this.wrappedLogger.info('base socket created')
   }
 
-  protected reconnect = (): void => {
-    this.close()
-    void this.initializeRawSocket()
-  }
-
   protected initializeRawSocket = _.debounce(async (): Promise<void> => {
     if (this.getState() === 'CLOSED') {
       this.setInitializing()
@@ -48,22 +43,23 @@ export class RawSocket extends AbstractPulsarSocket {
 
     const timeout = setTimeout(() => {
       this.wrappedLogger.error('raw socket connection timeout')
-      this.reconnect()
+      this._eventSignal.dispatch({ event: 'close' })
     }, this.options.connectionTimeoutMs)
 
     this.socket.on('close', () => {
       clearTimeout(timeout)
       this.wrappedLogger.info('raw socket close requested by server')
-      this.reconnect()
+      this._eventSignal.dispatch({ event: 'close' })
     })
 
     this.socket.on('error', (err: Error) => {
       clearTimeout(timeout)
       this.wrappedLogger.error('raw socket error', err)
-      this.reconnect()
+      this._eventSignal.dispatch({ event: 'close' })
     })
 
     this.socket.on('data', (data: Buffer) => {
+      clearTimeout(timeout)
       const message = this.parseReceived(data)
       clearTimeout(timeout)
 

@@ -35,7 +35,9 @@ export class PartitionedProducer {
   private readonly batchBuilder: BatchBuilder
   private readonly batchFlushTicker: NodeJS.Timer
   private readonly lookupService: LookupService
-  readonly isReadyProm: Promise<void>
+  private isReadyProm: Promise<void>
+
+  private isReconnect: boolean = false
 
   constructor (producer: Producer, partitionId: number, lookupService: LookupService) {
     this.parent = producer
@@ -60,7 +62,7 @@ export class PartitionedProducer {
         this.deferredMap.get(payload.sequenceId.toString()).resolve(payload)
       } else {
         this.wrappedLogger.info('CommandCloseProducer received, closing')
-        this.close()
+        this.cnx.close()
       }
     })
 
@@ -105,6 +107,9 @@ export class PartitionedProducer {
     // go p.runEventsLoop()
 
     this.batchFlushTicker = setInterval(() => {
+      if (this.state !== 'PRODUCER_READY') {
+        return
+      }
       this.flush().catch((e: Error) => {
         this.wrappedLogger.error(`interval flush failed: ${e.toString()}`)
       })
@@ -112,8 +117,10 @@ export class PartitionedProducer {
   }
 
   close (): void {
+    this.isReconnect = false
+    this.state = 'PRODUCER_CLOSING'
     this.cnx.close()
-    clearInterval(this.batchFlushTicker)
+    this.state = 'PRODUCER_CLOSED'
   }
 
   isReady (): boolean {
@@ -121,6 +128,10 @@ export class PartitionedProducer {
   }
 
   async grabCnx (): Promise<void> {
+    if (this.isReadyProm !== undefined) {
+      return await this.isReadyProm
+    }
+    this.isReconnect = true
     const { cnx, commandProducerResponse } = await this.lookupService.getProducerConnection(
       this.producerId,
       this.topicName,
@@ -166,6 +177,14 @@ export class PartitionedProducer {
     //     }
     //   }
     // }
+
+    this.cnx.eventSignal.add(({ event }) => {
+      if (event === 'socket-closed' && this.isReconnect) {
+        setTimeout(() => {
+          this.isReadyProm = this.grabCnx()
+        }, 5000)
+      }
+    })
   }
 
   async send (msg: ProducerMessage): Promise<CommandSendReceipt> {
@@ -192,13 +211,17 @@ export class PartitionedProducer {
     return await this.internalSend(sendRequest)
   }
 
-  private async internalSend (sendRequest: SendRequest): Promise<CommandSendReceipt> {
+  private async ensureReady (): Promise<void> {
     await this.isReadyProm
     if (this.cnx === undefined || this.state !== 'PRODUCER_READY') {
       const err = Error('connection is undefined')
       this.wrappedLogger.error('failed to acquire connection', err)
       throw err
     }
+  }
+
+  private async internalSend (sendRequest: SendRequest): Promise<CommandSendReceipt> {
+    await this.ensureReady()
 
     this.wrappedLogger.debug('Received send request')
 
@@ -248,7 +271,7 @@ export class PartitionedProducer {
   }
 
   private async flush (): Promise<CommandSendReceipt> {
-    await this.isReadyProm
+    await this.ensureReady()
 
     const currentSequenceId = this.sequenceId
     this.sequenceId = this.sequenceId.add(1)

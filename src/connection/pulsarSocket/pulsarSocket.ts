@@ -29,9 +29,9 @@ export class PulsarSocket extends KeepAliveSocket {
   }
 
   public close (): void {
-    super.close()
     clearInterval(this.interval)
     this.interval = undefined
+    super.close()
     this.wrappedLogger.info('closed pulsar socket')
   }
 
@@ -58,7 +58,6 @@ export class PulsarSocket extends KeepAliveSocket {
       await super.send(commandToPayload(handshake))
     } catch (e) {
       this.wrappedLogger.error('failed to send handshake', e)
-      this.reconnect()
     }
   }
 
@@ -78,7 +77,6 @@ export class PulsarSocket extends KeepAliveSocket {
         baseCommand.error,
         { baseCommandType: baseCommand.type }
       )
-      this.reconnect()
       return
     }
 
