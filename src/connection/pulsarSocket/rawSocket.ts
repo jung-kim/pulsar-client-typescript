@@ -59,6 +59,7 @@ export class RawSocket extends AbstractPulsarSocket {
 
     this.socket.on('data', (data: Buffer) => {
       const message = this.parseReceived(data)
+      clearTimeout(timeout)
 
       switch (message.baseCommand.type) {
         case BaseCommand_Type.PING:
