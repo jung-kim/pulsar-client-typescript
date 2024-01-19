@@ -259,6 +259,7 @@ export class PartitionedProducer {
       messageMetadata.uncompressedSize = uncompressedPayload.length
       messageMetadata.numMessagesInBatch = numMessagesInBatch
       messageMetadata.sequenceId = currentSequenceId
+      messageMetadata.producerName = this.producerName
 
       this.wrappedLogger.info('Sending msgs to broker', { uncompressedSize: uncompressedPayload.length, numMessagesInBatch })
 
