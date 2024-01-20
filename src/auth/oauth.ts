@@ -1,4 +1,4 @@
-import { Auth } from './index'
+import { Auth } from './auth'
 import { OutgoingHttpHeaders } from 'http'
 import * as OAuthLib from 'oauth'
 
