@@ -92,9 +92,7 @@ export class PulsarSocket extends KeepAliveSocket {
   }
 
   public async send (buffer: Uint8Array | Buffer): Promise<void> {
-    if (this.getState() !== 'READY') {
-      throw Error(`connection not ready at ${this.getState()}`)
-    }
+    await this.ensureReady()
     return await super.send(buffer)
   }
 }

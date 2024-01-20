@@ -53,4 +53,14 @@ export abstract class AbstractPulsarSocket {
   public getState (): STATE {
     return this.state
   }
+
+  async ensureReady (): Promise<void> {
+    if (this.getState() === 'READY') {
+      return
+    }
+
+    const successSignal = this._eventSignal.filter(p => p.event === 'socket-ready')
+    const failurePromise = new Promise((resolve, reject) => setTimeout(reject, this.options.connectionTimeoutMs))
+    await Promise.race([Signal.promisify(successSignal).then(() => { this.state = 'READY' }), failurePromise])
+  }
 }

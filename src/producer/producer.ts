@@ -38,11 +38,13 @@ export class Producer {
     const partitionResponse = await this.lookupService.getPartitionedTopicMetadata(this.options.topic)
     const partitionCount = partitionResponse.partitions
 
-    if (partitionCount === 0 && this.partitionedProducers.length !== 1) {
+    if (partitionCount === 0) {
       // handle none partitioned topics case separately
-      this.partitionedProducers.forEach(pp => pp.close())
-      this.partitionedProducers.length = 1
-      this.partitionedProducers[0] = new PartitionedProducer(this, -1, this.lookupService)
+      if (this.partitionedProducers.length !== 1) {
+        this.partitionedProducers.forEach(pp => pp.close())
+        this.partitionedProducers.length = 1
+        this.partitionedProducers[0] = new PartitionedProducer(this, -1, this.lookupService)
+      }
       return
     }
 

@@ -40,7 +40,8 @@ export class KeepAliveSocket extends RawSocket {
     this.wrappedLogger.debug('send ping')
     this.writeCommand(
       BaseCommand.fromJSON({
-        type: BaseCommand_Type.PING
+        type: BaseCommand_Type.PING,
+        ping: {}
       })
     ).catch((err) => this.wrappedLogger.error('send ping error', err))
   }
@@ -54,7 +55,8 @@ export class KeepAliveSocket extends RawSocket {
     this.wrappedLogger.debug('handle ping')
     this.writeCommand(
       BaseCommand.fromJSON({
-        type: BaseCommand_Type.PONG
+        type: BaseCommand_Type.PONG,
+        pong: {}
       })
     ).catch((err) => this.wrappedLogger.error('handle ping error', err))
   }

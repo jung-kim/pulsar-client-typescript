@@ -266,7 +266,7 @@ export class PartitionedProducer {
     if (sendRequest.flushImmediately || msg.sendAsBatch === false || this.batchBuilder.isFull()) {
       return await this.flush()
     } else {
-      return await this.deferredMap.get(this.sequenceId.toString()).promise
+      return this.deferredMap.get(this.sequenceId.toString()).promise
     }
   }
 
@@ -295,11 +295,9 @@ export class PartitionedProducer {
 
       await this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload)
 
-      return await this.deferredMap.get(currentSequenceId.toString()).promise
+      return this.deferredMap.get(currentSequenceId.toString()).promise
     } catch (e) {
       this.deferredMap.get(currentSequenceId.toString()).reject(e)
-    } finally {
-      this.deferredMap.delete(currentSequenceId.toString())
     }
   }
 
