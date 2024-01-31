@@ -35,7 +35,6 @@ export class PartitionedProducer {
   private readonly batchBuilder: BatchBuilder
   private readonly batchFlushTicker: NodeJS.Timer
   private readonly lookupService: LookupService
-  private isReadyProm: Promise<void>
 
   private isReconnect: boolean = false
 
@@ -97,7 +96,7 @@ export class PartitionedProducer {
     //   }
     // }
 
-    this.isReadyProm = this.grabCnx()
+    void this.grabCnx()
 
     if (producer.options.sendTimeoutMs > 0) {
       this.setFailTimeoutFunc()
@@ -127,9 +126,9 @@ export class PartitionedProducer {
     return this.state === 'PRODUCER_READY'
   }
 
-  async grabCnx (): Promise<void> {
-    if (this.isReadyProm !== undefined) {
-      return await this.isReadyProm
+  private async grabCnx (): Promise<void> {
+    if (this.cnx !== undefined) {
+      return await this.cnx.ensureReady()
     }
     this.isReconnect = true
     const { cnx, commandProducerResponse } = await this.lookupService.getProducerConnection(
@@ -180,9 +179,7 @@ export class PartitionedProducer {
 
     this.cnx.eventSignal.add(({ event }) => {
       if (event === 'socket-closed' && this.isReconnect) {
-        setTimeout(() => {
-          this.isReadyProm = this.grabCnx()
-        }, 5000)
+        setTimeout(() => { void this.grabCnx() }, 5000)
       }
     })
   }
@@ -212,12 +209,10 @@ export class PartitionedProducer {
   }
 
   private async ensureReady (): Promise<void> {
-    await this.isReadyProm
-    if (this.cnx === undefined || this.state !== 'PRODUCER_READY') {
-      const err = Error('connection is undefined')
-      this.wrappedLogger.error('failed to acquire connection', err)
-      throw err
+    if (this.cnx === undefined) {
+      await this.grabCnx()
     }
+    await this.cnx.ensureReady()
   }
 
   private async internalSend (sendRequest: SendRequest): Promise<CommandSendReceipt> {
@@ -266,7 +261,7 @@ export class PartitionedProducer {
     if (sendRequest.flushImmediately || msg.sendAsBatch === false || this.batchBuilder.isFull()) {
       return await this.flush()
     } else {
-      return this.deferredMap.get(this.sequenceId.toString()).promise
+      return await this.deferredMap.get(this.sequenceId.toString()).promise
     }
   }
 
@@ -295,7 +290,7 @@ export class PartitionedProducer {
 
       await this.cnx.sendMessages(this.producerId, messageMetadata, uncompressedPayload)
 
-      return this.deferredMap.get(currentSequenceId.toString()).promise
+      return await this.deferredMap.get(currentSequenceId.toString()).promise
     } catch (e) {
       this.deferredMap.get(currentSequenceId.toString()).reject(e)
     }
