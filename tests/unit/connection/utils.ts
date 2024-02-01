@@ -7,6 +7,7 @@ import { ProducerListeners } from '../../../src/connection/producerListeners'
 import { PulsarSocket } from '../../../src/connection/pulsarSocket/pulsarSocket'
 import { BaseCommand, BaseCommand_Type } from '../../../src/proto/PulsarApi'
 import { RequestTracker } from '../../../src/util/requestTracker'
+import { Socket } from 'net'
 
 export class TestConnection extends Connection {
   getPulsarSocket (): PulsarSocket { return this.pulsarSocket }
@@ -16,13 +17,6 @@ export class TestConnection extends Connection {
   getEventSignal (): Signal<EventSignalType> { return this._eventSignal }
 }
 
-export class TestMockConnectedConnection extends TestConnection {
-  getPulsarSocket (): PulsarSocket { return this.pulsarSocket }
-  getProducerListeners (): ProducerListeners { return this.producerListeners }
-  getConsumerListeners (): ConsumerListeners { return this.consumerLinsteners }
-  getRequestTracker (): RequestTracker<CommandTypesResponses> { return this.requestTracker }
-}
-
 export const getConnection = (): {
   conn: TestConnection
   eventSignal: Signal<EventSignalType>
@@ -30,6 +24,10 @@ export const getConnection = (): {
   ensureReadyStub: sinon.SinonStub<[], Promise<void>>
 } => {
   const options = _initializeOption({ url: 'pulsar://a.b:6651' })
+  sinon.stub(options, 'getTcpSocket')
+    .callsFake((logicalAddress: URL) => {
+      return sinon.createStubInstance(Socket)
+    })
   const logicalAddress = new URL('pulsar://a.b:6651')
   const conn = new TestConnection(options, logicalAddress)
 

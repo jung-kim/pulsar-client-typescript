@@ -1,8 +1,8 @@
 import { EventSignalType, Message } from '..'
-import { createConnection, Socket } from 'net'
+import { Socket } from 'net'
+import { TLSSocket } from 'tls'
 import { BaseCommand, BaseCommand_Type } from '../../proto/PulsarApi'
 import proto from 'protobufjs'
-import { connect, TLSSocket } from 'tls'
 import { ConnectionOptions } from '../connectionOptions'
 import { AbstractPulsarSocket } from './abstractPulsarSocket'
 import { Signal } from 'micro-signals'
@@ -20,25 +20,14 @@ export class RawSocket extends AbstractPulsarSocket {
     this.wrappedLogger.info('base socket created')
   }
 
-  protected initializeRawSocket = _.debounce(async (): Promise<void> => {
+  public initializeRawSocket = _.debounce(async (): Promise<void> => {
     if (this.getState() === 'CLOSED') {
       this.setInitializing()
     } else {
       return
     }
 
-    this.socket = this.options._isTlsEnabled
-      ? connect({
-        host: this.logicalAddress.hostname,
-        port: parseInt(this.logicalAddress.port),
-        servername: this.logicalAddress.hostname,
-        timeout: this.options.connectionTimeoutMs
-      })
-      : createConnection({
-        host: this.logicalAddress.hostname,
-        port: parseInt(this.logicalAddress.port),
-        timeout: this.options.connectionTimeoutMs
-      })
+    this.socket = this.options.getTcpSocket(this.logicalAddress)
     this.socket.setKeepAlive(true, 100000)
 
     const timeout = setTimeout(() => {

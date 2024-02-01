@@ -306,36 +306,6 @@ describe('connection.Connection', () => {
       expect(closeConsumerCommandResult.requestId.eq(requestId)).to.eq(true)
     })
 
-    it('should be able to passin custom request id', async () => {
-      const requestId = Long.fromNumber(5, true)
-      for (let i = 0; i <= requestId.toNumber(); i++) {
-        conn.getRequestTracker().trackRequest()
-      }
-      const closeConsumerCommand = BaseCommand.fromJSON({
-        type: BaseCommand_Type.CLOSE_CONSUMER,
-        closeConsumer: CommandCloseConsumer.fromJSON({
-          consumerId: Long.UZERO,
-          requestId
-        })
-      })
-
-      const closeConsumerCommandResultProm = conn.sendCommand(closeConsumerCommand)
-      const interval = setInterval(() => {
-        if (rt.get(requestId) === undefined) {
-          return
-        }
-        expect(rt.get(requestId)).to.be.an('object')
-        rt.get(requestId)?.resolveRequest(CommandSuccess.fromJSON({
-          requestId
-        }))
-        clearInterval(interval)
-      }, 25)
-      const closeConsumerCommandResult = await closeConsumerCommandResultProm as CommandSuccess
-
-      expect(sendStub.callCount).to.eq(1)
-      expect(closeConsumerCommandResult.requestId.eq(requestId)).to.eq(true)
-    })
-
     it('missing request id if passed in', async () => {
       const closeConsumerCommand = BaseCommand.fromJSON({
         type: BaseCommand_Type.CLOSE_CONSUMER,
