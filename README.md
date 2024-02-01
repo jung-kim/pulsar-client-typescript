@@ -4,13 +4,14 @@
 
 - [❓ why](#-why-)
 - [💾 install](#-install-)
-- [⚙️ code examples](#-example-)
+- [⚙️ examples](#-example-)
 - [✨ Features](#-features-)
+- [🧪 Tests](#-tests-)
 - [📄 License](#-license-)
 
 ## why [🔝](#-table-of-contents)
 
-Pulsar does have [node client](https://github.com/apache/pulsar-client-node).  However it is a wrapper around CPP client and that has some complications and limitations.  This project is to provide a more pure typescript solution that can be used more natively along with type safety for the client.
+[Apach Pulsar](https://pulsar.apache.org/) does have [node client](https://github.com/apache/pulsar-client-node).  However it is a wrapper around CPP client and that has some complications and limitations.  This project is to provide a more pure typescript solution that can be used more natively along with type safety for the client.
 
 ## install [🔝](#-table-of-contents)
 
@@ -82,21 +83,44 @@ await persistentProducer.send('Mr. Watson – Come here – I want to see you')
 // to implment...
 ```
 
-## features map [🔝](#-table-of-contents)
+## features [🔝](#-table-of-contents)
 
 | group | features | availability | notes |
 |---|---|---|---|
 | connections |  |  |  |
 |  | connection pool | ✅ |  |
-|  | connection reconnect on drop | ❌ |  |
+|  | connection reconnect on disconnect | ❌ |  |
 |  | ping pong logic | ✅ |  |
 | producers |  |  |  |
 |  | send persistent topic | ✅ |  |
 |  | send partitioned topic | ✅ |  |
-|  | send delayed messages | ✅ | send message at & send message after |
+|  | send delayed messages | ✅ |  |
 |  | payload compression | ❌ |  |
 |  | payload encryption | ❌ |  |
 | consumers |  | ❌ |  |
+
+## tests [🔝](#-table-of-contents)
+
+### unit tests
+Unit tests that does not depends on an external Pulsar cluster.
+```
+npm run test:unit
+```
+
+### e2e tests
+E2E tests that runs against an external Pulsar cluster.
+
+Currently, assumes following topics are created
+|full topic name| tenant | namespace | topic name | persistency | partition count | 
+|---|---|---|---|---|---|
+|`non-persistent://public/default/np0` | public | default | np0 | none persistent | none partitioned |
+|`persistent://public/default/p3` | public | default | p3 | persistent| 3 |
+|`non-persistent://public/default/np5` | public | default | np5 | none persistent | 5 |
+|`persistent://public/default/p0` | public | default | p0 | persistent | none partitioned |
+
+```
+npm run test:e2e
+```
 
 ## License [🔝](#-table-of-contents)
 Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
