@@ -89,12 +89,12 @@ await persistentProducer.send('Mr. Watson – Come here – I want to see you')
 |---|---|---|---|
 | connections |  |  |  |
 |  | connection pool | ✅ |  |
-|  | connection reconnect on disconnect | ❌ |  |
 |  | ping pong logic | ✅ |  |
 | producers |  |  |  |
 |  | send persistent topic | ✅ |  |
 |  | send partitioned topic | ✅ |  |
 |  | send delayed messages | ✅ |  |
+|  | connection reconnect on disconnect | ✅ |  |
 |  | payload compression | ❌ |  |
 |  | payload encryption | ❌ |  |
 | consumers |  | ❌ |  |

@@ -168,7 +168,6 @@ export class PartitionedProducer {
 
     this.cnx.eventSignal.add(({ event }) => {
       if (event === 'socket-closed' && this.isReconnect) {
-        this.cnx?.close()
         this.cnx = undefined
         if (this.initializingGrabCnx !== undefined) {
           return

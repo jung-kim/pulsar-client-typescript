@@ -6,6 +6,20 @@ import { CommandSendReceipt, ServerError } from '../../src/proto/PulsarApi'
 import { RouterArg } from '../../src/producer/defaultRouter'
 import { Client } from '../../src/client'
 
+/**
+ * e2e test that runs pulsar typescript client against an actual pulsar cluster.
+ * This is would be a good tests to run against various pulsar versions to ensure
+ * pulsar client typescript works against them successfully.
+ *
+ * Currently, assumes following topics are created
+ * |full topic name| tenant | namespace | topic name | persistency | partition count |
+ * |---|---|---|---|---|---|
+ * |`non-persistent://public/default/np0` | public | default | np0 | none persistent | none partitioned |
+ * |`persistent://public/default/p3` | public | default | p3 | persistent| 3 |
+ * |`non-persistent://public/default/np5` | public | default | np5 | none persistent | 5 |
+ * |`persistent://public/default/p0` | public | default | p0 | persistent | none partitioned |
+ */
+
 describe('e2e connect tests', () => {
   const sn2Oauth2KeyFile = JSON.parse(readFileSync(configs.snOauth2KeyFile).toString())
   const client = new Client({
