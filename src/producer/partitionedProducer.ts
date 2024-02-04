@@ -32,7 +32,7 @@ export class PartitionedProducer {
   private readonly pendingQueues: Array<{ sentAt: number }> = []
   private failTimeoutFunc: ReturnType<typeof setTimeout> | undefined = undefined
   private readonly batchBuilder: BatchBuilder
-  private readonly batchFlushTicker: NodeJS.Timer
+  private readonly batchFlushTicker: ReturnType<typeof setTimeout> | undefined
   private readonly lookupService: LookupService
   private initializingGrabCnx: Promise<void>
   private isReconnect: boolean = true

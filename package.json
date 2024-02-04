@@ -18,7 +18,7 @@
     "@streamnative/pulsar-admin-client-typescript": "^0.1.10",
     "@types/lodash": "^4.14.182",
     "@types/oauth": "^0.9.1",
-    "axios": "^0.25.0",
+    "axios": "^1.6.7",
     "ip": "^1.1.8",
     "lodash": "^4.17.21",
     "long": "^5.2.0",
