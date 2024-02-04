@@ -10,22 +10,22 @@
 - [🧪 Tests](#tests)
 - [📄 License](#license)
 
-## why [🔝](#-table-of-contents)
+## why <a name="why"></a> [🔝](#-table-of-contents)
 
 [Apach Pulsar](https://pulsar.apache.org/) does have [node client](https://github.com/apache/pulsar-client-node).  However it is a wrapper around CPP client and that has some complications and limitations.  This project is to provide a more pure typescript solution that can be used more natively along with type safety for the client.
 
-## install [🔝](#-table-of-contents)
+## install <a name="install"></a> [🔝](#-table-of-contents)
 
 ```bash
 npm i --save-dev pulsar-client-typescript
 ```
 
-## development [🔝](#-table-of-contents)
+## development <a name="development"></a> [🔝](#-table-of-contents)
 ```bash
-npm run build
+npm run build # transpiles codes in to `/dist` folder.
 ```
 
-## examples [🔝](#-table-of-contents)
+## examples <a name="examples"></a> [🔝](#-table-of-contents)
 
 ### client
 Client is a basic pulsar client object that know how to connect to a pulsar cluster.  From pulsar client object we can create producers to send messages and consumers to receive messages.
@@ -89,7 +89,7 @@ await persistentProducer.send('Mr. Watson – Come here – I want to see you')
 // to implment...
 ```
 
-## features [🔝](#-table-of-contents)
+## features <a name="features"></a> [🔝](#-table-of-contents)
 
 | group | features | availability | notes |
 |---|---|---|---|
@@ -105,7 +105,7 @@ await persistentProducer.send('Mr. Watson – Come here – I want to see you')
 |  | payload encryption | ❌ |  |
 | consumers |  | ❌ |  |
 
-## tests [🔝](#-table-of-contents)
+## tests <a name="test"></a> [🔝](#-table-of-contents)
 
 ### unit tests
 Unit tests that does not depends on an external Pulsar cluster.
