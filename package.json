@@ -15,7 +15,6 @@
   "license": "MIT",
   "dependencies": {
     "@aws-crypto/crc32c": "^5.2.0",
-    "@streamnative/pulsar-admin-client-typescript": "^0.1.10",
     "@types/lodash": "^4.14.182",
     "@types/oauth": "^0.9.1",
     "axios": "^1.6.7",
