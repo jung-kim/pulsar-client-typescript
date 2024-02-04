@@ -4,7 +4,7 @@
 
 - [❓ why](#why)
 - [💾 install](#install)
-- [ develoment](#development)
+- [💻 develoment](#development)
 - [⚙️ examples](#examples)
 - [✨ Features](#features)
 - [🧪 Tests](#tests)
