@@ -128,9 +128,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-<<<<<<< HEAD
 
 src/**/*.js
 src/**/*.js.map
-=======
->>>>>>> upstream/main
