@@ -4,6 +4,7 @@
 
 - [❓ why](#why)
 - [💾 install](#install)
+- [ develoment](#development)
 - [⚙️ examples](#examples)
 - [✨ Features](#features)
 - [🧪 Tests](#tests)
@@ -17,6 +18,11 @@
 
 ```bash
 npm i --save-dev pulsar-client-typescript
+```
+
+## development [🔝](#-table-of-contents)
+```bash
+npm run build
 ```
 
 ## examples [🔝](#-table-of-contents)
@@ -122,6 +128,6 @@ Currently, assumes following topics are created
 npm run test:e2e
 ```
 
-## License [🔝](#-table-of-contents)
+## License <a name="license"></a> [🔝](#-table-of-contents)
 Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
 
