@@ -2,12 +2,12 @@
 
 ## 📖 Table of Contents
 
-- [❓ why](#-why-)
-- [💾 install](#-install-)
-- [⚙️ examples](#-example-)
-- [✨ Features](#-features-)
-- [🧪 Tests](#-tests-)
-- [📄 License](#-license-)
+- [❓ why](#why)
+- [💾 install](#install)
+- [⚙️ examples](#examples)
+- [✨ Features](#features)
+- [🧪 Tests](#tests)
+- [📄 License](#license)
 
 ## why [🔝](#-table-of-contents)
 
