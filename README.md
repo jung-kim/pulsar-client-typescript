@@ -125,7 +125,8 @@ Currently, assumes following topics are created
 |`persistent://public/default/p0` | public | default | p0 | persistent | none partitioned |
 
 ```
-npm run test:e2e
+## run e2e test with a specific keyfile against a specific pulsar cluster
+PULSAR_CLIENT_snOauth2KeyFile=/.../oauth2-file-name.json PULSAR_CLIENT_audience='$OAUTH_AUDIENCE' PULSAR_CLIENT_brokerUrl=$PULSAR_END_POINT npm run test:e2e
 ```
 
 ## License <a name="license"></a> [🔝](#-table-of-contents)
