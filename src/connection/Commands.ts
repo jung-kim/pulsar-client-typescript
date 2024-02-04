@@ -20,7 +20,7 @@ export const serializeBatch = (cmdSend: CommandSend, msgMetadata: MessageMetadat
     send: cmdSend
   })
 
-  const commandPayload = getCommandPayload(baseCommand)
+  const commandPayload = getSendCommandPayload(baseCommand)
   const messagePayload = getMessagePayload(msgMetadata, encryptedPayload)
   const crc32Digest = (new Crc32c()).update(messagePayload).digest()
 
@@ -38,7 +38,7 @@ export const serializeBatch = (cmdSend: CommandSend, msgMetadata: MessageMetadat
 
 // converts the send command object to bytes
 // wire format: [CMD_SIZE] [CMD]
-const getCommandPayload = (cmdSend: BaseCommand): Uint8Array => {
+const getSendCommandPayload = (cmdSend: BaseCommand): Uint8Array => {
   const cmdSendPayload = BaseCommand.encode(cmdSend).finish()
 
   const mergedArray = new Uint8Array(4 + cmdSendPayload.length)

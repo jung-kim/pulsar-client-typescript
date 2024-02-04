@@ -22,7 +22,6 @@ export class PartitionedProducer {
   readonly producerId: Long
   private cnx: Connection | undefined
   private readonly wrappedLogger: WrappedLogger
-  private state: 'PRODUCER_INIT' | 'PRODUCER_READY' | 'PRODUCER_CLOSING' | 'PRODUCER_CLOSED'
   private readonly epoch: Long = Long.UZERO
 
   private readonly deferredMap: Map<string, Deferred<CommandSendReceipt>> = new Map()
@@ -35,8 +34,8 @@ export class PartitionedProducer {
   private readonly batchBuilder: BatchBuilder
   private readonly batchFlushTicker: NodeJS.Timer
   private readonly lookupService: LookupService
-
-  private isReconnect: boolean = false
+  private initializingGrabCnx: Promise<void>
+  private isReconnect: boolean = true
 
   constructor (producer: Producer, partitionId: number, lookupService: LookupService) {
     this.parent = producer
@@ -53,7 +52,6 @@ export class PartitionedProducer {
       partitionId
     })
     this.batchBuilder = new BatchBuilder(this.parent.options)
-    this.state = 'PRODUCER_INIT'
 
     this.producerSignal.add((payload: CommandSendReceipt | CommandCloseProducer) => {
       if ('sequenceId' in payload) {
@@ -96,7 +94,7 @@ export class PartitionedProducer {
     //   }
     // }
 
-    void this.grabCnx()
+    this.initializingGrabCnx = this.grabCnx()
 
     if (producer.options.sendTimeoutMs > 0) {
       this.setFailTimeoutFunc()
@@ -106,7 +104,7 @@ export class PartitionedProducer {
     // go p.runEventsLoop()
 
     this.batchFlushTicker = setInterval(() => {
-      if (this.state !== 'PRODUCER_READY') {
+      if (this.cnx === undefined) {
         return
       }
       this.flush().catch((e: Error) => {
@@ -117,13 +115,8 @@ export class PartitionedProducer {
 
   close (): void {
     this.isReconnect = false
-    this.state = 'PRODUCER_CLOSING'
     this.cnx.close()
-    this.state = 'PRODUCER_CLOSED'
-  }
-
-  isReady (): boolean {
-    return this.state === 'PRODUCER_READY'
+    clearInterval(this.batchFlushTicker)
   }
 
   private async grabCnx (): Promise<void> {
@@ -141,13 +134,9 @@ export class PartitionedProducer {
     this.producerName = commandProducerResponse.producerName
     this.wrappedLogger.updateMetadata('producerName', this.producerName)
 
-    if (this.state === 'PRODUCER_INIT') {
-      this.state = 'PRODUCER_READY'
-    }
     this.wrappedLogger.info('producer cnx created', {
       // cnx: this.cnx.id,
-      epoch: this.epoch,
-      state: this.state
+      epoch: this.epoch
     })
 
     // pendingItems := p.pendingQueue.ReadableSlice()
@@ -179,9 +168,20 @@ export class PartitionedProducer {
 
     this.cnx.eventSignal.add(({ event }) => {
       if (event === 'socket-closed' && this.isReconnect) {
-        setTimeout(() => { void this.grabCnx() }, 5000)
+        this.cnx?.close()
+        this.cnx = undefined
+        if (this.initializingGrabCnx !== undefined) {
+          return
+        }
+        setTimeout(() => { this.initializingGrabCnx = this.grabCnx() }, 1000)
       }
     })
+
+    try {
+      return await this.cnx.ensureReady()
+    } finally {
+      this.initializingGrabCnx = undefined
+    }
   }
 
   async send (msg: ProducerMessage): Promise<CommandSendReceipt> {
@@ -209,8 +209,11 @@ export class PartitionedProducer {
   }
 
   private async ensureReady (): Promise<void> {
+    if (this.initializingGrabCnx !== undefined) {
+      await this.initializingGrabCnx
+    }
     if (this.cnx === undefined) {
-      await this.grabCnx()
+      throw new Error('connection is not initialized.')
     }
     await this.cnx.ensureReady()
   }
@@ -272,7 +275,7 @@ export class PartitionedProducer {
     this.sequenceId = this.sequenceId.add(1)
 
     try {
-      if (this.cnx === undefined || this.state !== 'PRODUCER_READY') {
+      if (this.cnx === undefined) {
         const err = Error('connection is undefined')
         this.wrappedLogger.error('failed to acquire connection', err)
         throw err
