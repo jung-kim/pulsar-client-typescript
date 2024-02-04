@@ -2271,10 +2271,12 @@ export const Schema = {
 
   fromJSON(object: any): Schema {
     return {
-      name: isSet(object.name) ? String(object.name) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
       schemaData: isSet(object.schemaData) ? bytesFromBase64(object.schemaData) : new Uint8Array(0),
       type: isSet(object.type) ? schema_TypeFromJSON(object.type) : 0,
-      properties: Array.isArray(object?.properties) ? object.properties.map((e: any) => KeyValue.fromJSON(e)) : [],
+      properties: globalThis.Array.isArray(object?.properties)
+        ? object.properties.map((e: any) => KeyValue.fromJSON(e))
+        : [],
     };
   },
 
@@ -2295,10 +2297,10 @@ export const Schema = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Schema>, I>>(base?: I): Schema {
-    return Schema.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<Schema>): Schema {
+    return Schema.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<Schema>, I>>(object: I): Schema {
+  fromPartial(object: DeepPartial<Schema>): Schema {
     const message = createBaseSchema();
     message.name = object.name ?? "";
     message.schemaData = object.schemaData ?? new Uint8Array(0);
@@ -2427,10 +2429,10 @@ export const MessageIdData = {
     return {
       ledgerId: isSet(object.ledgerId) ? Long.fromValue(object.ledgerId) : Long.UZERO,
       entryId: isSet(object.entryId) ? Long.fromValue(object.entryId) : Long.UZERO,
-      partition: isSet(object.partition) ? Number(object.partition) : 0,
-      batchIndex: isSet(object.batchIndex) ? Number(object.batchIndex) : 0,
-      ackSet: Array.isArray(object?.ackSet) ? object.ackSet.map((e: any) => Long.fromValue(e)) : [],
-      batchSize: isSet(object.batchSize) ? Number(object.batchSize) : 0,
+      partition: isSet(object.partition) ? globalThis.Number(object.partition) : 0,
+      batchIndex: isSet(object.batchIndex) ? globalThis.Number(object.batchIndex) : 0,
+      ackSet: globalThis.Array.isArray(object?.ackSet) ? object.ackSet.map((e: any) => Long.fromValue(e)) : [],
+      batchSize: isSet(object.batchSize) ? globalThis.Number(object.batchSize) : 0,
       firstChunkMessageId: isSet(object.firstChunkMessageId)
         ? MessageIdData.fromJSON(object.firstChunkMessageId)
         : undefined,
@@ -2463,10 +2465,10 @@ export const MessageIdData = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MessageIdData>, I>>(base?: I): MessageIdData {
-    return MessageIdData.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<MessageIdData>): MessageIdData {
+    return MessageIdData.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<MessageIdData>, I>>(object: I): MessageIdData {
+  fromPartial(object: DeepPartial<MessageIdData>): MessageIdData {
     const message = createBaseMessageIdData();
     message.ledgerId = (object.ledgerId !== undefined && object.ledgerId !== null)
       ? Long.fromValue(object.ledgerId)
@@ -2531,7 +2533,10 @@ export const KeyValue = {
   },
 
   fromJSON(object: any): KeyValue {
-    return { key: isSet(object.key) ? String(object.key) : "", value: isSet(object.value) ? String(object.value) : "" };
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
   },
 
   toJSON(message: KeyValue): unknown {
@@ -2545,10 +2550,10 @@ export const KeyValue = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<KeyValue>, I>>(base?: I): KeyValue {
-    return KeyValue.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<KeyValue>): KeyValue {
+    return KeyValue.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<KeyValue>, I>>(object: I): KeyValue {
+  fromPartial(object: DeepPartial<KeyValue>): KeyValue {
     const message = createBaseKeyValue();
     message.key = object.key ?? "";
     message.value = object.value ?? "";
@@ -2603,7 +2608,7 @@ export const KeyLongValue = {
 
   fromJSON(object: any): KeyLongValue {
     return {
-      key: isSet(object.key) ? String(object.key) : "",
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
       value: isSet(object.value) ? Long.fromValue(object.value) : Long.UZERO,
     };
   },
@@ -2619,10 +2624,10 @@ export const KeyLongValue = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<KeyLongValue>, I>>(base?: I): KeyLongValue {
-    return KeyLongValue.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<KeyLongValue>): KeyLongValue {
+    return KeyLongValue.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<KeyLongValue>, I>>(object: I): KeyLongValue {
+  fromPartial(object: DeepPartial<KeyLongValue>): KeyLongValue {
     const message = createBaseKeyLongValue();
     message.key = object.key ?? "";
     message.value = (object.value !== undefined && object.value !== null) ? Long.fromValue(object.value) : Long.UZERO;
@@ -2676,7 +2681,10 @@ export const IntRange = {
   },
 
   fromJSON(object: any): IntRange {
-    return { start: isSet(object.start) ? Number(object.start) : 0, end: isSet(object.end) ? Number(object.end) : 0 };
+    return {
+      start: isSet(object.start) ? globalThis.Number(object.start) : 0,
+      end: isSet(object.end) ? globalThis.Number(object.end) : 0,
+    };
   },
 
   toJSON(message: IntRange): unknown {
@@ -2690,10 +2698,10 @@ export const IntRange = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<IntRange>, I>>(base?: I): IntRange {
-    return IntRange.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<IntRange>): IntRange {
+    return IntRange.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<IntRange>, I>>(object: I): IntRange {
+  fromPartial(object: DeepPartial<IntRange>): IntRange {
     const message = createBaseIntRange();
     message.start = object.start ?? 0;
     message.end = object.end ?? 0;
@@ -2758,9 +2766,9 @@ export const EncryptionKeys = {
 
   fromJSON(object: any): EncryptionKeys {
     return {
-      key: isSet(object.key) ? String(object.key) : "",
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
       value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
-      metadata: Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
+      metadata: globalThis.Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
     };
   },
 
@@ -2778,10 +2786,10 @@ export const EncryptionKeys = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<EncryptionKeys>, I>>(base?: I): EncryptionKeys {
-    return EncryptionKeys.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<EncryptionKeys>): EncryptionKeys {
+    return EncryptionKeys.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<EncryptionKeys>, I>>(object: I): EncryptionKeys {
+  fromPartial(object: DeepPartial<EncryptionKeys>): EncryptionKeys {
     const message = createBaseEncryptionKeys();
     message.key = object.key ?? "";
     message.value = object.value ?? new Uint8Array(0);
@@ -3126,36 +3134,42 @@ export const MessageMetadata = {
 
   fromJSON(object: any): MessageMetadata {
     return {
-      producerName: isSet(object.producerName) ? String(object.producerName) : "",
+      producerName: isSet(object.producerName) ? globalThis.String(object.producerName) : "",
       sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
       publishTime: isSet(object.publishTime) ? Long.fromValue(object.publishTime) : Long.UZERO,
-      properties: Array.isArray(object?.properties) ? object.properties.map((e: any) => KeyValue.fromJSON(e)) : [],
-      replicatedFrom: isSet(object.replicatedFrom) ? String(object.replicatedFrom) : "",
-      partitionKey: isSet(object.partitionKey) ? String(object.partitionKey) : "",
-      replicateTo: Array.isArray(object?.replicateTo) ? object.replicateTo.map((e: any) => String(e)) : [],
+      properties: globalThis.Array.isArray(object?.properties)
+        ? object.properties.map((e: any) => KeyValue.fromJSON(e))
+        : [],
+      replicatedFrom: isSet(object.replicatedFrom) ? globalThis.String(object.replicatedFrom) : "",
+      partitionKey: isSet(object.partitionKey) ? globalThis.String(object.partitionKey) : "",
+      replicateTo: globalThis.Array.isArray(object?.replicateTo)
+        ? object.replicateTo.map((e: any) => globalThis.String(e))
+        : [],
       compression: isSet(object.compression) ? compressionTypeFromJSON(object.compression) : 0,
-      uncompressedSize: isSet(object.uncompressedSize) ? Number(object.uncompressedSize) : 0,
-      numMessagesInBatch: isSet(object.numMessagesInBatch) ? Number(object.numMessagesInBatch) : 0,
+      uncompressedSize: isSet(object.uncompressedSize) ? globalThis.Number(object.uncompressedSize) : 0,
+      numMessagesInBatch: isSet(object.numMessagesInBatch) ? globalThis.Number(object.numMessagesInBatch) : 0,
       eventTime: isSet(object.eventTime) ? Long.fromValue(object.eventTime) : Long.UZERO,
-      encryptionKeys: Array.isArray(object?.encryptionKeys)
+      encryptionKeys: globalThis.Array.isArray(object?.encryptionKeys)
         ? object.encryptionKeys.map((e: any) => EncryptionKeys.fromJSON(e))
         : [],
-      encryptionAlgo: isSet(object.encryptionAlgo) ? String(object.encryptionAlgo) : "",
+      encryptionAlgo: isSet(object.encryptionAlgo) ? globalThis.String(object.encryptionAlgo) : "",
       encryptionParam: isSet(object.encryptionParam) ? bytesFromBase64(object.encryptionParam) : new Uint8Array(0),
       schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
-      partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded) ? Boolean(object.partitionKeyB64Encoded) : false,
+      partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded)
+        ? globalThis.Boolean(object.partitionKeyB64Encoded)
+        : false,
       orderingKey: isSet(object.orderingKey) ? bytesFromBase64(object.orderingKey) : new Uint8Array(0),
       deliverAtTime: isSet(object.deliverAtTime) ? Long.fromValue(object.deliverAtTime) : Long.ZERO,
-      markerType: isSet(object.markerType) ? Number(object.markerType) : 0,
+      markerType: isSet(object.markerType) ? globalThis.Number(object.markerType) : 0,
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       highestSequenceId: isSet(object.highestSequenceId) ? Long.fromValue(object.highestSequenceId) : Long.UZERO,
-      nullValue: isSet(object.nullValue) ? Boolean(object.nullValue) : false,
-      uuid: isSet(object.uuid) ? String(object.uuid) : "",
-      numChunksFromMsg: isSet(object.numChunksFromMsg) ? Number(object.numChunksFromMsg) : 0,
-      totalChunkMsgSize: isSet(object.totalChunkMsgSize) ? Number(object.totalChunkMsgSize) : 0,
-      chunkId: isSet(object.chunkId) ? Number(object.chunkId) : 0,
-      nullPartitionKey: isSet(object.nullPartitionKey) ? Boolean(object.nullPartitionKey) : false,
+      nullValue: isSet(object.nullValue) ? globalThis.Boolean(object.nullValue) : false,
+      uuid: isSet(object.uuid) ? globalThis.String(object.uuid) : "",
+      numChunksFromMsg: isSet(object.numChunksFromMsg) ? globalThis.Number(object.numChunksFromMsg) : 0,
+      totalChunkMsgSize: isSet(object.totalChunkMsgSize) ? globalThis.Number(object.totalChunkMsgSize) : 0,
+      chunkId: isSet(object.chunkId) ? globalThis.Number(object.chunkId) : 0,
+      nullPartitionKey: isSet(object.nullPartitionKey) ? globalThis.Boolean(object.nullPartitionKey) : false,
     };
   },
 
@@ -3248,10 +3262,10 @@ export const MessageMetadata = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MessageMetadata>, I>>(base?: I): MessageMetadata {
-    return MessageMetadata.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<MessageMetadata>): MessageMetadata {
+    return MessageMetadata.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<MessageMetadata>, I>>(object: I): MessageMetadata {
+  fromPartial(object: DeepPartial<MessageMetadata>): MessageMetadata {
     const message = createBaseMessageMetadata();
     message.producerName = object.producerName ?? "";
     message.sequenceId = (object.sequenceId !== undefined && object.sequenceId !== null)
@@ -3437,16 +3451,20 @@ export const SingleMessageMetadata = {
 
   fromJSON(object: any): SingleMessageMetadata {
     return {
-      properties: Array.isArray(object?.properties) ? object.properties.map((e: any) => KeyValue.fromJSON(e)) : [],
-      partitionKey: isSet(object.partitionKey) ? String(object.partitionKey) : "",
-      payloadSize: isSet(object.payloadSize) ? Number(object.payloadSize) : 0,
-      compactedOut: isSet(object.compactedOut) ? Boolean(object.compactedOut) : false,
+      properties: globalThis.Array.isArray(object?.properties)
+        ? object.properties.map((e: any) => KeyValue.fromJSON(e))
+        : [],
+      partitionKey: isSet(object.partitionKey) ? globalThis.String(object.partitionKey) : "",
+      payloadSize: isSet(object.payloadSize) ? globalThis.Number(object.payloadSize) : 0,
+      compactedOut: isSet(object.compactedOut) ? globalThis.Boolean(object.compactedOut) : false,
       eventTime: isSet(object.eventTime) ? Long.fromValue(object.eventTime) : Long.UZERO,
-      partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded) ? Boolean(object.partitionKeyB64Encoded) : false,
+      partitionKeyB64Encoded: isSet(object.partitionKeyB64Encoded)
+        ? globalThis.Boolean(object.partitionKeyB64Encoded)
+        : false,
       orderingKey: isSet(object.orderingKey) ? bytesFromBase64(object.orderingKey) : new Uint8Array(0),
       sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
-      nullValue: isSet(object.nullValue) ? Boolean(object.nullValue) : false,
-      nullPartitionKey: isSet(object.nullPartitionKey) ? Boolean(object.nullPartitionKey) : false,
+      nullValue: isSet(object.nullValue) ? globalThis.Boolean(object.nullValue) : false,
+      nullPartitionKey: isSet(object.nullPartitionKey) ? globalThis.Boolean(object.nullPartitionKey) : false,
     };
   },
 
@@ -3485,10 +3503,10 @@ export const SingleMessageMetadata = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SingleMessageMetadata>, I>>(base?: I): SingleMessageMetadata {
-    return SingleMessageMetadata.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<SingleMessageMetadata>): SingleMessageMetadata {
+    return SingleMessageMetadata.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<SingleMessageMetadata>, I>>(object: I): SingleMessageMetadata {
+  fromPartial(object: DeepPartial<SingleMessageMetadata>): SingleMessageMetadata {
     const message = createBaseSingleMessageMetadata();
     message.properties = object.properties?.map((e) => KeyValue.fromPartial(e)) || [];
     message.partitionKey = object.partitionKey ?? "";
@@ -3571,10 +3589,10 @@ export const BrokerEntryMetadata = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<BrokerEntryMetadata>, I>>(base?: I): BrokerEntryMetadata {
-    return BrokerEntryMetadata.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<BrokerEntryMetadata>): BrokerEntryMetadata {
+    return BrokerEntryMetadata.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<BrokerEntryMetadata>, I>>(object: I): BrokerEntryMetadata {
+  fromPartial(object: DeepPartial<BrokerEntryMetadata>): BrokerEntryMetadata {
     const message = createBaseBrokerEntryMetadata();
     message.brokerTimestamp = (object.brokerTimestamp !== undefined && object.brokerTimestamp !== null)
       ? Long.fromValue(object.brokerTimestamp)
@@ -3722,15 +3740,15 @@ export const CommandConnect = {
 
   fromJSON(object: any): CommandConnect {
     return {
-      clientVersion: isSet(object.clientVersion) ? String(object.clientVersion) : "",
+      clientVersion: isSet(object.clientVersion) ? globalThis.String(object.clientVersion) : "",
       authMethod: isSet(object.authMethod) ? authMethodFromJSON(object.authMethod) : 0,
       authData: isSet(object.authData) ? bytesFromBase64(object.authData) : new Uint8Array(0),
-      protocolVersion: isSet(object.protocolVersion) ? Number(object.protocolVersion) : 0,
-      authMethodName: isSet(object.authMethodName) ? String(object.authMethodName) : "",
-      proxyToBrokerUrl: isSet(object.proxyToBrokerUrl) ? String(object.proxyToBrokerUrl) : "",
-      originalPrincipal: isSet(object.originalPrincipal) ? String(object.originalPrincipal) : "",
-      originalAuthData: isSet(object.originalAuthData) ? String(object.originalAuthData) : "",
-      originalAuthMethod: isSet(object.originalAuthMethod) ? String(object.originalAuthMethod) : "",
+      protocolVersion: isSet(object.protocolVersion) ? globalThis.Number(object.protocolVersion) : 0,
+      authMethodName: isSet(object.authMethodName) ? globalThis.String(object.authMethodName) : "",
+      proxyToBrokerUrl: isSet(object.proxyToBrokerUrl) ? globalThis.String(object.proxyToBrokerUrl) : "",
+      originalPrincipal: isSet(object.originalPrincipal) ? globalThis.String(object.originalPrincipal) : "",
+      originalAuthData: isSet(object.originalAuthData) ? globalThis.String(object.originalAuthData) : "",
+      originalAuthMethod: isSet(object.originalAuthMethod) ? globalThis.String(object.originalAuthMethod) : "",
       featureFlags: isSet(object.featureFlags) ? FeatureFlags.fromJSON(object.featureFlags) : undefined,
     };
   },
@@ -3770,10 +3788,10 @@ export const CommandConnect = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandConnect>, I>>(base?: I): CommandConnect {
-    return CommandConnect.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandConnect>): CommandConnect {
+    return CommandConnect.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandConnect>, I>>(object: I): CommandConnect {
+  fromPartial(object: DeepPartial<CommandConnect>): CommandConnect {
     const message = createBaseCommandConnect();
     message.clientVersion = object.clientVersion ?? "";
     message.authMethod = object.authMethod ?? 0;
@@ -3863,12 +3881,16 @@ export const FeatureFlags = {
 
   fromJSON(object: any): FeatureFlags {
     return {
-      supportsAuthRefresh: isSet(object.supportsAuthRefresh) ? Boolean(object.supportsAuthRefresh) : false,
+      supportsAuthRefresh: isSet(object.supportsAuthRefresh) ? globalThis.Boolean(object.supportsAuthRefresh) : false,
       supportsBrokerEntryMetadata: isSet(object.supportsBrokerEntryMetadata)
-        ? Boolean(object.supportsBrokerEntryMetadata)
+        ? globalThis.Boolean(object.supportsBrokerEntryMetadata)
         : false,
-      supportsPartialProducer: isSet(object.supportsPartialProducer) ? Boolean(object.supportsPartialProducer) : false,
-      supportsTopicWatchers: isSet(object.supportsTopicWatchers) ? Boolean(object.supportsTopicWatchers) : false,
+      supportsPartialProducer: isSet(object.supportsPartialProducer)
+        ? globalThis.Boolean(object.supportsPartialProducer)
+        : false,
+      supportsTopicWatchers: isSet(object.supportsTopicWatchers)
+        ? globalThis.Boolean(object.supportsTopicWatchers)
+        : false,
     };
   },
 
@@ -3889,10 +3911,10 @@ export const FeatureFlags = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<FeatureFlags>, I>>(base?: I): FeatureFlags {
-    return FeatureFlags.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<FeatureFlags>): FeatureFlags {
+    return FeatureFlags.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<FeatureFlags>, I>>(object: I): FeatureFlags {
+  fromPartial(object: DeepPartial<FeatureFlags>): FeatureFlags {
     const message = createBaseFeatureFlags();
     message.supportsAuthRefresh = object.supportsAuthRefresh ?? false;
     message.supportsBrokerEntryMetadata = object.supportsBrokerEntryMetadata ?? false;
@@ -3969,9 +3991,9 @@ export const CommandConnected = {
 
   fromJSON(object: any): CommandConnected {
     return {
-      serverVersion: isSet(object.serverVersion) ? String(object.serverVersion) : "",
-      protocolVersion: isSet(object.protocolVersion) ? Number(object.protocolVersion) : 0,
-      maxMessageSize: isSet(object.maxMessageSize) ? Number(object.maxMessageSize) : 0,
+      serverVersion: isSet(object.serverVersion) ? globalThis.String(object.serverVersion) : "",
+      protocolVersion: isSet(object.protocolVersion) ? globalThis.Number(object.protocolVersion) : 0,
+      maxMessageSize: isSet(object.maxMessageSize) ? globalThis.Number(object.maxMessageSize) : 0,
       featureFlags: isSet(object.featureFlags) ? FeatureFlags.fromJSON(object.featureFlags) : undefined,
     };
   },
@@ -3993,10 +4015,10 @@ export const CommandConnected = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandConnected>, I>>(base?: I): CommandConnected {
-    return CommandConnected.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandConnected>): CommandConnected {
+    return CommandConnected.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandConnected>, I>>(object: I): CommandConnected {
+  fromPartial(object: DeepPartial<CommandConnected>): CommandConnected {
     const message = createBaseCommandConnected();
     message.serverVersion = object.serverVersion ?? "";
     message.protocolVersion = object.protocolVersion ?? 0;
@@ -4065,9 +4087,9 @@ export const CommandAuthResponse = {
 
   fromJSON(object: any): CommandAuthResponse {
     return {
-      clientVersion: isSet(object.clientVersion) ? String(object.clientVersion) : "",
+      clientVersion: isSet(object.clientVersion) ? globalThis.String(object.clientVersion) : "",
       response: isSet(object.response) ? AuthData.fromJSON(object.response) : undefined,
-      protocolVersion: isSet(object.protocolVersion) ? Number(object.protocolVersion) : 0,
+      protocolVersion: isSet(object.protocolVersion) ? globalThis.Number(object.protocolVersion) : 0,
     };
   },
 
@@ -4085,10 +4107,10 @@ export const CommandAuthResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandAuthResponse>, I>>(base?: I): CommandAuthResponse {
-    return CommandAuthResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandAuthResponse>): CommandAuthResponse {
+    return CommandAuthResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandAuthResponse>, I>>(object: I): CommandAuthResponse {
+  fromPartial(object: DeepPartial<CommandAuthResponse>): CommandAuthResponse {
     const message = createBaseCommandAuthResponse();
     message.clientVersion = object.clientVersion ?? "";
     message.response = (object.response !== undefined && object.response !== null)
@@ -4156,9 +4178,9 @@ export const CommandAuthChallenge = {
 
   fromJSON(object: any): CommandAuthChallenge {
     return {
-      serverVersion: isSet(object.serverVersion) ? String(object.serverVersion) : "",
+      serverVersion: isSet(object.serverVersion) ? globalThis.String(object.serverVersion) : "",
       challenge: isSet(object.challenge) ? AuthData.fromJSON(object.challenge) : undefined,
-      protocolVersion: isSet(object.protocolVersion) ? Number(object.protocolVersion) : 0,
+      protocolVersion: isSet(object.protocolVersion) ? globalThis.Number(object.protocolVersion) : 0,
     };
   },
 
@@ -4176,10 +4198,10 @@ export const CommandAuthChallenge = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandAuthChallenge>, I>>(base?: I): CommandAuthChallenge {
-    return CommandAuthChallenge.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandAuthChallenge>): CommandAuthChallenge {
+    return CommandAuthChallenge.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandAuthChallenge>, I>>(object: I): CommandAuthChallenge {
+  fromPartial(object: DeepPartial<CommandAuthChallenge>): CommandAuthChallenge {
     const message = createBaseCommandAuthChallenge();
     message.serverVersion = object.serverVersion ?? "";
     message.challenge = (object.challenge !== undefined && object.challenge !== null)
@@ -4237,7 +4259,7 @@ export const AuthData = {
 
   fromJSON(object: any): AuthData {
     return {
-      authMethodName: isSet(object.authMethodName) ? String(object.authMethodName) : "",
+      authMethodName: isSet(object.authMethodName) ? globalThis.String(object.authMethodName) : "",
       authData: isSet(object.authData) ? bytesFromBase64(object.authData) : new Uint8Array(0),
     };
   },
@@ -4253,10 +4275,10 @@ export const AuthData = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<AuthData>, I>>(base?: I): AuthData {
-    return AuthData.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<AuthData>): AuthData {
+    return AuthData.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<AuthData>, I>>(object: I): AuthData {
+  fromPartial(object: DeepPartial<AuthData>): AuthData {
     const message = createBaseAuthData();
     message.authMethodName = object.authMethodName ?? "";
     message.authData = object.authData ?? new Uint8Array(0);
@@ -4322,8 +4344,12 @@ export const KeySharedMeta = {
   fromJSON(object: any): KeySharedMeta {
     return {
       keySharedMode: isSet(object.keySharedMode) ? keySharedModeFromJSON(object.keySharedMode) : 0,
-      hashRanges: Array.isArray(object?.hashRanges) ? object.hashRanges.map((e: any) => IntRange.fromJSON(e)) : [],
-      allowOutOfOrderDelivery: isSet(object.allowOutOfOrderDelivery) ? Boolean(object.allowOutOfOrderDelivery) : false,
+      hashRanges: globalThis.Array.isArray(object?.hashRanges)
+        ? object.hashRanges.map((e: any) => IntRange.fromJSON(e))
+        : [],
+      allowOutOfOrderDelivery: isSet(object.allowOutOfOrderDelivery)
+        ? globalThis.Boolean(object.allowOutOfOrderDelivery)
+        : false,
     };
   },
 
@@ -4341,10 +4367,10 @@ export const KeySharedMeta = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<KeySharedMeta>, I>>(base?: I): KeySharedMeta {
-    return KeySharedMeta.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<KeySharedMeta>): KeySharedMeta {
+    return KeySharedMeta.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<KeySharedMeta>, I>>(object: I): KeySharedMeta {
+  fromPartial(object: DeepPartial<KeySharedMeta>): KeySharedMeta {
     const message = createBaseKeySharedMeta();
     message.keySharedMode = object.keySharedMode ?? 0;
     message.hashRanges = object.hashRanges?.map((e) => IntRange.fromPartial(e)) || [];
@@ -4590,30 +4616,30 @@ export const CommandSubscribe = {
 
   fromJSON(object: any): CommandSubscribe {
     return {
-      topic: isSet(object.topic) ? String(object.topic) : "",
-      subscription: isSet(object.subscription) ? String(object.subscription) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
+      subscription: isSet(object.subscription) ? globalThis.String(object.subscription) : "",
       subType: isSet(object.subType) ? commandSubscribe_SubTypeFromJSON(object.subType) : 0,
       consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      consumerName: isSet(object.consumerName) ? String(object.consumerName) : "",
-      priorityLevel: isSet(object.priorityLevel) ? Number(object.priorityLevel) : 0,
-      durable: isSet(object.durable) ? Boolean(object.durable) : false,
+      consumerName: isSet(object.consumerName) ? globalThis.String(object.consumerName) : "",
+      priorityLevel: isSet(object.priorityLevel) ? globalThis.Number(object.priorityLevel) : 0,
+      durable: isSet(object.durable) ? globalThis.Boolean(object.durable) : false,
       startMessageId: isSet(object.startMessageId) ? MessageIdData.fromJSON(object.startMessageId) : undefined,
-      metadata: Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
-      readCompacted: isSet(object.readCompacted) ? Boolean(object.readCompacted) : false,
+      metadata: globalThis.Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
+      readCompacted: isSet(object.readCompacted) ? globalThis.Boolean(object.readCompacted) : false,
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
       initialPosition: isSet(object.initialPosition)
         ? commandSubscribe_InitialPositionFromJSON(object.initialPosition)
         : 0,
       replicateSubscriptionState: isSet(object.replicateSubscriptionState)
-        ? Boolean(object.replicateSubscriptionState)
+        ? globalThis.Boolean(object.replicateSubscriptionState)
         : false,
-      forceTopicCreation: isSet(object.forceTopicCreation) ? Boolean(object.forceTopicCreation) : false,
+      forceTopicCreation: isSet(object.forceTopicCreation) ? globalThis.Boolean(object.forceTopicCreation) : false,
       startMessageRollbackDurationSec: isSet(object.startMessageRollbackDurationSec)
         ? Long.fromValue(object.startMessageRollbackDurationSec)
         : Long.UZERO,
       keySharedMeta: isSet(object.keySharedMeta) ? KeySharedMeta.fromJSON(object.keySharedMeta) : undefined,
-      subscriptionProperties: Array.isArray(object?.subscriptionProperties)
+      subscriptionProperties: globalThis.Array.isArray(object?.subscriptionProperties)
         ? object.subscriptionProperties.map((e: any) => KeyValue.fromJSON(e))
         : [],
       consumerEpoch: isSet(object.consumerEpoch) ? Long.fromValue(object.consumerEpoch) : Long.UZERO,
@@ -4682,10 +4708,10 @@ export const CommandSubscribe = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandSubscribe>, I>>(base?: I): CommandSubscribe {
-    return CommandSubscribe.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandSubscribe>): CommandSubscribe {
+    return CommandSubscribe.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandSubscribe>, I>>(object: I): CommandSubscribe {
+  fromPartial(object: DeepPartial<CommandSubscribe>): CommandSubscribe {
     const message = createBaseCommandSubscribe();
     message.topic = object.topic ?? "";
     message.subscription = object.subscription ?? "";
@@ -4802,11 +4828,11 @@ export const CommandPartitionedTopicMetadata = {
 
   fromJSON(object: any): CommandPartitionedTopicMetadata {
     return {
-      topic: isSet(object.topic) ? String(object.topic) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      originalPrincipal: isSet(object.originalPrincipal) ? String(object.originalPrincipal) : "",
-      originalAuthData: isSet(object.originalAuthData) ? String(object.originalAuthData) : "",
-      originalAuthMethod: isSet(object.originalAuthMethod) ? String(object.originalAuthMethod) : "",
+      originalPrincipal: isSet(object.originalPrincipal) ? globalThis.String(object.originalPrincipal) : "",
+      originalAuthData: isSet(object.originalAuthData) ? globalThis.String(object.originalAuthData) : "",
+      originalAuthMethod: isSet(object.originalAuthMethod) ? globalThis.String(object.originalAuthMethod) : "",
     };
   },
 
@@ -4830,12 +4856,10 @@ export const CommandPartitionedTopicMetadata = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandPartitionedTopicMetadata>, I>>(base?: I): CommandPartitionedTopicMetadata {
-    return CommandPartitionedTopicMetadata.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandPartitionedTopicMetadata>): CommandPartitionedTopicMetadata {
+    return CommandPartitionedTopicMetadata.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandPartitionedTopicMetadata>, I>>(
-    object: I,
-  ): CommandPartitionedTopicMetadata {
+  fromPartial(object: DeepPartial<CommandPartitionedTopicMetadata>): CommandPartitionedTopicMetadata {
     const message = createBaseCommandPartitionedTopicMetadata();
     message.topic = object.topic ?? "";
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
@@ -4925,13 +4949,13 @@ export const CommandPartitionedTopicMetadataResponse = {
 
   fromJSON(object: any): CommandPartitionedTopicMetadataResponse {
     return {
-      partitions: isSet(object.partitions) ? Number(object.partitions) : 0,
+      partitions: isSet(object.partitions) ? globalThis.Number(object.partitions) : 0,
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       response: isSet(object.response)
         ? commandPartitionedTopicMetadataResponse_LookupTypeFromJSON(object.response)
         : 0,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -4955,14 +4979,10 @@ export const CommandPartitionedTopicMetadataResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandPartitionedTopicMetadataResponse>, I>>(
-    base?: I,
-  ): CommandPartitionedTopicMetadataResponse {
-    return CommandPartitionedTopicMetadataResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandPartitionedTopicMetadataResponse>): CommandPartitionedTopicMetadataResponse {
+    return CommandPartitionedTopicMetadataResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandPartitionedTopicMetadataResponse>, I>>(
-    object: I,
-  ): CommandPartitionedTopicMetadataResponse {
+  fromPartial(object: DeepPartial<CommandPartitionedTopicMetadataResponse>): CommandPartitionedTopicMetadataResponse {
     const message = createBaseCommandPartitionedTopicMetadataResponse();
     message.partitions = object.partitions ?? 0;
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
@@ -5080,13 +5100,15 @@ export const CommandLookupTopic = {
 
   fromJSON(object: any): CommandLookupTopic {
     return {
-      topic: isSet(object.topic) ? String(object.topic) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      authoritative: isSet(object.authoritative) ? Boolean(object.authoritative) : false,
-      originalPrincipal: isSet(object.originalPrincipal) ? String(object.originalPrincipal) : "",
-      originalAuthData: isSet(object.originalAuthData) ? String(object.originalAuthData) : "",
-      originalAuthMethod: isSet(object.originalAuthMethod) ? String(object.originalAuthMethod) : "",
-      advertisedListenerName: isSet(object.advertisedListenerName) ? String(object.advertisedListenerName) : "",
+      authoritative: isSet(object.authoritative) ? globalThis.Boolean(object.authoritative) : false,
+      originalPrincipal: isSet(object.originalPrincipal) ? globalThis.String(object.originalPrincipal) : "",
+      originalAuthData: isSet(object.originalAuthData) ? globalThis.String(object.originalAuthData) : "",
+      originalAuthMethod: isSet(object.originalAuthMethod) ? globalThis.String(object.originalAuthMethod) : "",
+      advertisedListenerName: isSet(object.advertisedListenerName)
+        ? globalThis.String(object.advertisedListenerName)
+        : "",
     };
   },
 
@@ -5116,10 +5138,10 @@ export const CommandLookupTopic = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandLookupTopic>, I>>(base?: I): CommandLookupTopic {
-    return CommandLookupTopic.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandLookupTopic>): CommandLookupTopic {
+    return CommandLookupTopic.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandLookupTopic>, I>>(object: I): CommandLookupTopic {
+  fromPartial(object: DeepPartial<CommandLookupTopic>): CommandLookupTopic {
     const message = createBaseCommandLookupTopic();
     message.topic = object.topic ?? "";
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
@@ -5250,14 +5272,16 @@ export const CommandLookupTopicResponse = {
 
   fromJSON(object: any): CommandLookupTopicResponse {
     return {
-      brokerServiceUrl: isSet(object.brokerServiceUrl) ? String(object.brokerServiceUrl) : "",
-      brokerServiceUrlTls: isSet(object.brokerServiceUrlTls) ? String(object.brokerServiceUrlTls) : "",
+      brokerServiceUrl: isSet(object.brokerServiceUrl) ? globalThis.String(object.brokerServiceUrl) : "",
+      brokerServiceUrlTls: isSet(object.brokerServiceUrlTls) ? globalThis.String(object.brokerServiceUrlTls) : "",
       response: isSet(object.response) ? commandLookupTopicResponse_LookupTypeFromJSON(object.response) : 0,
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      authoritative: isSet(object.authoritative) ? Boolean(object.authoritative) : false,
+      authoritative: isSet(object.authoritative) ? globalThis.Boolean(object.authoritative) : false,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
-      proxyThroughServiceUrl: isSet(object.proxyThroughServiceUrl) ? Boolean(object.proxyThroughServiceUrl) : false,
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
+      proxyThroughServiceUrl: isSet(object.proxyThroughServiceUrl)
+        ? globalThis.Boolean(object.proxyThroughServiceUrl)
+        : false,
     };
   },
 
@@ -5290,10 +5314,10 @@ export const CommandLookupTopicResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandLookupTopicResponse>, I>>(base?: I): CommandLookupTopicResponse {
-    return CommandLookupTopicResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandLookupTopicResponse>): CommandLookupTopicResponse {
+    return CommandLookupTopicResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandLookupTopicResponse>, I>>(object: I): CommandLookupTopicResponse {
+  fromPartial(object: DeepPartial<CommandLookupTopicResponse>): CommandLookupTopicResponse {
     const message = createBaseCommandLookupTopicResponse();
     message.brokerServiceUrl = object.brokerServiceUrl ?? "";
     message.brokerServiceUrlTls = object.brokerServiceUrlTls ?? "";
@@ -5480,21 +5504,23 @@ export const CommandProducer = {
 
   fromJSON(object: any): CommandProducer {
     return {
-      topic: isSet(object.topic) ? String(object.topic) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
       producerId: isSet(object.producerId) ? Long.fromValue(object.producerId) : Long.UZERO,
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      producerName: isSet(object.producerName) ? String(object.producerName) : "",
-      encrypted: isSet(object.encrypted) ? Boolean(object.encrypted) : false,
-      metadata: Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
+      producerName: isSet(object.producerName) ? globalThis.String(object.producerName) : "",
+      encrypted: isSet(object.encrypted) ? globalThis.Boolean(object.encrypted) : false,
+      metadata: globalThis.Array.isArray(object?.metadata) ? object.metadata.map((e: any) => KeyValue.fromJSON(e)) : [],
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
       epoch: isSet(object.epoch) ? Long.fromValue(object.epoch) : Long.UZERO,
       userProvidedProducerName: isSet(object.userProvidedProducerName)
-        ? Boolean(object.userProvidedProducerName)
+        ? globalThis.Boolean(object.userProvidedProducerName)
         : false,
       producerAccessMode: isSet(object.producerAccessMode) ? producerAccessModeFromJSON(object.producerAccessMode) : 0,
       topicEpoch: isSet(object.topicEpoch) ? Long.fromValue(object.topicEpoch) : Long.UZERO,
-      txnEnabled: isSet(object.txnEnabled) ? Boolean(object.txnEnabled) : false,
-      initialSubscriptionName: isSet(object.initialSubscriptionName) ? String(object.initialSubscriptionName) : "",
+      txnEnabled: isSet(object.txnEnabled) ? globalThis.Boolean(object.txnEnabled) : false,
+      initialSubscriptionName: isSet(object.initialSubscriptionName)
+        ? globalThis.String(object.initialSubscriptionName)
+        : "",
     };
   },
 
@@ -5542,10 +5568,10 @@ export const CommandProducer = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandProducer>, I>>(base?: I): CommandProducer {
-    return CommandProducer.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandProducer>): CommandProducer {
+    return CommandProducer.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandProducer>, I>>(object: I): CommandProducer {
+  fromPartial(object: DeepPartial<CommandProducer>): CommandProducer {
     const message = createBaseCommandProducer();
     message.topic = object.topic ?? "";
     message.producerId = (object.producerId !== undefined && object.producerId !== null)
@@ -5690,12 +5716,12 @@ export const CommandSend = {
     return {
       producerId: isSet(object.producerId) ? Long.fromValue(object.producerId) : Long.UZERO,
       sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
-      numMessages: isSet(object.numMessages) ? Number(object.numMessages) : 0,
+      numMessages: isSet(object.numMessages) ? globalThis.Number(object.numMessages) : 0,
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       highestSequenceId: isSet(object.highestSequenceId) ? Long.fromValue(object.highestSequenceId) : Long.UZERO,
-      isChunk: isSet(object.isChunk) ? Boolean(object.isChunk) : false,
-      marker: isSet(object.marker) ? Boolean(object.marker) : false,
+      isChunk: isSet(object.isChunk) ? globalThis.Boolean(object.isChunk) : false,
+      marker: isSet(object.marker) ? globalThis.Boolean(object.marker) : false,
     };
   },
 
@@ -5728,10 +5754,10 @@ export const CommandSend = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandSend>, I>>(base?: I): CommandSend {
-    return CommandSend.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandSend>): CommandSend {
+    return CommandSend.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandSend>, I>>(object: I): CommandSend {
+  fromPartial(object: DeepPartial<CommandSend>): CommandSend {
     const message = createBaseCommandSend();
     message.producerId = (object.producerId !== undefined && object.producerId !== null)
       ? Long.fromValue(object.producerId)
@@ -5846,10 +5872,10 @@ export const CommandSendReceipt = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandSendReceipt>, I>>(base?: I): CommandSendReceipt {
-    return CommandSendReceipt.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandSendReceipt>): CommandSendReceipt {
+    return CommandSendReceipt.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandSendReceipt>, I>>(object: I): CommandSendReceipt {
+  fromPartial(object: DeepPartial<CommandSendReceipt>): CommandSendReceipt {
     const message = createBaseCommandSendReceipt();
     message.producerId = (object.producerId !== undefined && object.producerId !== null)
       ? Long.fromValue(object.producerId)
@@ -5937,7 +5963,7 @@ export const CommandSendError = {
       producerId: isSet(object.producerId) ? Long.fromValue(object.producerId) : Long.UZERO,
       sequenceId: isSet(object.sequenceId) ? Long.fromValue(object.sequenceId) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -5958,10 +5984,10 @@ export const CommandSendError = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandSendError>, I>>(base?: I): CommandSendError {
-    return CommandSendError.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandSendError>): CommandSendError {
+    return CommandSendError.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandSendError>, I>>(object: I): CommandSendError {
+  fromPartial(object: DeepPartial<CommandSendError>): CommandSendError {
     const message = createBaseCommandSendError();
     message.producerId = (object.producerId !== undefined && object.producerId !== null)
       ? Long.fromValue(object.producerId)
@@ -6066,8 +6092,8 @@ export const CommandMessage = {
     return {
       consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
       messageId: isSet(object.messageId) ? MessageIdData.fromJSON(object.messageId) : undefined,
-      redeliveryCount: isSet(object.redeliveryCount) ? Number(object.redeliveryCount) : 0,
-      ackSet: Array.isArray(object?.ackSet) ? object.ackSet.map((e: any) => Long.fromValue(e)) : [],
+      redeliveryCount: isSet(object.redeliveryCount) ? globalThis.Number(object.redeliveryCount) : 0,
+      ackSet: globalThis.Array.isArray(object?.ackSet) ? object.ackSet.map((e: any) => Long.fromValue(e)) : [],
       consumerEpoch: isSet(object.consumerEpoch) ? Long.fromValue(object.consumerEpoch) : Long.UZERO,
     };
   },
@@ -6092,10 +6118,10 @@ export const CommandMessage = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandMessage>, I>>(base?: I): CommandMessage {
-    return CommandMessage.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandMessage>): CommandMessage {
+    return CommandMessage.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandMessage>, I>>(object: I): CommandMessage {
+  fromPartial(object: DeepPartial<CommandMessage>): CommandMessage {
     const message = createBaseCommandMessage();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -6230,9 +6256,13 @@ export const CommandAck = {
     return {
       consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
       ackType: isSet(object.ackType) ? commandAck_AckTypeFromJSON(object.ackType) : 0,
-      messageId: Array.isArray(object?.messageId) ? object.messageId.map((e: any) => MessageIdData.fromJSON(e)) : [],
+      messageId: globalThis.Array.isArray(object?.messageId)
+        ? object.messageId.map((e: any) => MessageIdData.fromJSON(e))
+        : [],
       validationError: isSet(object.validationError) ? commandAck_ValidationErrorFromJSON(object.validationError) : 0,
-      properties: Array.isArray(object?.properties) ? object.properties.map((e: any) => KeyLongValue.fromJSON(e)) : [],
+      properties: globalThis.Array.isArray(object?.properties)
+        ? object.properties.map((e: any) => KeyLongValue.fromJSON(e))
+        : [],
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
@@ -6268,10 +6298,10 @@ export const CommandAck = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandAck>, I>>(base?: I): CommandAck {
-    return CommandAck.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandAck>): CommandAck {
+    return CommandAck.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandAck>, I>>(object: I): CommandAck {
+  fromPartial(object: DeepPartial<CommandAck>): CommandAck {
     const message = createBaseCommandAck();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -6391,7 +6421,7 @@ export const CommandAckResponse = {
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
     };
   },
@@ -6419,10 +6449,10 @@ export const CommandAckResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandAckResponse>, I>>(base?: I): CommandAckResponse {
-    return CommandAckResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandAckResponse>): CommandAckResponse {
+    return CommandAckResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandAckResponse>, I>>(object: I): CommandAckResponse {
+  fromPartial(object: DeepPartial<CommandAckResponse>): CommandAckResponse {
     const message = createBaseCommandAckResponse();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -6490,7 +6520,7 @@ export const CommandActiveConsumerChange = {
   fromJSON(object: any): CommandActiveConsumerChange {
     return {
       consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
-      isActive: isSet(object.isActive) ? Boolean(object.isActive) : false,
+      isActive: isSet(object.isActive) ? globalThis.Boolean(object.isActive) : false,
     };
   },
 
@@ -6505,10 +6535,10 @@ export const CommandActiveConsumerChange = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandActiveConsumerChange>, I>>(base?: I): CommandActiveConsumerChange {
-    return CommandActiveConsumerChange.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandActiveConsumerChange>): CommandActiveConsumerChange {
+    return CommandActiveConsumerChange.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandActiveConsumerChange>, I>>(object: I): CommandActiveConsumerChange {
+  fromPartial(object: DeepPartial<CommandActiveConsumerChange>): CommandActiveConsumerChange {
     const message = createBaseCommandActiveConsumerChange();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -6566,7 +6596,7 @@ export const CommandFlow = {
   fromJSON(object: any): CommandFlow {
     return {
       consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
-      messagePermits: isSet(object.messagePermits) ? Number(object.messagePermits) : 0,
+      messagePermits: isSet(object.messagePermits) ? globalThis.Number(object.messagePermits) : 0,
     };
   },
 
@@ -6581,10 +6611,10 @@ export const CommandFlow = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandFlow>, I>>(base?: I): CommandFlow {
-    return CommandFlow.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandFlow>): CommandFlow {
+    return CommandFlow.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandFlow>, I>>(object: I): CommandFlow {
+  fromPartial(object: DeepPartial<CommandFlow>): CommandFlow {
     const message = createBaseCommandFlow();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -6657,10 +6687,10 @@ export const CommandUnsubscribe = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandUnsubscribe>, I>>(base?: I): CommandUnsubscribe {
-    return CommandUnsubscribe.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandUnsubscribe>): CommandUnsubscribe {
+    return CommandUnsubscribe.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandUnsubscribe>, I>>(object: I): CommandUnsubscribe {
+  fromPartial(object: DeepPartial<CommandUnsubscribe>): CommandUnsubscribe {
     const message = createBaseCommandUnsubscribe();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -6763,10 +6793,10 @@ export const CommandSeek = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandSeek>, I>>(base?: I): CommandSeek {
-    return CommandSeek.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandSeek>): CommandSeek {
+    return CommandSeek.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandSeek>, I>>(object: I): CommandSeek {
+  fromPartial(object: DeepPartial<CommandSeek>): CommandSeek {
     const message = createBaseCommandSeek();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -6831,10 +6861,10 @@ export const CommandReachedEndOfTopic = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandReachedEndOfTopic>, I>>(base?: I): CommandReachedEndOfTopic {
-    return CommandReachedEndOfTopic.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandReachedEndOfTopic>): CommandReachedEndOfTopic {
+    return CommandReachedEndOfTopic.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandReachedEndOfTopic>, I>>(object: I): CommandReachedEndOfTopic {
+  fromPartial(object: DeepPartial<CommandReachedEndOfTopic>): CommandReachedEndOfTopic {
     const message = createBaseCommandReachedEndOfTopic();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -6906,10 +6936,10 @@ export const CommandCloseProducer = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandCloseProducer>, I>>(base?: I): CommandCloseProducer {
-    return CommandCloseProducer.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandCloseProducer>): CommandCloseProducer {
+    return CommandCloseProducer.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandCloseProducer>, I>>(object: I): CommandCloseProducer {
+  fromPartial(object: DeepPartial<CommandCloseProducer>): CommandCloseProducer {
     const message = createBaseCommandCloseProducer();
     message.producerId = (object.producerId !== undefined && object.producerId !== null)
       ? Long.fromValue(object.producerId)
@@ -6984,10 +7014,10 @@ export const CommandCloseConsumer = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandCloseConsumer>, I>>(base?: I): CommandCloseConsumer {
-    return CommandCloseConsumer.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandCloseConsumer>): CommandCloseConsumer {
+    return CommandCloseConsumer.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandCloseConsumer>, I>>(object: I): CommandCloseConsumer {
+  fromPartial(object: DeepPartial<CommandCloseConsumer>): CommandCloseConsumer {
     const message = createBaseCommandCloseConsumer();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -7057,7 +7087,9 @@ export const CommandRedeliverUnacknowledgedMessages = {
   fromJSON(object: any): CommandRedeliverUnacknowledgedMessages {
     return {
       consumerId: isSet(object.consumerId) ? Long.fromValue(object.consumerId) : Long.UZERO,
-      messageIds: Array.isArray(object?.messageIds) ? object.messageIds.map((e: any) => MessageIdData.fromJSON(e)) : [],
+      messageIds: globalThis.Array.isArray(object?.messageIds)
+        ? object.messageIds.map((e: any) => MessageIdData.fromJSON(e))
+        : [],
       consumerEpoch: isSet(object.consumerEpoch) ? Long.fromValue(object.consumerEpoch) : Long.UZERO,
     };
   },
@@ -7076,14 +7108,10 @@ export const CommandRedeliverUnacknowledgedMessages = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandRedeliverUnacknowledgedMessages>, I>>(
-    base?: I,
-  ): CommandRedeliverUnacknowledgedMessages {
-    return CommandRedeliverUnacknowledgedMessages.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandRedeliverUnacknowledgedMessages>): CommandRedeliverUnacknowledgedMessages {
+    return CommandRedeliverUnacknowledgedMessages.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandRedeliverUnacknowledgedMessages>, I>>(
-    object: I,
-  ): CommandRedeliverUnacknowledgedMessages {
+  fromPartial(object: DeepPartial<CommandRedeliverUnacknowledgedMessages>): CommandRedeliverUnacknowledgedMessages {
     const message = createBaseCommandRedeliverUnacknowledgedMessages();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -7159,10 +7187,10 @@ export const CommandSuccess = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandSuccess>, I>>(base?: I): CommandSuccess {
-    return CommandSuccess.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandSuccess>): CommandSuccess {
+    return CommandSuccess.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandSuccess>, I>>(object: I): CommandSuccess {
+  fromPartial(object: DeepPartial<CommandSuccess>): CommandSuccess {
     const message = createBaseCommandSuccess();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -7269,11 +7297,11 @@ export const CommandProducerSuccess = {
   fromJSON(object: any): CommandProducerSuccess {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      producerName: isSet(object.producerName) ? String(object.producerName) : "",
+      producerName: isSet(object.producerName) ? globalThis.String(object.producerName) : "",
       lastSequenceId: isSet(object.lastSequenceId) ? Long.fromValue(object.lastSequenceId) : Long.ZERO,
       schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
       topicEpoch: isSet(object.topicEpoch) ? Long.fromValue(object.topicEpoch) : Long.UZERO,
-      producerReady: isSet(object.producerReady) ? Boolean(object.producerReady) : false,
+      producerReady: isSet(object.producerReady) ? globalThis.Boolean(object.producerReady) : false,
     };
   },
 
@@ -7300,10 +7328,10 @@ export const CommandProducerSuccess = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandProducerSuccess>, I>>(base?: I): CommandProducerSuccess {
-    return CommandProducerSuccess.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandProducerSuccess>): CommandProducerSuccess {
+    return CommandProducerSuccess.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandProducerSuccess>, I>>(object: I): CommandProducerSuccess {
+  fromPartial(object: DeepPartial<CommandProducerSuccess>): CommandProducerSuccess {
     const message = createBaseCommandProducerSuccess();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -7380,7 +7408,7 @@ export const CommandError = {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -7398,10 +7426,10 @@ export const CommandError = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandError>, I>>(base?: I): CommandError {
-    return CommandError.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandError>): CommandError {
+    return CommandError.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandError>, I>>(object: I): CommandError {
+  fromPartial(object: DeepPartial<CommandError>): CommandError {
     const message = createBaseCommandError();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -7446,10 +7474,10 @@ export const CommandPing = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandPing>, I>>(base?: I): CommandPing {
-    return CommandPing.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandPing>): CommandPing {
+    return CommandPing.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandPing>, I>>(_: I): CommandPing {
+  fromPartial(_: DeepPartial<CommandPing>): CommandPing {
     const message = createBaseCommandPing();
     return message;
   },
@@ -7489,10 +7517,10 @@ export const CommandPong = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandPong>, I>>(base?: I): CommandPong {
-    return CommandPong.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandPong>): CommandPong {
+    return CommandPong.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandPong>, I>>(_: I): CommandPong {
+  fromPartial(_: DeepPartial<CommandPong>): CommandPong {
     const message = createBaseCommandPong();
     return message;
   },
@@ -7561,10 +7589,10 @@ export const CommandConsumerStats = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandConsumerStats>, I>>(base?: I): CommandConsumerStats {
-    return CommandConsumerStats.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandConsumerStats>): CommandConsumerStats {
+    return CommandConsumerStats.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandConsumerStats>, I>>(object: I): CommandConsumerStats {
+  fromPartial(object: DeepPartial<CommandConsumerStats>): CommandConsumerStats {
     const message = createBaseCommandConsumerStats();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -7782,22 +7810,22 @@ export const CommandConsumerStatsResponse = {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       errorCode: isSet(object.errorCode) ? serverErrorFromJSON(object.errorCode) : 0,
-      errorMessage: isSet(object.errorMessage) ? String(object.errorMessage) : "",
-      msgRateOut: isSet(object.msgRateOut) ? Number(object.msgRateOut) : 0,
-      msgThroughputOut: isSet(object.msgThroughputOut) ? Number(object.msgThroughputOut) : 0,
-      msgRateRedeliver: isSet(object.msgRateRedeliver) ? Number(object.msgRateRedeliver) : 0,
-      consumerName: isSet(object.consumerName) ? String(object.consumerName) : "",
+      errorMessage: isSet(object.errorMessage) ? globalThis.String(object.errorMessage) : "",
+      msgRateOut: isSet(object.msgRateOut) ? globalThis.Number(object.msgRateOut) : 0,
+      msgThroughputOut: isSet(object.msgThroughputOut) ? globalThis.Number(object.msgThroughputOut) : 0,
+      msgRateRedeliver: isSet(object.msgRateRedeliver) ? globalThis.Number(object.msgRateRedeliver) : 0,
+      consumerName: isSet(object.consumerName) ? globalThis.String(object.consumerName) : "",
       availablePermits: isSet(object.availablePermits) ? Long.fromValue(object.availablePermits) : Long.UZERO,
       unackedMessages: isSet(object.unackedMessages) ? Long.fromValue(object.unackedMessages) : Long.UZERO,
       blockedConsumerOnUnackedMsgs: isSet(object.blockedConsumerOnUnackedMsgs)
-        ? Boolean(object.blockedConsumerOnUnackedMsgs)
+        ? globalThis.Boolean(object.blockedConsumerOnUnackedMsgs)
         : false,
-      address: isSet(object.address) ? String(object.address) : "",
-      connectedSince: isSet(object.connectedSince) ? String(object.connectedSince) : "",
-      type: isSet(object.type) ? String(object.type) : "",
-      msgRateExpired: isSet(object.msgRateExpired) ? Number(object.msgRateExpired) : 0,
+      address: isSet(object.address) ? globalThis.String(object.address) : "",
+      connectedSince: isSet(object.connectedSince) ? globalThis.String(object.connectedSince) : "",
+      type: isSet(object.type) ? globalThis.String(object.type) : "",
+      msgRateExpired: isSet(object.msgRateExpired) ? globalThis.Number(object.msgRateExpired) : 0,
       msgBacklog: isSet(object.msgBacklog) ? Long.fromValue(object.msgBacklog) : Long.UZERO,
-      messageAckRate: isSet(object.messageAckRate) ? Number(object.messageAckRate) : 0,
+      messageAckRate: isSet(object.messageAckRate) ? globalThis.Number(object.messageAckRate) : 0,
     };
   },
 
@@ -7854,10 +7882,10 @@ export const CommandConsumerStatsResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandConsumerStatsResponse>, I>>(base?: I): CommandConsumerStatsResponse {
-    return CommandConsumerStatsResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandConsumerStatsResponse>): CommandConsumerStatsResponse {
+    return CommandConsumerStatsResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandConsumerStatsResponse>, I>>(object: I): CommandConsumerStatsResponse {
+  fromPartial(object: DeepPartial<CommandConsumerStatsResponse>): CommandConsumerStatsResponse {
     const message = createBaseCommandConsumerStatsResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -7950,10 +7978,10 @@ export const CommandGetLastMessageId = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandGetLastMessageId>, I>>(base?: I): CommandGetLastMessageId {
-    return CommandGetLastMessageId.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandGetLastMessageId>): CommandGetLastMessageId {
+    return CommandGetLastMessageId.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandGetLastMessageId>, I>>(object: I): CommandGetLastMessageId {
+  fromPartial(object: DeepPartial<CommandGetLastMessageId>): CommandGetLastMessageId {
     const message = createBaseCommandGetLastMessageId();
     message.consumerId = (object.consumerId !== undefined && object.consumerId !== null)
       ? Long.fromValue(object.consumerId)
@@ -8044,12 +8072,10 @@ export const CommandGetLastMessageIdResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandGetLastMessageIdResponse>, I>>(base?: I): CommandGetLastMessageIdResponse {
-    return CommandGetLastMessageIdResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandGetLastMessageIdResponse>): CommandGetLastMessageIdResponse {
+    return CommandGetLastMessageIdResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandGetLastMessageIdResponse>, I>>(
-    object: I,
-  ): CommandGetLastMessageIdResponse {
+  fromPartial(object: DeepPartial<CommandGetLastMessageIdResponse>): CommandGetLastMessageIdResponse {
     const message = createBaseCommandGetLastMessageIdResponse();
     message.lastMessageId = (object.lastMessageId !== undefined && object.lastMessageId !== null)
       ? MessageIdData.fromPartial(object.lastMessageId)
@@ -8143,10 +8169,10 @@ export const CommandGetTopicsOfNamespace = {
   fromJSON(object: any): CommandGetTopicsOfNamespace {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      namespace: isSet(object.namespace) ? String(object.namespace) : "",
+      namespace: isSet(object.namespace) ? globalThis.String(object.namespace) : "",
       mode: isSet(object.mode) ? commandGetTopicsOfNamespace_ModeFromJSON(object.mode) : 0,
-      topicsPattern: isSet(object.topicsPattern) ? String(object.topicsPattern) : "",
-      topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
+      topicsPattern: isSet(object.topicsPattern) ? globalThis.String(object.topicsPattern) : "",
+      topicsHash: isSet(object.topicsHash) ? globalThis.String(object.topicsHash) : "",
     };
   },
 
@@ -8170,10 +8196,10 @@ export const CommandGetTopicsOfNamespace = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandGetTopicsOfNamespace>, I>>(base?: I): CommandGetTopicsOfNamespace {
-    return CommandGetTopicsOfNamespace.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandGetTopicsOfNamespace>): CommandGetTopicsOfNamespace {
+    return CommandGetTopicsOfNamespace.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandGetTopicsOfNamespace>, I>>(object: I): CommandGetTopicsOfNamespace {
+  fromPartial(object: DeepPartial<CommandGetTopicsOfNamespace>): CommandGetTopicsOfNamespace {
     const message = createBaseCommandGetTopicsOfNamespace();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -8264,10 +8290,10 @@ export const CommandGetTopicsOfNamespaceResponse = {
   fromJSON(object: any): CommandGetTopicsOfNamespaceResponse {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      topics: Array.isArray(object?.topics) ? object.topics.map((e: any) => String(e)) : [],
-      filtered: isSet(object.filtered) ? Boolean(object.filtered) : false,
-      topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
-      changed: isSet(object.changed) ? Boolean(object.changed) : false,
+      topics: globalThis.Array.isArray(object?.topics) ? object.topics.map((e: any) => globalThis.String(e)) : [],
+      filtered: isSet(object.filtered) ? globalThis.Boolean(object.filtered) : false,
+      topicsHash: isSet(object.topicsHash) ? globalThis.String(object.topicsHash) : "",
+      changed: isSet(object.changed) ? globalThis.Boolean(object.changed) : false,
     };
   },
 
@@ -8291,14 +8317,10 @@ export const CommandGetTopicsOfNamespaceResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandGetTopicsOfNamespaceResponse>, I>>(
-    base?: I,
-  ): CommandGetTopicsOfNamespaceResponse {
-    return CommandGetTopicsOfNamespaceResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandGetTopicsOfNamespaceResponse>): CommandGetTopicsOfNamespaceResponse {
+    return CommandGetTopicsOfNamespaceResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandGetTopicsOfNamespaceResponse>, I>>(
-    object: I,
-  ): CommandGetTopicsOfNamespaceResponse {
+  fromPartial(object: DeepPartial<CommandGetTopicsOfNamespaceResponse>): CommandGetTopicsOfNamespaceResponse {
     const message = createBaseCommandGetTopicsOfNamespaceResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -8390,9 +8412,9 @@ export const CommandWatchTopicList = {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       watcherId: isSet(object.watcherId) ? Long.fromValue(object.watcherId) : Long.UZERO,
-      namespace: isSet(object.namespace) ? String(object.namespace) : "",
-      topicsPattern: isSet(object.topicsPattern) ? String(object.topicsPattern) : "",
-      topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
+      namespace: isSet(object.namespace) ? globalThis.String(object.namespace) : "",
+      topicsPattern: isSet(object.topicsPattern) ? globalThis.String(object.topicsPattern) : "",
+      topicsHash: isSet(object.topicsHash) ? globalThis.String(object.topicsHash) : "",
     };
   },
 
@@ -8416,10 +8438,10 @@ export const CommandWatchTopicList = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandWatchTopicList>, I>>(base?: I): CommandWatchTopicList {
-    return CommandWatchTopicList.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandWatchTopicList>): CommandWatchTopicList {
+    return CommandWatchTopicList.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicList>, I>>(object: I): CommandWatchTopicList {
+  fromPartial(object: DeepPartial<CommandWatchTopicList>): CommandWatchTopicList {
     const message = createBaseCommandWatchTopicList();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -8503,8 +8525,8 @@ export const CommandWatchTopicListSuccess = {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       watcherId: isSet(object.watcherId) ? Long.fromValue(object.watcherId) : Long.UZERO,
-      topic: Array.isArray(object?.topic) ? object.topic.map((e: any) => String(e)) : [],
-      topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
+      topic: globalThis.Array.isArray(object?.topic) ? object.topic.map((e: any) => globalThis.String(e)) : [],
+      topicsHash: isSet(object.topicsHash) ? globalThis.String(object.topicsHash) : "",
     };
   },
 
@@ -8525,10 +8547,10 @@ export const CommandWatchTopicListSuccess = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandWatchTopicListSuccess>, I>>(base?: I): CommandWatchTopicListSuccess {
-    return CommandWatchTopicListSuccess.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandWatchTopicListSuccess>): CommandWatchTopicListSuccess {
+    return CommandWatchTopicListSuccess.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicListSuccess>, I>>(object: I): CommandWatchTopicListSuccess {
+  fromPartial(object: DeepPartial<CommandWatchTopicListSuccess>): CommandWatchTopicListSuccess {
     const message = createBaseCommandWatchTopicListSuccess();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -8610,9 +8632,13 @@ export const CommandWatchTopicUpdate = {
   fromJSON(object: any): CommandWatchTopicUpdate {
     return {
       watcherId: isSet(object.watcherId) ? Long.fromValue(object.watcherId) : Long.UZERO,
-      newTopics: Array.isArray(object?.newTopics) ? object.newTopics.map((e: any) => String(e)) : [],
-      deletedTopics: Array.isArray(object?.deletedTopics) ? object.deletedTopics.map((e: any) => String(e)) : [],
-      topicsHash: isSet(object.topicsHash) ? String(object.topicsHash) : "",
+      newTopics: globalThis.Array.isArray(object?.newTopics)
+        ? object.newTopics.map((e: any) => globalThis.String(e))
+        : [],
+      deletedTopics: globalThis.Array.isArray(object?.deletedTopics)
+        ? object.deletedTopics.map((e: any) => globalThis.String(e))
+        : [],
+      topicsHash: isSet(object.topicsHash) ? globalThis.String(object.topicsHash) : "",
     };
   },
 
@@ -8633,10 +8659,10 @@ export const CommandWatchTopicUpdate = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandWatchTopicUpdate>, I>>(base?: I): CommandWatchTopicUpdate {
-    return CommandWatchTopicUpdate.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandWatchTopicUpdate>): CommandWatchTopicUpdate {
+    return CommandWatchTopicUpdate.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicUpdate>, I>>(object: I): CommandWatchTopicUpdate {
+  fromPartial(object: DeepPartial<CommandWatchTopicUpdate>): CommandWatchTopicUpdate {
     const message = createBaseCommandWatchTopicUpdate();
     message.watcherId = (object.watcherId !== undefined && object.watcherId !== null)
       ? Long.fromValue(object.watcherId)
@@ -8711,10 +8737,10 @@ export const CommandWatchTopicListClose = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandWatchTopicListClose>, I>>(base?: I): CommandWatchTopicListClose {
-    return CommandWatchTopicListClose.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandWatchTopicListClose>): CommandWatchTopicListClose {
+    return CommandWatchTopicListClose.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandWatchTopicListClose>, I>>(object: I): CommandWatchTopicListClose {
+  fromPartial(object: DeepPartial<CommandWatchTopicListClose>): CommandWatchTopicListClose {
     const message = createBaseCommandWatchTopicListClose();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -8784,7 +8810,7 @@ export const CommandGetSchema = {
   fromJSON(object: any): CommandGetSchema {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      topic: isSet(object.topic) ? String(object.topic) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
       schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
     };
   },
@@ -8803,10 +8829,10 @@ export const CommandGetSchema = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandGetSchema>, I>>(base?: I): CommandGetSchema {
-    return CommandGetSchema.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandGetSchema>): CommandGetSchema {
+    return CommandGetSchema.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandGetSchema>, I>>(object: I): CommandGetSchema {
+  fromPartial(object: DeepPartial<CommandGetSchema>): CommandGetSchema {
     const message = createBaseCommandGetSchema();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -8896,7 +8922,7 @@ export const CommandGetSchemaResponse = {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       errorCode: isSet(object.errorCode) ? serverErrorFromJSON(object.errorCode) : 0,
-      errorMessage: isSet(object.errorMessage) ? String(object.errorMessage) : "",
+      errorMessage: isSet(object.errorMessage) ? globalThis.String(object.errorMessage) : "",
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
       schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
     };
@@ -8922,10 +8948,10 @@ export const CommandGetSchemaResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandGetSchemaResponse>, I>>(base?: I): CommandGetSchemaResponse {
-    return CommandGetSchemaResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandGetSchemaResponse>): CommandGetSchemaResponse {
+    return CommandGetSchemaResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandGetSchemaResponse>, I>>(object: I): CommandGetSchemaResponse {
+  fromPartial(object: DeepPartial<CommandGetSchemaResponse>): CommandGetSchemaResponse {
     const message = createBaseCommandGetSchemaResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -8998,7 +9024,7 @@ export const CommandGetOrCreateSchema = {
   fromJSON(object: any): CommandGetOrCreateSchema {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
-      topic: isSet(object.topic) ? String(object.topic) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
       schema: isSet(object.schema) ? Schema.fromJSON(object.schema) : undefined,
     };
   },
@@ -9017,10 +9043,10 @@ export const CommandGetOrCreateSchema = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandGetOrCreateSchema>, I>>(base?: I): CommandGetOrCreateSchema {
-    return CommandGetOrCreateSchema.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandGetOrCreateSchema>): CommandGetOrCreateSchema {
+    return CommandGetOrCreateSchema.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandGetOrCreateSchema>, I>>(object: I): CommandGetOrCreateSchema {
+  fromPartial(object: DeepPartial<CommandGetOrCreateSchema>): CommandGetOrCreateSchema {
     const message = createBaseCommandGetOrCreateSchema();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -9102,7 +9128,7 @@ export const CommandGetOrCreateSchemaResponse = {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       errorCode: isSet(object.errorCode) ? serverErrorFromJSON(object.errorCode) : 0,
-      errorMessage: isSet(object.errorMessage) ? String(object.errorMessage) : "",
+      errorMessage: isSet(object.errorMessage) ? globalThis.String(object.errorMessage) : "",
       schemaVersion: isSet(object.schemaVersion) ? bytesFromBase64(object.schemaVersion) : new Uint8Array(0),
     };
   },
@@ -9124,14 +9150,10 @@ export const CommandGetOrCreateSchemaResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandGetOrCreateSchemaResponse>, I>>(
-    base?: I,
-  ): CommandGetOrCreateSchemaResponse {
-    return CommandGetOrCreateSchemaResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandGetOrCreateSchemaResponse>): CommandGetOrCreateSchemaResponse {
+    return CommandGetOrCreateSchemaResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandGetOrCreateSchemaResponse>, I>>(
-    object: I,
-  ): CommandGetOrCreateSchemaResponse {
+  fromPartial(object: DeepPartial<CommandGetOrCreateSchemaResponse>): CommandGetOrCreateSchemaResponse {
     const message = createBaseCommandGetOrCreateSchemaResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -9206,12 +9228,10 @@ export const CommandTcClientConnectRequest = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandTcClientConnectRequest>, I>>(base?: I): CommandTcClientConnectRequest {
-    return CommandTcClientConnectRequest.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandTcClientConnectRequest>): CommandTcClientConnectRequest {
+    return CommandTcClientConnectRequest.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandTcClientConnectRequest>, I>>(
-    object: I,
-  ): CommandTcClientConnectRequest {
+  fromPartial(object: DeepPartial<CommandTcClientConnectRequest>): CommandTcClientConnectRequest {
     const message = createBaseCommandTcClientConnectRequest();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -9280,7 +9300,7 @@ export const CommandTcClientConnectResponse = {
     return {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -9298,12 +9318,10 @@ export const CommandTcClientConnectResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandTcClientConnectResponse>, I>>(base?: I): CommandTcClientConnectResponse {
-    return CommandTcClientConnectResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandTcClientConnectResponse>): CommandTcClientConnectResponse {
+    return CommandTcClientConnectResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandTcClientConnectResponse>, I>>(
-    object: I,
-  ): CommandTcClientConnectResponse {
+  fromPartial(object: DeepPartial<CommandTcClientConnectResponse>): CommandTcClientConnectResponse {
     const message = createBaseCommandTcClientConnectResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -9391,10 +9409,10 @@ export const CommandNewTxn = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandNewTxn>, I>>(base?: I): CommandNewTxn {
-    return CommandNewTxn.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandNewTxn>): CommandNewTxn {
+    return CommandNewTxn.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandNewTxn>, I>>(object: I): CommandNewTxn {
+  fromPartial(object: DeepPartial<CommandNewTxn>): CommandNewTxn {
     const message = createBaseCommandNewTxn();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -9488,7 +9506,7 @@ export const CommandNewTxnResponse = {
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -9512,10 +9530,10 @@ export const CommandNewTxnResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandNewTxnResponse>, I>>(base?: I): CommandNewTxnResponse {
-    return CommandNewTxnResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandNewTxnResponse>): CommandNewTxnResponse {
+    return CommandNewTxnResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandNewTxnResponse>, I>>(object: I): CommandNewTxnResponse {
+  fromPartial(object: DeepPartial<CommandNewTxnResponse>): CommandNewTxnResponse {
     const message = createBaseCommandNewTxnResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -9602,7 +9620,9 @@ export const CommandAddPartitionToTxn = {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
-      partitions: Array.isArray(object?.partitions) ? object.partitions.map((e: any) => String(e)) : [],
+      partitions: globalThis.Array.isArray(object?.partitions)
+        ? object.partitions.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -9623,10 +9643,10 @@ export const CommandAddPartitionToTxn = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandAddPartitionToTxn>, I>>(base?: I): CommandAddPartitionToTxn {
-    return CommandAddPartitionToTxn.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandAddPartitionToTxn>): CommandAddPartitionToTxn {
+    return CommandAddPartitionToTxn.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandAddPartitionToTxn>, I>>(object: I): CommandAddPartitionToTxn {
+  fromPartial(object: DeepPartial<CommandAddPartitionToTxn>): CommandAddPartitionToTxn {
     const message = createBaseCommandAddPartitionToTxn();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -9723,7 +9743,7 @@ export const CommandAddPartitionToTxnResponse = {
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -9747,14 +9767,10 @@ export const CommandAddPartitionToTxnResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandAddPartitionToTxnResponse>, I>>(
-    base?: I,
-  ): CommandAddPartitionToTxnResponse {
-    return CommandAddPartitionToTxnResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandAddPartitionToTxnResponse>): CommandAddPartitionToTxnResponse {
+    return CommandAddPartitionToTxnResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandAddPartitionToTxnResponse>, I>>(
-    object: I,
-  ): CommandAddPartitionToTxnResponse {
+  fromPartial(object: DeepPartial<CommandAddPartitionToTxnResponse>): CommandAddPartitionToTxnResponse {
     const message = createBaseCommandAddPartitionToTxnResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -9818,8 +9834,8 @@ export const Subscription = {
 
   fromJSON(object: any): Subscription {
     return {
-      topic: isSet(object.topic) ? String(object.topic) : "",
-      subscription: isSet(object.subscription) ? String(object.subscription) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
+      subscription: isSet(object.subscription) ? globalThis.String(object.subscription) : "",
     };
   },
 
@@ -9834,10 +9850,10 @@ export const Subscription = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Subscription>, I>>(base?: I): Subscription {
-    return Subscription.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<Subscription>): Subscription {
+    return Subscription.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<Subscription>, I>>(object: I): Subscription {
+  fromPartial(object: DeepPartial<Subscription>): Subscription {
     const message = createBaseSubscription();
     message.topic = object.topic ?? "";
     message.subscription = object.subscription ?? "";
@@ -9915,7 +9931,7 @@ export const CommandAddSubscriptionToTxn = {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
-      subscription: Array.isArray(object?.subscription)
+      subscription: globalThis.Array.isArray(object?.subscription)
         ? object.subscription.map((e: any) => Subscription.fromJSON(e))
         : [],
     };
@@ -9938,10 +9954,10 @@ export const CommandAddSubscriptionToTxn = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandAddSubscriptionToTxn>, I>>(base?: I): CommandAddSubscriptionToTxn {
-    return CommandAddSubscriptionToTxn.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandAddSubscriptionToTxn>): CommandAddSubscriptionToTxn {
+    return CommandAddSubscriptionToTxn.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandAddSubscriptionToTxn>, I>>(object: I): CommandAddSubscriptionToTxn {
+  fromPartial(object: DeepPartial<CommandAddSubscriptionToTxn>): CommandAddSubscriptionToTxn {
     const message = createBaseCommandAddSubscriptionToTxn();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -10038,7 +10054,7 @@ export const CommandAddSubscriptionToTxnResponse = {
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -10062,14 +10078,10 @@ export const CommandAddSubscriptionToTxnResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandAddSubscriptionToTxnResponse>, I>>(
-    base?: I,
-  ): CommandAddSubscriptionToTxnResponse {
-    return CommandAddSubscriptionToTxnResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandAddSubscriptionToTxnResponse>): CommandAddSubscriptionToTxnResponse {
+    return CommandAddSubscriptionToTxnResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandAddSubscriptionToTxnResponse>, I>>(
-    object: I,
-  ): CommandAddSubscriptionToTxnResponse {
+  fromPartial(object: DeepPartial<CommandAddSubscriptionToTxnResponse>): CommandAddSubscriptionToTxnResponse {
     const message = createBaseCommandAddSubscriptionToTxnResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -10177,10 +10189,10 @@ export const CommandEndTxn = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandEndTxn>, I>>(base?: I): CommandEndTxn {
-    return CommandEndTxn.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandEndTxn>): CommandEndTxn {
+    return CommandEndTxn.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxn>, I>>(object: I): CommandEndTxn {
+  fromPartial(object: DeepPartial<CommandEndTxn>): CommandEndTxn {
     const message = createBaseCommandEndTxn();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -10277,7 +10289,7 @@ export const CommandEndTxnResponse = {
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -10301,10 +10313,10 @@ export const CommandEndTxnResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandEndTxnResponse>, I>>(base?: I): CommandEndTxnResponse {
-    return CommandEndTxnResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandEndTxnResponse>): CommandEndTxnResponse {
+    return CommandEndTxnResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxnResponse>, I>>(object: I): CommandEndTxnResponse {
+  fromPartial(object: DeepPartial<CommandEndTxnResponse>): CommandEndTxnResponse {
     const message = createBaseCommandEndTxnResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -10418,7 +10430,7 @@ export const CommandEndTxnOnPartition = {
       requestId: isSet(object.requestId) ? Long.fromValue(object.requestId) : Long.UZERO,
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
-      topic: isSet(object.topic) ? String(object.topic) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
       txnAction: isSet(object.txnAction) ? txnActionFromJSON(object.txnAction) : 0,
       txnidLeastBitsOfLowWatermark: isSet(object.txnidLeastBitsOfLowWatermark)
         ? Long.fromValue(object.txnidLeastBitsOfLowWatermark)
@@ -10449,10 +10461,10 @@ export const CommandEndTxnOnPartition = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandEndTxnOnPartition>, I>>(base?: I): CommandEndTxnOnPartition {
-    return CommandEndTxnOnPartition.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandEndTxnOnPartition>): CommandEndTxnOnPartition {
+    return CommandEndTxnOnPartition.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnPartition>, I>>(object: I): CommandEndTxnOnPartition {
+  fromPartial(object: DeepPartial<CommandEndTxnOnPartition>): CommandEndTxnOnPartition {
     const message = createBaseCommandEndTxnOnPartition();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -10554,7 +10566,7 @@ export const CommandEndTxnOnPartitionResponse = {
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -10578,14 +10590,10 @@ export const CommandEndTxnOnPartitionResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandEndTxnOnPartitionResponse>, I>>(
-    base?: I,
-  ): CommandEndTxnOnPartitionResponse {
-    return CommandEndTxnOnPartitionResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandEndTxnOnPartitionResponse>): CommandEndTxnOnPartitionResponse {
+    return CommandEndTxnOnPartitionResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnPartitionResponse>, I>>(
-    object: I,
-  ): CommandEndTxnOnPartitionResponse {
+  fromPartial(object: DeepPartial<CommandEndTxnOnPartitionResponse>): CommandEndTxnOnPartitionResponse {
     const message = createBaseCommandEndTxnOnPartitionResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -10730,10 +10738,10 @@ export const CommandEndTxnOnSubscription = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandEndTxnOnSubscription>, I>>(base?: I): CommandEndTxnOnSubscription {
-    return CommandEndTxnOnSubscription.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandEndTxnOnSubscription>): CommandEndTxnOnSubscription {
+    return CommandEndTxnOnSubscription.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnSubscription>, I>>(object: I): CommandEndTxnOnSubscription {
+  fromPartial(object: DeepPartial<CommandEndTxnOnSubscription>): CommandEndTxnOnSubscription {
     const message = createBaseCommandEndTxnOnSubscription();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -10837,7 +10845,7 @@ export const CommandEndTxnOnSubscriptionResponse = {
       txnidLeastBits: isSet(object.txnidLeastBits) ? Long.fromValue(object.txnidLeastBits) : Long.UZERO,
       txnidMostBits: isSet(object.txnidMostBits) ? Long.fromValue(object.txnidMostBits) : Long.UZERO,
       error: isSet(object.error) ? serverErrorFromJSON(object.error) : 0,
-      message: isSet(object.message) ? String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
     };
   },
 
@@ -10861,14 +10869,10 @@ export const CommandEndTxnOnSubscriptionResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CommandEndTxnOnSubscriptionResponse>, I>>(
-    base?: I,
-  ): CommandEndTxnOnSubscriptionResponse {
-    return CommandEndTxnOnSubscriptionResponse.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<CommandEndTxnOnSubscriptionResponse>): CommandEndTxnOnSubscriptionResponse {
+    return CommandEndTxnOnSubscriptionResponse.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<CommandEndTxnOnSubscriptionResponse>, I>>(
-    object: I,
-  ): CommandEndTxnOnSubscriptionResponse {
+  fromPartial(object: DeepPartial<CommandEndTxnOnSubscriptionResponse>): CommandEndTxnOnSubscriptionResponse {
     const message = createBaseCommandEndTxnOnSubscriptionResponse();
     message.requestId = (object.requestId !== undefined && object.requestId !== null)
       ? Long.fromValue(object.requestId)
@@ -11863,10 +11867,10 @@ export const BaseCommand = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<BaseCommand>, I>>(base?: I): BaseCommand {
-    return BaseCommand.fromPartial(base ?? ({} as any));
+  create(base?: DeepPartial<BaseCommand>): BaseCommand {
+    return BaseCommand.fromPartial(base ?? {});
   },
-  fromPartial<I extends Exact<DeepPartial<BaseCommand>, I>>(object: I): BaseCommand {
+  fromPartial(object: DeepPartial<BaseCommand>): BaseCommand {
     const message = createBaseBaseCommand();
     message.type = object.type ?? 2;
     message.connect = (object.connect !== undefined && object.connect !== null)
@@ -12055,30 +12059,11 @@ export const BaseCommand = {
   },
 };
 
-declare const self: any | undefined;
-declare const window: any | undefined;
-declare const global: any | undefined;
-const tsProtoGlobalThis: any = (() => {
-  if (typeof globalThis !== "undefined") {
-    return globalThis;
-  }
-  if (typeof self !== "undefined") {
-    return self;
-  }
-  if (typeof window !== "undefined") {
-    return window;
-  }
-  if (typeof global !== "undefined") {
-    return global;
-  }
-  throw "Unable to locate global object";
-})();
-
 function bytesFromBase64(b64: string): Uint8Array {
-  if (tsProtoGlobalThis.Buffer) {
-    return Uint8Array.from(tsProtoGlobalThis.Buffer.from(b64, "base64"));
+  if (globalThis.Buffer) {
+    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
   } else {
-    const bin = tsProtoGlobalThis.atob(b64);
+    const bin = globalThis.atob(b64);
     const arr = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; ++i) {
       arr[i] = bin.charCodeAt(i);
@@ -12088,28 +12073,24 @@ function bytesFromBase64(b64: string): Uint8Array {
 }
 
 function base64FromBytes(arr: Uint8Array): string {
-  if (tsProtoGlobalThis.Buffer) {
-    return tsProtoGlobalThis.Buffer.from(arr).toString("base64");
+  if (globalThis.Buffer) {
+    return globalThis.Buffer.from(arr).toString("base64");
   } else {
     const bin: string[] = [];
     arr.forEach((byte) => {
-      bin.push(String.fromCharCode(byte));
+      bin.push(globalThis.String.fromCharCode(byte));
     });
-    return tsProtoGlobalThis.btoa(bin.join(""));
+    return globalThis.btoa(bin.join(""));
   }
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends Array<infer U> ? Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

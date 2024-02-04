@@ -1,23 +1,33 @@
 {
-  "compilerOptions": {
-      "module": "ES2022",
-      "esModuleInterop": true,
-      "allowSyntheticDefaultImports": true,
-      "target": "ES2022",
-      "noImplicitAny": true,
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "outDir": "dist",
-      "baseUrl": ".",
-      "paths": {
-          "*": [
-              "node_modules/*",
-              "src/types/*"
-          ]
-      },
-      "lib": ["esnext", "dom", "es6", "scripthost"],
-  },
-  "include": [
-      "src/**/*"
-, "index.ts"  ]
+    "compilerOptions": {
+        "module": "ES2022",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "ES2022",
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "outDir": "dist",
+        "declaration": true,
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "node_modules/*",
+            ]
+        },
+        "lib": [
+            "esnext",
+            "dom",
+            "es6",
+            "scripthost"
+        ],
+    },
+    "include": [
+        "src/**/*",
+        "index.ts"
+    ],
+    "exclude": [
+        "tests/*.test.ts"
+    ]
 }
