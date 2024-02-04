@@ -12,7 +12,7 @@
 
 ## why <a name="why"></a> [🔝](#-table-of-contents)
 
-[Apach Pulsar](https://pulsar.apache.org/) does have [node client](https://github.com/apache/pulsar-client-node).  However it is a wrapper around CPP client and that has some complications and limitations.  This project is to provide a more pure typescript solution that can be used more natively along with type safety for the client.
+[Apache Pulsar](https://pulsar.apache.org/) does have [node client](https://github.com/apache/pulsar-client-node).  However it is a wrapper around CPP client and that has some complications and limitations.  This project is to provide a more native typescript solution that can be used more natively along with type safety for the client.
 
 ## install <a name="install"></a> [🔝](#-table-of-contents)
 
@@ -39,10 +39,10 @@ const brokerUrl = 'pulsar+ssl://pulsar.end.point:6651'
 const audience = 'urn:sn:pulsar:organization:instance'
 const snKeyFile = '/Users/someone/Downloads/service-account-oauth2-key-file.json'
 
-// to connect to pulsar without any auth configured
+// #1 to connect to pulsar without any auth configured
 const clientWithNoAuth = new Client({ url: brokerUrl })
 
-// to connect to pulsar with oauth2 parameters directly
+// #2 to connect to pulsar with oauth2 parameters directly
 const clientFromOauth = new Client({
   url: brokerUrl,
   auth: new OAuth({
@@ -57,7 +57,7 @@ const clientFromOauth = new Client({
   })
 })
 
-// If pulsar cluster is hosted by [StreamNative.io](https://streamnative.io/), 
+// #3 If pulsar cluster is hosted by [StreamNative.io](https://streamnative.io/), 
 // then there is a helper function that will be more easily used for initializing the client.
 // {
 //  "type": "sn_service_account",
@@ -105,7 +105,7 @@ await persistentProducer.send('Mr. Watson – Come here – I want to see you')
 |  | payload encryption | ❌ |  |
 | consumers |  | ❌ |  |
 
-## tests <a name="test"></a> [🔝](#-table-of-contents)
+## tests <a name="tests"></a> [🔝](#-table-of-contents)
 
 ### unit tests
 Unit tests that does not depends on an external Pulsar cluster.
@@ -130,4 +130,3 @@ npm run test:e2e
 
 ## License <a name="license"></a> [🔝](#-table-of-contents)
 Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
-
